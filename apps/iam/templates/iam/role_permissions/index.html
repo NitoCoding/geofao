@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Role Permission | {{ block.super }}{% endblock %}
+{% block page_title %}Manajemen Role Permission{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+  <div>
+    <h2 class="text-3xl font-bold">Role Permission</h2>
+    <p class="text-base-content/70">Atur permission yang dimiliki setiap role</p>
+  </div>
+  <div class="flex gap-2">
+    <button class="btn btn-primary"
+            hx-get="{% url 'iam:role_permission_create' %}"
+            hx-target="#role-permission-modal-container"
+            hx-swap="innerHTML">
+      <i class="bi bi-plus-lg me-2"></i>Tambah Permission
+    </button>
+  </div>
+</div>
+
+<!-- Role Permission Content -->
+<div id="role-permission-content"
+     hx-get="{% url 'iam:role_permission_list' %}"
+     hx-include="#role-permission-filter-form"
+     hx-trigger="rolePermissionSaved from:body"
+     hx-replace-url="true">
+  {% include "iam/role_permissions/datatable.html" %}
+</div>
+
+<!-- Modal Container -->
+<div id="role-permission-modal-container"></div>
+{% endblock %}

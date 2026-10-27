@@ -1,0 +1,142 @@
+<h2 class="card-title mb-4">
+    <i class="bi bi-layers text-primary"></i>
+    Batch Layer Extract
+</h2>
+
+<div class="space-y-6">
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle text-xl"></i>
+        <div>
+            <h3 class="font-bold">Batch Layer Extract</h3>
+            <p class="text-sm">Ekstrak atribut dari beberapa layer sekaligus. Proses berjalan di background (Celery).</p>
+        </div>
+    </div>
+
+    <form id="batch-extract-form"
+          hx-post="{% url 'analysis:execute_batch_extract' %}"
+          hx-target="#extract-result"
+          hx-swap="innerHTML"
+          hx-disabled-elt="find button[type='submit']"
+          class="space-y-6">
+
+        <div id="extractions-container" class="space-y-4">
+            <div class="extraction-row card bg-base-200 shadow-sm p-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-medium">Layer Source</span></label>
+                        <select class="select select-bordered w-full" name="source_layer" required>
+                            <option value="" disabled selected>Pilih layer</option>
+                            {% for layer in layers %}
+                            <option value="{{ layer.table_name }}">{{ layer.name }} ({{ layer.table_name }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-medium">Target Layer Name</span></label>
+                        <input type="text" class="input input-bordered w-full" placeholder="e.g., kalium"
+                               name="target_layer" required />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-medium">Attributes (comma separated)</span></label>
+                        <input type="text" class="input input-bordered w-full"
+                               placeholder="e.g., pH, Tekstur, C-Organik" name="attributes" required />
+                    </div>
+                </div>
+                <div class="flex justify-end mt-3">
+                    <button type="button" class="btn btn-sm btn-outline btn-error remove-extraction"
+                            onclick="removeExtractionRow(this)" disabled>
+                        <i class="bi bi-trash me-1"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-start">
+            <button type="button" class="btn btn-sm btn-outline btn-primary" onclick="addExtractionRow()">
+                <i class="bi bi-plus-lg me-1"></i> Add Another
+            </button>
+        </div>
+
+        <div class="divider"></div>
+        <div class="flex justify-end gap-3">
+            <button type="reset" class="btn btn-ghost" id="extract-reset-btn">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-play-fill me-1"></i> Execute Batch Extract
+            </button>
+        </div>
+    </form>
+
+    <div id="extract-result"></div>
+</div>
+
+<template id="extract-row-template">
+    <div class="extraction-row card bg-base-200 shadow-sm p-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Layer Source</span></label>
+                <select class="select select-bordered w-full" name="source_layer" required>
+                    <option value="" disabled selected>Pilih layer</option>
+                    {% for layer in layers %}
+                    <option value="{{ layer.table_name }}">{{ layer.name }} ({{ layer.table_name }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Target Layer Name</span></label>
+                <input type="text" class="input input-bordered w-full" placeholder="e.g., kalium"
+                       name="target_layer" required />
+            </div>
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Attributes (comma separated)</span></label>
+                <input type="text" class="input input-bordered w-full"
+                       placeholder="e.g., pH, Tekstur, C-Organik" name="attributes" required />
+            </div>
+        </div>
+        <div class="flex justify-end mt-3">
+            <button type="button" class="btn btn-sm btn-outline btn-error remove-extraction"
+                    onclick="removeExtractionRow(this)">
+                <i class="bi bi-trash me-1"></i> Remove
+            </button>
+        </div>
+    </div>
+</template>
+
+<script>
+(function () {
+    const container = document.getElementById('extractions-container');
+    const form = document.getElementById('batch-extract-form');
+
+    function refreshRemoveButtons() {
+        const rows = container.querySelectorAll('.extraction-row');
+        rows.forEach(row => {
+            row.querySelector('.remove-extraction').disabled = rows.length === 1;
+        });
+    }
+
+    window.addExtractionRow = function () {
+        const tpl = document.getElementById('extract-row-template');
+        container.appendChild(tpl.content.firstElementChild.cloneNode(true));
+        refreshRemoveButtons();
+    };
+
+    window.removeExtractionRow = function (btn) {
+        if (container.querySelectorAll('.extraction-row').length === 1) return;
+        btn.closest('.extraction-row').remove();
+        refreshRemoveButtons();
+    };
+
+    form.addEventListener('reset', () => {
+        setTimeout(() => {
+            container.querySelectorAll('.extraction-row').forEach((row, i) => {
+                if (i > 0) row.remove();
+            });
+            document.getElementById('extract-result').innerHTML = '';
+            refreshRemoveButtons();
+        }, 0);
+    });
+
+    refreshRemoveButtons();
+})();
+</script>

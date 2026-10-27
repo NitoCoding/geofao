@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | {{ block.super }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+  <div>
+    <div class="flex items-center gap-3 mb-1">
+      <a href="{% url 'spatial:layer_management' %}" class="btn btn-ghost btn-sm">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <h2 class="text-2xl font-bold text-base-content">{{ layer.name }}</h2>
+    </div>
+    <p class="text-base-content/60 text-sm ml-11">Detail informasi layer spasial</p>
+  </div>
+  <div class="flex gap-2 ml-12 md:ml-0">
+    <a href="{% url 'spatial:layer_detail' layer.pk %}" class="btn btn-ghost btn-square" title="Refresh">
+      <i class="bi bi-arrow-clockwise"></i>
+    </a>
+    <a href="{% url 'spatial:map_view' %}" class="btn btn-primary">
+      <i class="bi bi-map me-2"></i>Lihat di Peta
+    </a>
+    <a href="/admin/spatial/masterlayer/{{ layer.pk }}/change/" class="btn btn-secondary">
+      <i class="bi bi-pencil-square me-2"></i>Edit Layer
+    </a>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Sidebar Informasi Layer -->
+  <div class="lg:col-span-1">
+    <div class="bg-base-100 rounded-2xl shadow-sm p-6">
+      <h3 class="text-lg font-bold text-base-content mb-4">Informasi Layer</h3>
+      <div class="space-y-1">
+
+        <!-- Nama Layer -->
+        <div class="flex items-start gap-3 py-3 border-b border-base-200 last:border-0">
+          <div class="bg-primary/10 text-primary rounded-lg p-2 w-8 h-8 flex items-center justify-center flex-shrink-0">
+            <i class="bi bi-layers-fill text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-xs text-base-content/50">Nama Layer</div>
+            <div class="font-semibold text-sm text-base-content">{{ layer.name }}</div>
+          </div>
+        </div>
+
+        <!-- Tipe Layer -->
+        <div class="flex items-start gap-3 py-3 border-b border-base-200 last:border-0">
+          <div class="bg-primary/10 text-primary rounded-lg p-2 w-8 h-8 flex items-center justify-center flex-shrink-0">
+            <i class="bi bi-diagram-3-fill text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-xs text-base-content/50">Tipe Geometri</div>
+            <div class="badge badge-outline">{{ layer.get_layer_type_display }}</div>
+          </div>
+        </div>
+
+        <!-- Kategori Layer -->
+        <div class="flex items-start gap-3 py-3 border-b border-base-200 last:border-0">
+          <div class="bg-secondary/10 text-secondary rounded-lg p-2 w-8 h-8 flex items-center justify-center flex-shrink-0">
+            <i class="bi bi-tag-fill text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-xs text-base-content/50">Kategori</div>
+            {% if layer.layer_category == 'tanah' %}
+            <div class="badge badge-warning gap-1">
+              <i class="bi bi-droplet-fill text-[10px]"></i>Kandungan Tanah
+            </div>
+            {% elif layer.layer_category == 'komoditas' %}
+            <div class="badge badge-success gap-1">
+              <i class="bi bi-flower1 text-[10px]"></i>Komoditas Pertanian
+            </div>
+            {% elif layer.layer_category == 'base_analisis' %}
+            <div class="badge badge-primary gap-1">
+              <i class="bi bi-diagram-3 text-[10px]"></i>Layer Dasar Analisis
+            </div>
+            {% else %}
+            <div class="badge badge-ghost gap-1">
+              <i class="bi bi-three-dots text-[10px]"></i>Lainnya
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Tabel -->
+        <div class="flex items-start gap-3 py-3 border-b border-base-200 last:border-0">
+          <div class="bg-accent/10 text-accent rounded-lg p-2 w-8 h-8 flex items-center justify-center flex-shrink-0">
+            <i class="bi bi-database-fill text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-xs text-base-content/50">Nama Tabel</div>
+            <code class="text-xs bg-base-200 px-2 py-1 rounded block mt-1 font-mono text-base-content/70">{{ layer.table_name }}</code>
+          </div>
+        </div>
+
+        <!-- Tahun Data -->
+        <div class="flex items-start gap-3 py-3 border-b border-base-200 last:border-0">
+          <div class="bg-success/10 text-success rounded-lg p-2 w-8 h-8 flex items-center justify-center flex-shrink-0">
+            <i class="bi bi-calendar-event-fill text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-xs text-base-content/50">Tahun Data</div>
+            <div class="font-semibold text-sm text-base-content">
+              {% if layer.data_year %}
+                {{ layer.data_year.year }}
+                {% if layer.data_year.name %}
+                <span class="font-normal text-base-content/50 text-xs">({{ layer.data_year.name }})</span>
+                {% endif %}
+              {% else %}
+                <span class="text-base-content/30">-</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- CRS -->
+        <div class="flex items-start gap-3 py-3 border-b border-base-200 last:border-0">
+          <div class="bg-accent/10 text-accent rounded-lg p-2 w-8 h-8 flex items-center justify-center flex-shrink-0">
+            <i class="bi bi-geo-alt-fill text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-xs text-base-content/50">Sistem Koordinat</div>
+            <code class="text-xs bg-base-200 px-2 py-1 rounded font-mono text-base-content/70">EPSG:4326</code>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="flex items-start gap-3 py-3 border-b border-base-200 last:border-0">
+          <div class="bg-primary/10 text-primary rounded-lg p-2 w-8 h-8 flex items-center justify-center flex-shrink-0">
+            <i class="bi bi-activity text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <div class="text-xs text-base-content/50">Status</div>
+            {% if layer.is_active %}
+            <div class="badge badge-success gap-1">
+              <i class="bi bi-check-circle-fill text-[10px]"></i>Aktif
+            </div>
+            {% else %}
+            <div class="badge badge-error gap-1">
+              <i class="bi bi-x-circle-fill text-[10px]"></i>Nonaktif
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Jumlah Fitur -->
+        <div class="pt-4">
+          <div class="bg-base-200 rounded-xl p-4">
+            <div class="text-xs text-base-content/50 font-medium mb-1">Total Fitur</div>
+            <div class="text-2xl font-bold text-primary">{{ layer.features.count }}</div>
+          </div>
+        </div>
+
+        <!-- Metadata -->
+        <div class="text-xs text-base-content/50 space-y-1 pt-4 mt-4 border-t border-base-200">
+          <div class="flex justify-between">
+            <span>Dibuat:</span>
+            <span>{{ layer.created_at|date:"d M Y, H:i" }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Diubah:</span>
+            <span>{{ layer.updated_at|timesince }} yang lalu</span>
+          </div>
+          {% if layer.created_by %}
+          <div class="flex justify-between">
+            <span>Oleh:</span>
+            <span>{{ layer.created_by.username }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Daftar Fitur -->
+  <div class="lg:col-span-2">
+    <div class="bg-base-100 rounded-2xl shadow-sm">
+      <div class="p-6 border-b border-base-200">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-bold text-base-content">
+            <i class="bi bi-list-check me-2 text-primary"></i>Daftar Fitur
+          </h3>
+          <div class="badge badge-outline text-xs bg-base-200 text-base-content/70 border-base-300">10 pertama</div>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead>
+            <tr class="bg-base-200">
+              <th class="border-b border-base-300 text-base-content/60">ID</th>
+              <th class="border-b border-base-300 text-base-content/60">Atribut</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for feature in features|slice:10 %}
+            <tr class="border-b border-base-200 last:border-0 hover:bg-base-200">
+              <td class="font-mono text-xs text-base-content/40">{{ feature.id }}</td>
+              <td>
+                <div class="bg-base-200 rounded-lg overflow-hidden p-3">
+                  <pre class="text-xs whitespace-pre-wrap break-all font-mono text-base-content/70">{{ feature.attributes|pprint }}</pre>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="2">
+                <div class="py-12 text-center">
+                  <div class="w-14 h-14 rounded-full bg-base-200 flex items-center justify-center mx-auto mb-3">
+                    <i class="bi bi-inbox text-xl text-base-content/30"></i>
+                  </div>
+                  <p class="text-sm text-base-content/50">Tidak ada fitur dalam layer ini</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if layer.features.count > 10 %}
+      <div class="p-4 border-t border-base-200">
+        <div class="bg-base-200 border border-base-300 rounded-xl flex items-center gap-3 px-4 py-3">
+          <i class="bi bi-info-circle text-primary"></i>
+          <span class="text-sm text-base-content/70">Menampilkan 10 dari {{ layer.features.count }} fitur. Lihat semua fitur di Admin Panel.</span>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,14 @@
+<dialog id="form-modal"
+        class="modal"
+        onclose="document.getElementById('modal-body').innerHTML = ''">
+    <div class="modal-box">
+        <div id="modal-body"></div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+</dialog>
+{% comment %} 
+ (sekali di list.html atau base.html) 
+ Include di halaman list: {% include "components/form_modal.html" %}. 
+{% endcomment %}

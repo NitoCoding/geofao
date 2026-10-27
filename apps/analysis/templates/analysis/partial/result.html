@@ -1,0 +1,67 @@
+<div class="results-container">
+    <h3 class="text-lg font-bold mb-4">Hasil Analisis</h3>
+    
+    <!-- Statistics -->
+    <div class="stats shadow mb-6">
+        <div class="stat">
+            <div class="stat-title">Kelas Dominan</div>
+            <div class="stat-value text-{{ result.overall_class|lower }}">
+                {{ result.overall_class }}
+            </div>
+            <div class="stat-desc">{{ result.overall_class_display }}</div>
+        </div>
+        
+        <div class="stat">
+            <div class="stat-title">Total Fitur</div>
+            <div class="stat-value">{{ result.total_features }}</div>
+        </div>
+        
+        <div class="stat">
+            <div class="stat-title">S1 Percentage</div>
+            <div class="stat-value text-success">
+                {{ result.class_percentages.S1|default:0 }}%
+            </div>
+        </div>
+    </div>
+    
+    <!-- Class Distribution Table -->
+    <div class="overflow-x-auto">
+        <table class="table table-zebra">
+            <thead>
+                <tr>
+                    <th>Kelas</th>
+                    <th>Jumlah</th>
+                    <th>Persentase</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for class, count in result.class_counts.items %}
+                <tr>
+                    <td class="font-bold">{{ class }}</td>
+                    <td>{{ count }}</td>
+                    <td>{{ result.class_percentages|get_item:class }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Limiting Factors -->
+    {% if result.limiting_factors %}
+    <div class="mt-6">
+        <h4 class="font-bold mb-2">Faktor Pembatas</h4>
+        <ul class="list-disc list-inside">
+            {% for factor in result.limiting_factors.factors|slice:":5" %}
+            <li>{{ factor.characteristic }}: {{ factor.solution }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Trigger map update -->
+    <div hx-get="{% url 'analysis:map_panel' %}?layer={{ result.result_layer_name }}"
+         hx-trigger="load"
+         hx-target="#map-panel"
+         hx-swap="innerHTML">
+    </div>
+</div>

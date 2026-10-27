@@ -1,0 +1,1 @@
+uv run celery -A config worker -l INFO --pool=solo

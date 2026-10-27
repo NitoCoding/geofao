@@ -1,0 +1,95 @@
+<!-- Menu Modal -->
+<div id="menu-modal" class="modal modal-open hidden z-[9999]"
+     _="on load remove .hidden from me">
+  <div class="modal-box rounded-xl max-w-2xl bg-base-100 shadow-2xl">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold text-base-content">
+        {% if form.instance.pk %}Edit{% else %}Tambah{% endif %} Menu
+      </h3>
+      <button type="button" class="btn btn-ghost btn-sm btn-square"
+              _="on click add .hidden to #menu-modal">
+        <i class="bi bi-x text-lg"></i>
+      </button>
+    </div>
+
+    <form method="post"
+          {% if form.instance.pk %}
+          hx-post="{% url 'iam:menu_edit' form.instance.pk %}"
+          {% else %}
+          hx-post="{% url 'iam:menu_create' %}"
+          {% endif %}
+          hx-target="#menu-modal-container"
+          hx-swap="innerHTML"
+          hx-on::after-request="if(event.detail.successful) document.querySelector('#menu-modal').classList.add('hidden')">
+      {% csrf_token %}
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="label py-0.5"><span class="label-text text-xs font-medium">Nama <span class="text-error">*</span></span></label>
+          {{ form.name }}
+          {% if form.name.errors %}<p class="text-error text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label py-0.5"><span class="label-text text-xs font-medium">Kode <span class="text-error">*</span></span></label>
+          {{ form.code }}
+          {% if form.code.errors %}<p class="text-error text-xs mt-1">{{ form.code.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label py-0.5"><span class="label-text text-xs font-medium">Icon</span></label>
+          {{ form.icon }}
+          {% if form.icon.errors %}<p class="text-error text-xs mt-1">{{ form.icon.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label py-0.5"><span class="label-text text-xs font-medium">Path</span></label>
+          {{ form.path }}
+          {% if form.path.errors %}<p class="text-error text-xs mt-1">{{ form.path.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label py-0.5"><span class="label-text text-xs font-medium">Induk Menu</span></label>
+          {{ form.parent }}
+          {% if form.parent.errors %}<p class="text-error text-xs mt-1">{{ form.parent.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label py-0.5"><span class="label-text text-xs font-medium">Tipe</span></label>
+          {{ form.menu_type }}
+          {% if form.menu_type.errors %}<p class="text-error text-xs mt-1">{{ form.menu_type.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label py-0.5"><span class="label-text text-xs font-medium">Urutan</span></label>
+          {{ form.order }}
+          {% if form.order.errors %}<p class="text-error text-xs mt-1">{{ form.order.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label cursor-pointer justify-start gap-3 py-0.5">
+            {{ form.is_active }}
+            <span class="label-text text-xs font-medium">Aktif</span>
+          </label>
+        </div>
+        <div class="md:col-span-2">
+          <label class="label py-0.5"><span class="label-text text-xs font-medium">Permission Wajib</span></label>
+          {{ form.required_permissions }}
+          <p class="text-xs text-base-content/50 mt-0.5">Pilih permission yang dibutuhkan untuk melihat menu ini (Ctrl/Cmd + klik untuk memilih banyak).</p>
+          {% if form.required_permissions.errors %}<p class="text-error text-xs mt-1">{{ form.required_permissions.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      {% if form.non_field_errors %}
+      <div class="alert alert-error mt-4">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span>{{ form.non_field_errors|join:", " }}</span>
+      </div>
+      {% endif %}
+
+      <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-base-200">
+        <button type="button" class="btn btn-ghost btn-sm"
+                _="on click add .hidden to #menu-modal">
+          Batal
+        </button>
+        <button type="submit" class="btn btn-primary btn-sm">
+          <i class="bi bi-check-lg me-1"></i>Simpan
+        </button>
+      </div>
+    </form>
+  </div>
+  <div class="modal-backdrop" _="on click add .hidden to #menu-modal"></div>
+</div>

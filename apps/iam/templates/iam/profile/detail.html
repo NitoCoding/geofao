@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block title %}Profil Saya | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <!-- Page Header -->
+  <div class="mb-6">
+    <h2 class="text-3xl font-bold">Profil Saya</h2>
+    <p class="text-base-content/70">Kelola informasi akun dan data diri Anda</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Sidebar: Avatar + Info Ringkas -->
+    <div class="lg:col-span-1">
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body items-center text-center">
+          <!-- Avatar -->
+          <div class="avatar mb-3">
+            <div class="w-24 h-24 rounded-full bg-primary text-primary-content flex items-center justify-center text-3xl font-bold">
+              {{ user.username|first|upper|default:"U" }}
+            </div>
+          </div>
+
+          <h3 class="card-title text-lg">{{ user.get_full_name|default:user.username }}</h3>
+          <p class="text-sm text-base-content/60">@{{ user.username }}</p>
+
+          <div class="divider my-2"></div>
+
+          <div class="w-full text-left space-y-2 text-sm">
+            <div class="flex items-center gap-2">
+              <i class="bi bi-envelope text-base-content/40 w-5"></i>
+              <span class="truncate">{{ user.email|default:"-" }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="bi bi-calendar-check text-base-content/40 w-5"></i>
+              <span>Bergabung {{ user.date_joined|date:"d M Y" }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="bi bi-shield-check text-base-content/40 w-5"></i>
+              <span>
+                {% if user.is_superuser %}
+                  <span class="badge badge-warning badge-sm">Superuser</span>
+                {% else %}
+                  <span class="badge badge-ghost badge-sm">User</span>
+                {% endif %}
+              </span>
+            </div>
+            {% if profile.department %}
+            <div class="flex items-center gap-2">
+              <i class="bi bi-building text-base-content/40 w-5"></i>
+              <span>{{ profile.department }}</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main: Form Edit -->
+    <div class="lg:col-span-2">
+      <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+          <h3 class="card-title text-lg mb-2">Edit Profil</h3>
+
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-success mb-4">
+                <i class="bi bi-check-circle"></i>
+                <span>{{ message }}</span>
+              </div>
+            {% endfor %}
+          {% endif %}
+
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- User fields -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div class="form-control w-full">
+                <label class="label"><span class="label-text">Nama Depan</span></label>
+                {{ form.first_name }}
+              </div>
+              <div class="form-control w-full">
+                <label class="label"><span class="label-text">Nama Belakang</span></label>
+                {{ form.last_name }}
+              </div>
+            </div>
+
+            <div class="form-control w-full mb-4">
+              <label class="label"><span class="label-text">Email</span></label>
+              {{ form.email }}
+              {% if form.email.errors %}
+                <label class="label"><span class="label-text-alt text-error">{{ form.email.errors|join:", " }}</span></label>
+              {% endif %}
+            </div>
+
+            <div class="divider text-xs text-base-content/40">Informasi Tambahan</div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div class="form-control w-full">
+                <label class="label"><span class="label-text">{{ form.department.label }}</span></label>
+                {{ form.department }}
+              </div>
+              <div class="form-control w-full">
+                <label class="label"><span class="label-text">{{ form.birth_date.label }}</span></label>
+                {{ form.birth_date }}
+              </div>
+            </div>
+
+            <div class="form-control w-full mb-4">
+              <label class="label"><span class="label-text">{{ form.address.label }}</span></label>
+              {{ form.address }}
+            </div>
+
+            <div class="divider text-xs text-base-content/40">Ganti Password</div>
+            <p class="text-xs text-base-content/50 mb-3">Kosongkan jika tidak ingin mengubah password.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div class="form-control w-full">
+                <label class="label"><span class="label-text">{{ form.password.label }}</span></label>
+                {{ form.password }}
+              </div>
+              <div class="form-control w-full">
+                <label class="label"><span class="label-text">{{ form.password_confirm.label }}</span></label>
+                {{ form.password_confirm }}
+              </div>
+            </div>
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-error mb-4">
+                <i class="bi bi-exclamation-triangle"></i>
+                <span>{{ form.non_field_errors|join:", " }}</span>
+              </div>
+            {% endif %}
+
+            <div class="card-actions justify-end">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-2"></i>Simpan Perubahan
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

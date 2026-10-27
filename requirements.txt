@@ -1,0 +1,45 @@
+# Django & GIS
+Django==5.0.2
+django-contrib-gis==5.0.2
+psycopg2-binary==2.9.9
+GDAL==3.8.4
+
+# REST Framework
+djangorestframework==3.14.0
+djangorestframework-gis==1.0.2
+
+# HTTP Requests
+requests==2.31.0
+
+# Background Tasks
+celery==5.3.6
+redis==5.0.1
+django-redis==5.4.0
+
+# Frontend & UI
+django-widget-tweaks==1.4.12
+django-crispy-forms==2.1
+crispy-bootstrap5==0.7
+
+# Security & CORS
+django-cors-headers==4.3.1
+django-extensions==3.2.3
+
+# File Processing
+Pillow==10.2.0
+python-decouple==3.8
+openpyxl==3.1.2
+pandas==2.2.1
+geopandas==0.14.1
+
+# Development
+django-debug-toolbar==4.2.0
+pytest==8.0.0
+pytest-django==4.8.0
+coverage==7.4.3
+black==24.2.0
+flake8==7.0.0
+
+# Production
+gunicorn==21.2.0
+whitenoise==6.6.0

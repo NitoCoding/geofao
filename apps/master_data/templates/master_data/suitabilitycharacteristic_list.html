@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Kriteria Kesesuaian | {{ block.super }}{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold">Kriteria Kesesuaian</h2>
+    <a href="{% url 'master_data:suitabilitycharacteristic_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-2"></i>Tambah Kriteria Baru
+    </a>
+</div>
+
+<!-- Filter -->
+<div class="card bg-base-100 shadow-lg mb-6">
+    <div class="card-body">
+        <form method="get" class="flex gap-4 items-end">
+            <div class="form-control">
+                <label class="label">Filter berdasarkan Komoditas</label>
+                <select name="commodity" class="select select-bordered select-primary">
+                    <option value="">Semua Komoditas</option>
+                    {% for commodity in commodities %}
+                        <option value="{{ commodity.id }}" {% if commodity.id|stringformat:"s" == selected_commodity %}selected{% endif %}>{{ commodity.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </form>
+    </div>
+</div>
+
+<div class="overflow-x-auto">
+    <table class="table table-zebra w-full bg-base-100 rounded-lg shadow-lg">
+        <thead><tr><th>Komoditas</th><th>Nama Kriteria</th><th>Tipe Data</th><th>Aksi</th></tr></thead>
+        <tbody>
+            {% for item in criteria %}
+            <tr>
+                <td><div class="badge badge-neutral">{{ item.commodity.name }}</div></td>
+                <td class="font-semibold">{{ item.name }}</td>
+                <td><div class="badge badge-outline">{{ item.get_data_type_display }}</div></td>
+                <td>
+                    <div class="flex gap-2">
+                        <a href="{% url 'master_data:suitabilitycharacteristic_edit' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                        <label for="delete-modal-{{ item.pk }}" class="btn btn-sm btn-error modal-button">Hapus</label>
+                        <input type="checkbox" id="delete-modal-{{ item.pk }}" class="modal-toggle" />
+                        <div class="modal"><div class="modal-box"><h3 class="font-bold text-lg">Konfirmasi Hapus!</h3><p class="py-4">Apakah Anda yakin ingin menghapus kriteria "<strong>{{ item.name }}</strong>"?</p><div class="modal-action"><label for="delete-modal-{{ item.pk }}" class="btn btn-ghost">Batal</label><a href="{% url 'master_data:suitabilitycharacteristic_delete' item.pk %}" class="btn btn-error">Hapus</a></div></div><label class="modal-backdrop" for="delete-modal-{{ item.pk }}"></label></div>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center">Belum ada data kriteria kesesuaian.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

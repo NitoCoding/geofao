@@ -1,0 +1,189 @@
+{# User Table - Dynamic Content #}
+
+<form method="get" id="user-filter-form"
+      hx-get="{% url 'iam:user_list' %}"
+      hx-target="#user-content"
+      hx-replace-url="true">
+</form>
+
+
+<!-- Summary Stats -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+  <div class="stat bg-base-100 shadow rounded-lg border-l-4 border-primary">
+    <div class="stat-title text-xs">Total User</div>
+    <div class="stat-value text-primary text-2xl">{{ total_users }}</div>
+  </div>
+  <div class="stat bg-base-100 shadow rounded-lg border-l-4 border-success">
+    <div class="stat-title text-xs">Admin</div>
+    <div class="stat-value text-success text-2xl">{{ admin_users }}</div>
+  </div>
+  <div class="stat bg-base-100 shadow rounded-lg border-l-4 border-warning">
+    <div class="stat-title text-xs">Tenaga Ahli</div>
+    <div class="stat-value text-warning text-2xl">{{ expert_users }}</div>
+  </div>
+</div>
+
+<!-- User Table -->
+<div class="overflow-x-auto border border-base-200 rounded-lg">
+  <table class="table table-sm">
+    <thead class="bg-base-200">
+      <tr>
+        <th class="text-xs">Username</th>
+        <th class="text-xs">Email</th>
+        <th class="text-xs">Nama</th>
+        <th class="text-xs">Status</th>
+        <th class="text-xs">Role</th>
+        <th class="text-xs text-right">Aksi</th>
+      </tr>
+      <tr>
+        <th class="p-1">
+          <input type="text" name="filter_username" value="{{ filter_username }}" placeholder="Username..."
+                 class="input input-bordered input-xs w-full"
+                 hx-get="{% url 'iam:user_list' %}"
+                 hx-trigger="keyup changed delay:300ms"
+                 hx-include="#user-filter-form"
+                 hx-target="#user-content"
+                 hx-replace-url="true" />
+        </th>
+        <th class="p-1">
+          <input type="text" name="filter_email" value="{{ filter_email }}" placeholder="Email..."
+                 class="input input-bordered input-xs w-full"
+                 hx-get="{% url 'iam:user_list' %}"
+                 hx-trigger="keyup changed delay:300ms"
+                 hx-include="#user-filter-form"
+                 hx-target="#user-content"
+                 hx-replace-url="true" />
+        </th>
+        <th class="p-1">
+          <input type="text" name="filter_nama" value="{{ filter_nama }}" placeholder="Nama..."
+                 class="input input-bordered input-xs w-full"
+                 hx-get="{% url 'iam:user_list' %}"
+                 hx-trigger="keyup changed delay:300ms"
+                 hx-include="#user-filter-form"
+                 hx-target="#user-content"
+                 hx-replace-url="true" />
+        </th>
+        <th class="p-1">
+          <select name="filter_status" class="select select-bordered select-xs w-full"
+                  hx-get="{% url 'iam:user_list' %}"
+                  hx-trigger="change"
+                  hx-include="#user-filter-form"
+                  hx-target="#user-content"
+                  hx-replace-url="true">
+            <option value="">Semua</option>
+            <option value="active" {% if filter_status == 'active' %}selected{% endif %}>Aktif</option>
+            <option value="inactive" {% if filter_status == 'inactive' %}selected{% endif %}>Nonaktif</option>
+          </select>
+        </th>
+        <th class="p-1">
+          <select name="filter_role" class="select select-bordered select-xs w-full"
+                  hx-get="{% url 'iam:user_list' %}"
+                  hx-trigger="change"
+                  hx-include="#user-filter-form"
+                  hx-target="#user-content"
+                  hx-replace-url="true">
+            <option value="">Semua</option>
+            {% for role in available_roles %}
+            <option value="{{ role.code }}" {% if filter_role == role.code %}selected{% endif %}>{{ role.name }}</option>
+            {% endfor %}
+          </select>
+        </th>
+        <th class="p-1 text-right">
+          <a href="{% url 'iam:user_list' %}" class="btn btn-ghost btn-xs btn-square" title="Reset filter"
+         hx-get="{% url 'iam:user_list' %}"
+         hx-target="#user-content"
+         hx-replace-url="true">
+            <i class="bi bi-arrow-counterclockwise text-xs"></i>
+          </a>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr class="hover:bg-base-100">
+        <td class="text-sm font-medium">{{ user.username }}</td>
+        <td class="text-sm">{{ user.email|default:"—" }}</td>
+        <td class="text-sm">{{ user.get_full_name|default:"—" }}</td>
+        <td>
+          {% if user.is_active %}
+            <span class="badge badge-success badge-xs">Aktif</span>
+          {% else %}
+            <span class="badge badge-error badge-xs">Nonaktif</span>
+          {% endif %}
+        </td>
+        <td>
+          {% for ur in user.get_effective_roles %}
+            <span class="badge badge-ghost badge-xs">{{ ur.role.name }}</span>
+          {% empty %}
+            <span class="text-xs text-base-content/30">—</span>
+          {% endfor %}
+        </td>
+        <td class="text-right">
+          <div class="flex items-center justify-end gap-1">
+            <button class="btn btn-ghost btn-xs btn-square text-info"
+                    hx-get="{% url 'iam:user_edit' user.pk %}"
+                    hx-target="#user-modal-container"
+                    hx-swap="innerHTML">
+              <i class="bi bi-pencil text-xs"></i>
+            </button>
+            <button class="btn btn-ghost btn-xs btn-square text-error"
+                        hx-post="{% url 'iam:user_delete' user.pk %}"
+                        hx-target="#user-content"
+                        hx-swap="innerHTML"
+                        hx-confirm="Hapus user {{ user.username }}?">
+                  <i class="bi bi-trash3 text-xs"></i>
+                </button>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="text-center py-8 text-sm text-base-content/40">
+          <i class="bi bi-inbox text-lg block mb-1"></i>
+          Belum ada data user
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="6" class="text-xs text-base-content/50 py-2">
+          {{ users|length }} dari {{ total_users }} user
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<!-- Pagination -->
+<div class="flex justify-center mt-6">
+  <div class="join">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+       hx-get="?page={{ page_obj.previous_page_number }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+       hx-target="#user-content"
+       hx-replace-url="true"
+       class="join-item btn btn-xs">&laquo;</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <button class="join-item btn btn-xs btn-active">{{ num }}</button>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+      <a href="?page={{ num }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+         hx-get="?page={{ num }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+         hx-target="#user-content"
+         hx-replace-url="true"
+         class="join-item btn btn-xs">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+       hx-get="?page={{ page_obj.next_page_number }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+       hx-target="#user-content"
+       hx-replace-url="true"
+       class="join-item btn btn-xs">&raquo;</a>
+    {% endif %}
+  </div>
+</div>

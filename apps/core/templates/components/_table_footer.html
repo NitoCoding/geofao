@@ -1,0 +1,21 @@
+{% load iam_tags %}
+<span class="text-sm text-base-content/60">
+  {{ page_obj.start_index }}-{{ page_obj.end_index }} dari {{ page_obj.paginator.count }} user
+</span>
+
+{% if is_paginated %}
+<div class="join"
+     hx-target="#user-body" hx-replace-url="true">
+  {% if page_obj.has_previous %}
+    <a class="join-item btn btn-sm"
+       href="?{% qs page=page_obj.previous_page_number %}"
+       hx-get="?{% qs page=page_obj.previous_page_number %}">&laquo;</a>
+  {% endif %}
+  <button class="join-item btn btn-sm btn-active">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</button>
+  {% if page_obj.has_next %}
+    <a class="join-item btn btn-sm"
+       href="?{% qs page=page_obj.next_page_number %}"
+       hx-get="?{% qs page=page_obj.next_page_number %}">&raquo;</a>
+  {% endif %}
+</div>
+{% endif %}

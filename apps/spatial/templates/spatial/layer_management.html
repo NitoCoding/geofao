@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — GeoAibarru{% endblock %}
+{% block page_title %}Layer Management{% endblock %}
+
+{% block content %}
+<div class="max-w-[calc(100vw-256px)] mx-auto">
+    <div
+        class="bg-base-100 rounded-xl card-elevated overflow-hidden"
+        style="height: calc(100vh - 7.5rem)"
+    >
+        <div class="flex h-full">
+            <!-- ================================================================ -->
+            <!-- LEFT PANEL: Layer List -->
+            <!-- ================================================================ -->
+            <aside class="w-80 border-r border-base-200 flex flex-col flex-shrink-0 bg-base-200/50">
+                <!-- Header -->
+                <div class="p-4 border-b border-base-200 bg-base-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-sm font-bold text-base-content flex items-center gap-2">
+                                <i class="bi bi-layers text-primary"></i>
+                                Daftar Layer
+                            </h2>
+                            <p class="text-xs text-base-content/50 mt-0.5">
+                                Kelola data spasial Anda
+                            </p>
+                        </div>
+                        <button class="btn btn-primary btn-sm"
+                                hx-get="{% url 'spatial:layer_upload_modal' %}"
+                                hx-target="#management-modal-container"
+                                hx-swap="innerHTML"
+                                _="on htmx:afterSettle remove .hidden from #management-modal">
+                            <i class="bi bi-plus-lg me-1"></i>Upload
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search & Filter -->
+                <div class="p-3 border-b border-base-200 bg-base-100">
+                    <form id="layer-filter-form"
+                          hx-get="{% url 'spatial:layer_list_table' %}?view=panel"
+                          hx-target="#layer-list-content"
+                          hx-trigger="change delay:300ms, keyup changed delay:500ms"
+                          class="space-y-2">
+                        <input type="text"
+                               placeholder="Cari layer..."
+                               class="input input-bordered input-sm w-full text-xs"
+                               name="search"
+                               value="{{ search|default:'' }}" />
+                        <div class="flex gap-2">
+                            <select class="select select-bordered select-sm flex-1 text-xs" name="year">
+                                <option value="">Semua Tahun</option>
+                                {% for dy in data_years %}
+                                <option value="{{ dy.year }}" {% if year|add:'0' == dy.year %}selected{% endif %}>
+                                    {{ dy.name|default:dy.year }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <select class="select select-bordered select-sm flex-1 text-xs" name="category">
+                                <option value="">Semua Kategori</option>
+                                {% for value, label in data_categories %}
+                                <option value="{{ value }}" {% if category == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Layer List Content (HTMX target) -->
+                <div id="layer-list-content" class="flex-1 overflow-y-auto">
+                    {% include "spatial/_layer_list_panel.html" %}
+                </div>
+            </aside>
+
+            <!-- ================================================================ -->
+            <!-- RIGHT PANEL: Map -->
+            <!-- ================================================================ -->
+            <div class="flex-1 relative">
+                <div id="management-map" class="w-full h-full"></div>
+
+                <!-- Map overlay info -->
+                <div id="management-map-info"
+                     class="absolute top-3 left-3 z-[1000] pointer-events-none"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Container -->
+<div id="management-modal-container"></div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    #management-map {
+        background: #e8ecf0;
+    }
+    .leaflet-container {
+        background: #e8ecf0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // ================================================================
+        // MAP INITIALIZATION
+        // ================================================================
+        const map = L.map("management-map").setView([-2.5, 118], 5);
+
+        L.maplibreGL({
+            style: "https://tiles.openfreemap.org/styles/liberty",
+            attribution:
+                '<a href="https://openfreemap.org/">OpenFreeMap</a> &copy; ' +
+                '<a href="https://openmaptiles.org/">OpenMapTiles</a> ' +
+                'Data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
+
+        // ================================================================
+        // STATE
+        // ================================================================
+        const loadedLayers = {};
+        let activeLayerId = null;
+        const $mapInfo = $("#management-map-info");
+
+        // ================================================================
+        // LAYER PREVIEW — click row → load GeoJSON on map
+        // ================================================================
+        $(document).on("click", ".layer-preview-row", function () {
+            const layerId = $(this).data("layer-id");
+            const layerName = $(this).data("layer-name");
+
+            // Highlight active row
+            $(".layer-preview-row").removeClass("bg-primary/10 border-l-primary");
+            $(this).addClass("bg-primary/10 border-l-primary");
+
+            // Remove previous layer
+            if (activeLayerId && loadedLayers[activeLayerId]) {
+                map.removeLayer(loadedLayers[activeLayerId]);
+                delete loadedLayers[activeLayerId];
+            }
+
+            // If clicking same layer, just deselect
+            if (activeLayerId === String(layerId)) {
+                activeLayerId = null;
+                $mapInfo.html("");
+                return;
+            }
+
+            activeLayerId = String(layerId);
+
+            // Check cache
+            if (loadedLayers[layerId]) {
+                loadedLayers[layerId].addTo(map);
+                map.fitBounds(loadedLayers[layerId].getBounds());
+                $mapInfo.html(`
+                    <div class="bg-base-100/90 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-base-200 text-sm text-base-content">
+                        <i class="bi bi-layers text-primary me-2"></i>${layerName}
+                    </div>
+                `);
+                return;
+            }
+
+            // Fetch GeoJSON
+            $mapInfo.html(`
+                <div class="bg-base-100/90 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-base-200 text-sm text-base-content">
+                    <span class="loading loading-spinner loading-xs text-primary me-2"></span>Memuat...
+                </div>
+            `);
+
+            fetch(`/spatial/api/layers/${layerId}/geojson/`)
+                .then(res => res.json())
+                .then(data => {
+                    const geojsonLayer = L.geoJSON(data, {
+                        style: {
+                            color: "#3b82f6",
+                            weight: 2,
+                            fillOpacity: 0.15,
+                            fillColor: "#3b82f6",
+                        },
+                        onEachFeature: function (feature, layer) {
+                            if (feature.properties) {
+                                const props = Object.entries(feature.properties)
+                                    .filter(([k]) => !["the_geom", "geom", "geometry", "bbox"].includes(k))
+                                    .map(([k, v]) => `<tr><td class="py-1 pr-3 font-medium text-base-content/60">${k}</td><td class="py-1">${v ?? "-"}</td></tr>`)
+                                    .join("");
+                                layer.bindPopup(`
+                                    <div class="text-xs max-h-48 overflow-y-auto">
+                                        <table class="w-full">${props}</table>
+                                    </div>
+                                `);
+                            }
+                        },
+                    });
+
+                    loadedLayers[layerId] = geojsonLayer;
+                    geojsonLayer.addTo(map);
+                    map.fitBounds(geojsonLayer.getBounds());
+
+                    $mapInfo.html(`
+                        <div class="bg-base-100/90 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-base-200 text-sm text-base-content">
+                            <i class="bi bi-layers text-primary me-2"></i>${layerName}
+                        </div>
+                    `);
+                })
+                .catch(() => {
+                    $mapInfo.html(`
+                        <div class="bg-error/10 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-error/30 text-sm text-error">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Gagal memuat layer
+                        </div>
+                    `);
+                });
+        });
+
+        // ================================================================
+        // MODAL HANDLING
+        // ================================================================
+        $(document).on("closeModal", function () {
+            $("#management-modal").addClass("hidden");
+        });
+
+        // Close modal on backdrop click
+        $(document).on("click", "#management-modal", function (e) {
+            if (e.target === this) {
+                $(this).addClass("hidden");
+            }
+        });
+
+        // After upload success → refresh list
+        $(document).on("htmx:afterSettle", function (evt) {
+            if ($(evt.target).is("#layer-list-content")) {
+                // Re-highlight if there was an active layer
+                if (activeLayerId) {
+                    $(`.layer-preview-row[data-layer-id="${activeLayerId}"]`).addClass("bg-primary/10 border-l-primary");
+                }
+            }
+        });
+
+        // Invalidate map size when modal closes
+        $(document).on("transitionend", "#management-modal", function () {
+            map.invalidateSize();
+        });
+    });
+</script>
+{% endblock %}

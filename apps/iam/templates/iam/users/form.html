@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}{% if form.instance.pk %}Edit{% else %}Tambah{% endif %} User | {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="max-w-lg mx-auto">
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">{% if form.instance.pk %}Edit{% else %}Tambah{% endif %} User</h2>
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form-control w-full mb-4">
+          <label class="label">
+            <span class="label-text">{{ form.username.label }}</span>
+          </label>
+          {{ form.username }}
+          {% if form.username.errors %}
+            <label class="label"><span class="label-text-alt text-error">{{ form.username.errors|join:", " }}</span></label>
+          {% endif %}
+        </div>
+
+        <div class="form-control w-full mb-4">
+          <label class="label">
+            <span class="label-text">{{ form.email.label }}</span>
+          </label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <label class="label"><span class="label-text-alt text-error">{{ form.email.errors|join:", " }}</span></label>
+          {% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text">{{ form.first_name.label }}</span>
+            </label>
+            {{ form.first_name }}
+          </div>
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text">{{ form.last_name.label }}</span>
+            </label>
+            {{ form.last_name }}
+          </div>
+        </div>
+
+        <div class="form-control w-full mb-4">
+          <label class="label">
+            <span class="label-text">{{ form.password.label }}</span>
+          </label>
+          {{ form.password }}
+          {% if form.password.errors %}
+            <label class="label"><span class="label-text-alt text-error">{{ form.password.errors|join:", " }}</span></label>
+          {% endif %}
+        </div>
+
+        <div class="flex items-center gap-6 mb-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            {{ form.is_active }}
+            <span class="label-text">Aktif</span>
+          </label>
+        </div>
+
+        <div class="form-control w-full mb-4">
+          <label class="label">
+            <span class="label-text">{{ form.roles.label }}</span>
+          </label>
+          {{ form.roles }}
+          {% if form.roles.help_text %}
+            <label class="label"><span class="label-text-alt text-base-content/60">{{ form.roles.help_text }}</span></label>
+          {% endif %}
+          {% if form.roles.errors %}
+            <label class="label"><span class="label-text-alt text-error">{{ form.roles.errors|join:", " }}</span></label>
+          {% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-error mb-4">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>{{ form.non_field_errors|join:", " }}</span>
+          </div>
+        {% endif %}
+
+        <div class="card-actions justify-end">
+          <a href="{% url 'iam:user_list' %}" class="btn btn-ghost">Batal</a>
+          <button type="submit" class="btn btn-primary">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

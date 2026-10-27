@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Menu Role | {{ block.super }}{% endblock %}
+{% block page_title %}Manajemen Menu Role{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+  <div>
+    <h2 class="text-3xl font-bold">Menu Role</h2>
+    <p class="text-base-content/70">Atur menu mana yang dapat diakses oleh setiap role</p>
+  </div>
+  <div class="flex gap-2">
+    <button class="btn btn-primary"
+            hx-get="{% url 'iam:menu_role_create' %}"
+            hx-target="#menu-role-modal-container"
+            hx-swap="innerHTML">
+      <i class="bi bi-plus-lg me-2"></i>Tambah Menu Role
+    </button>
+  </div>
+</div>
+
+<!-- Menu Role Content -->
+<div id="menu-role-content"
+     hx-get="{% url 'iam:menu_role_list' %}"
+     hx-include="#menu-role-filter-form"
+     hx-trigger="menuRoleSaved from:body"
+     hx-replace-url="true">
+  {% include "iam/menu_roles/datatable.html" %}
+</div>
+
+<!-- Modal Container -->
+<div id="menu-role-modal-container"></div>
+{% endblock %}

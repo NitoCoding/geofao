@@ -1,0 +1,34 @@
+{% for commodity in commodities %}
+<div class="card card-compact bg-base-200 hover:bg-base-300 transition-colors cursor-pointer commodity-card"
+     hx-post="{% url 'analysis:select_commodity' %}"
+     hx-target="#selected-commodity-card"
+     hx-vals='{"commodity_id": {{ commodity.id }}}'>
+  <div class="card-body">
+    <div class="flex items-start justify-between">
+      <div>
+        <h3 class="font-bold text-lg">{{ commodity.name }}</h3>
+        <p class="text-xs text-base-content/70 mt-1">
+          <i class="bi bi-tag"></i>
+          {{ commodity.group.name }}
+        </p>
+      </div>
+      <input type="radio" name="selected_commodity" class="radio radio-primary radio-sm" />
+    </div>
+    <div class="flex gap-2 mt-2">
+      <span class="badge badge-ghost badge-sm">
+        <i class="bi bi-list-check"></i>
+        {{ commodity.characteristics.count }} Karakteristik
+      </span>
+      <span class="badge badge-ghost badge-sm">
+        <i class="bi bi-calculator"></i>
+        3 Metode
+      </span>
+    </div>
+  </div>
+</div>
+{% empty %}
+<div class="alert alert-info">
+  <i class="bi bi-info-circle"></i>
+  <span>Tidak ada komoditas ditemukan</span>
+</div>
+{% endfor %}

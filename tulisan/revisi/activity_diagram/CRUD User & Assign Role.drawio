@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.0 Chrome/134.0.6998.88 Electron/34.3.1 Safari/537.36" version="26.0.0">
+  <diagram name="CRUD User &amp; Assign Role" id="crud-user-role">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- SWIMLANE: Admin -->
+        <mxCell id="u-swimlane" value="Admin" style="swimlane;startSize=40;horizontal=1;fillColor=#E3F2FD;fontStyle=1;fontSize=14;rounded=1;shadow=0;strokeColor=#90CAF9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="380" height="820" as="geometry" />
+        </mxCell>
+
+        <!-- SWIMLANE: System -->
+        <mxCell id="s-swimlane" value="Sistem" style="swimlane;startSize=40;horizontal=1;fillColor=#FFF3E0;fontStyle=1;fontSize=14;rounded=1;shadow=0;strokeColor=#FFB74D;" vertex="1" parent="1">
+          <mxGeometry x="420" y="40" width="460" height="820" as="geometry" />
+        </mxCell>
+
+        <!-- START -->
+        <mxCell id="start" value="" style="ellipse;fillColor=#4CAF50;strokeColor=#388E3C;" vertex="1" parent="1">
+          <mxGeometry x="200" y="60" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- ADMIN ACTIVITIES -->
+        <mxCell id="u-buka-user" value="Buka Halaman Manajemen User" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="110" width="200" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Aksi -->
+        <mxCell id="u-decision-action" value="Pilih Aksi:&#xa;Tambah, Edit,&#xa;atau Hapus?" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="117" y="170" width="166" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u-isi-form" value="Isi Form User&#xa;(Username, Email, Nama, Password)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="270" width="200" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u-pilih-role" value="Pilih Role IAM&#xa;(Admin / Tenaga Ahli / Guest)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="335" width="200" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u-konfirmasi-hapus" value="Konfirmasi Hapus User" style="rounded=1;fillColor=#FFEBEE;strokeColor=#E53935;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="115" y="270" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u-lihat-daftar" value="Lihat Daftar User&#xa;yang Telah Diperbarui" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="105" y="740" width="190" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- END -->
+        <mxCell id="end" value="" style="ellipse;fillColor=#F44336;strokeColor=#D32F2F;" vertex="1" parent="1">
+          <mxGeometry x="200" y="800" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- SYSTEM ACTIVITIES -->
+        <mxCell id="s-tampil-daftar" value="Tampilkan Daftar User&#xa;(List View + Statistik)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="170" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-tampil-form" value="Tampilkan Form User&#xa;(Create/Update View)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="270" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-tampil-konfirmasi" value="Tampilkan Halaman&#xa;Konfirmasi Hapus" style="rounded=1;fillColor=#FFEBEE;strokeColor=#E53935;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="270" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Validasi -->
+        <mxCell id="s-decision-valid" value="Form Valid?" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="582" y="335" width="106" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-simpan-user" value="Simpan User ke Database&#xa;(set_password jika ada)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="545" y="425" width="180" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-simpan-role" value="Simpan UserRole&#xa;(Hapus role lama, tambah baru)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="545" y="485" width="180" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-hapus-user" value="Hapus User dari Database" style="rounded=1;fillColor=#FFEBEE;strokeColor=#E53935;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="545" y="425" width="180" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-redirect" value="Redirect ke Daftar User&#xa;(dengan Notifikasi Sukses)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="545" y="550" width="180" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- ARROWS -->
+        <mxCell id="e-start-buka" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="start" target="u-buka-user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Buka User → Decision Action -->
+        <mxCell id="e-buka-decision" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-buka-user" target="u-decision-action">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision → System: tampil daftar -->
+        <mxCell id="e-decision-list" value="Lihat Daftar" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=1;exitY=0.3;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="1" source="u-decision-action" target="s-tampil-daftar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision: Tambah/Edit → System tampil form -->
+        <mxCell id="e-decision-form" value="Tambah/Edit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#4CAF50;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;fontColor=#2E7D32;" edge="1" parent="1" source="u-decision-action" target="s-tampil-form">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision: Hapus → System tampil konfirmasi -->
+        <mxCell id="e-decision-hapus" value="Hapus" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F44336;exitX=1;exitY=0.7;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="1" source="u-decision-action" target="s-tampil-konfirmasi">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- System Tampil Form → User Isi Form -->
+        <mxCell id="e-form-isi" value="Tampilkan" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0;exitY=0.5;entryX=1;entryY=0.5;fontSize=10;" edge="1" parent="1" source="s-tampil-form" target="u-isi-form">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Isi Form → Pilih Role -->
+        <mxCell id="e-isi-role" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-isi-form" target="u-pilih-role">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Pilih Role → System validasi -->
+        <mxCell id="e-role-validasi" value="Submit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="1" source="u-pilih-role" target="s-decision-valid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Valid: Tidak → Kembali ke form -->
+        <mxCell id="e-valid-tidak" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F44336;exitX=0;exitY=0.5;entryX=1;entryY=0.5;dashed=1;fontSize=10;" edge="1" parent="1" source="s-decision-valid" target="u-isi-form">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Valid: Ya → Simpan User -->
+        <mxCell id="e-valid-ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#4CAF50;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=10;fontColor=#2E7D32;" edge="1" parent="1" source="s-decision-valid" target="s-simpan-user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Simpan User → Simpan Role -->
+        <mxCell id="e-user-role" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-simpan-user" target="s-simpan-role">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Simpan Role → Redirect -->
+        <mxCell id="e-role-redirect" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-simpan-role" target="s-redirect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Konfirmasi Hapus → System hapus -->
+        <mxCell id="e-konfirmasi-hapus" value="Konfirmasi" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F44336;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="1" source="u-konfirmasi-hapus" target="s-hapus-user">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Hapus User → Redirect -->
+        <mxCell id="e-hapus-redirect" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F44336;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-hapus-user" target="s-redirect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Redirect → User lihat daftar -->
+        <mxCell id="e-redirect-lihat" value="Redirect" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0;exitY=0.5;entryX=1;entryY=0.5;fontSize=10;" edge="1" parent="1" source="s-redirect" target="u-lihat-daftar">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lihat Daftar → End -->
+        <mxCell id="e-lihat-end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-lihat-daftar" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- System Tampil Konfirmasi → User Konfirmasi -->
+        <mxCell id="e-sys-konfirmasi" value="Tampilkan" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F44336;exitX=0;exitY=0.5;entryX=1;entryY=0.5;fontSize=10;" edge="1" parent="1" source="s-tampil-konfirmasi" target="u-konfirmasi-hapus">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

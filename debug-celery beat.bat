@@ -1,0 +1,1 @@
+uv run celery -A config beat -l INFO

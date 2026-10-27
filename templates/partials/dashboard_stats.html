@@ -1,0 +1,68 @@
+{# Dashboard Stats Partial for HTMX Refresh #}
+{# Target: hx-target="#stats-container" #}
+
+<!-- Stat Card 1: Master Layers -->
+<div class="stat bg-base-100 shadow-lg rounded-xl hover:shadow-xl transition-shadow duration-300 border-l-4 border-primary">
+  <div class="stat-figure text-primary">
+    <i class="bi bi-layers text-3xl"></i>
+  </div>
+  <div class="stat-title">Master Layers</div>
+  <div class="stat-value text-primary text-3xl">{{ total_layers }}</div>
+  <div class="stat-desc text-sm">
+    <i class="bi bi-database me-1"></i>
+    Layer spasial tersedia
+  </div>
+  <div class="stat-actions mt-2">
+    <button
+      class="btn btn-sm btn-ghost"
+      hx-get="{% url 'spatial:layer_management' %}"
+      hx-target="#main-content"
+      hx-push-url="true">
+      Lihat Detail <i class="bi bi-arrow-right ms-1"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Stat Card 2: Komoditas -->
+<div class="stat bg-base-100 shadow-lg rounded-xl hover:shadow-xl transition-shadow duration-300 border-l-4 border-success">
+  <div class="stat-figure text-success">
+    <i class="bi bi-basket text-3xl"></i>
+  </div>
+  <div class="stat-title">Komoditas</div>
+  <div class="stat-value text-success text-3xl">{{ total_commodities }}</div>
+  <div class="stat-desc text-sm">
+    <i class="bi bi-flower1 me-1"></i>
+    Jenis komoditas pertanian
+  </div>
+  <div class="stat-actions mt-2">
+    <button
+      class="btn btn-sm btn-ghost"
+      hx-get="{% url 'spatial:commodity_list' %}"
+      hx-target="#main-content"
+      hx-push-url="true">
+      Lihat Detail <i class="bi bi-arrow-right ms-1"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Stat Card 3: Grup Komoditas -->
+<div class="stat bg-base-100 shadow-lg rounded-xl hover:shadow-xl transition-shadow duration-300 border-l-4 border-info">
+  <div class="stat-figure text-info">
+    <i class="bi bi-tags text-3xl"></i>
+  </div>
+  <div class="stat-title">Grup Komoditas</div>
+  <div class="stat-value text-info text-3xl">{{ total_commodity_groups }}</div>
+  <div class="stat-desc text-sm">
+    <i class="bi bi-collection me-1"></i>
+    Kategori komoditas
+  </div>
+  <div class="stat-actions mt-2">
+    <button
+      class="btn btn-sm btn-ghost"
+      hx-get="{% url 'spatial:commoditygroup_list' %}"
+      hx-target="#main-content"
+      hx-push-url="true">
+      Lihat Detail <i class="bi bi-arrow-right ms-1"></i>
+    </button>
+  </div>
+</div>

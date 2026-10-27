@@ -1,0 +1,47 @@
+{# Pagination Component for HTMX #}
+{# Usage: hx-get="?page={{ page_num }}" hx-target="#content-area" #}
+
+{% if page_obj.has_other_pages %}
+<div class="flex justify-center mt-6">
+  <div class="join">
+    {% if page_obj.has_previous %}
+    <button
+      class="join-item btn"
+      hx-get="?page={{ page_obj.previous_page_number }}"
+      hx-target="#content-area"
+      hx-push-url="true">
+      «
+    </button>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <button class="join-item btn btn-active">{{ num }}</button>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+      <button
+        class="join-item btn"
+        hx-get="?page={{ num }}"
+        hx-target="#content-area"
+        hx-push-url="true">
+        {{ num }}
+      </button>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <button
+      class="join-item btn"
+      hx-get="?page={{ page_obj.next_page_number }}"
+      hx-target="#content-area"
+      hx-push-url="true">
+      »
+    </button>
+    {% endif %}
+  </div>
+</div>
+
+<div class="text-center mt-2 text-sm opacity-70">
+  Menampilkan halaman {{ page_obj.number }} dari {{ page_obj.paginator.num_pages }}
+  ({{ page_obj.paginator.count }} total)
+</div>
+{% endif %}

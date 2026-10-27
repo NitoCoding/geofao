@@ -1,0 +1,126 @@
+{% for result in results %}
+<div class="result-preview-row px-4 py-3 border-b border-base-200 hover:bg-base-100 cursor-pointer transition-colors border-l-[3px] border-l-transparent"
+     data-result-id="{{ result.pk }}"
+     data-commodity-name="{{ result.commodity.name|default:'Multi-Komoditas' }}"
+     data-layer-name="{{ result.base_layer.name }}">
+    <div class="flex items-start gap-3">
+        <!-- Icon -->
+        <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+            <i class="bi bi-clipboard-data text-sm"></i>
+        </div>
+
+        <!-- Info -->
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-base-content truncate">
+                    {{ result.commodity.name|default:"Multi-Komoditas" }}
+                </span>
+                <!-- Status badge -->
+                {% if result.status == 'completed' %}
+                <span class="badge badge-success badge-xs flex-shrink-0">Selesai</span>
+                {% elif result.status == 'processing' %}
+                <span class="badge badge-warning badge-xs flex-shrink-0">Proses</span>
+                {% elif result.status == 'pending' %}
+                <span class="badge badge-ghost badge-xs flex-shrink-0">Antri</span>
+                {% elif result.status == 'failed' %}
+                <span class="badge badge-error badge-xs flex-shrink-0">Gagal</span>
+                {% endif %}
+            </div>
+
+            <!-- Layer name -->
+            <div class="text-[11px] text-base-content/50 mt-0.5 truncate">
+                {{ result.base_layer.name }}
+            </div>
+
+            <!-- Class distribution -->
+            {% if result.status == 'completed' %}
+            <div class="flex items-center gap-2 mt-1.5">
+                {% if result.s1_count > 0 %}
+                <span class="text-[10px] px-1.5 py-0.5 rounded font-medium" style="background:#1a9641;color:#fff">S1:{{ result.s1_count }}</span>
+                {% endif %}
+                {% if result.s2_count > 0 %}
+                <span class="text-[10px] px-1.5 py-0.5 rounded font-medium" style="background:#a6d96a;color:#1a5e20">S2:{{ result.s2_count }}</span>
+                {% endif %}
+                {% if result.s3_count > 0 %}
+                <span class="text-[10px] px-1.5 py-0.5 rounded font-medium" style="background:#fdae61;color:#7a3b00">S3:{{ result.s3_count }}</span>
+                {% endif %}
+                {% if result.n_count > 0 %}
+                <span class="text-[10px] px-1.5 py-0.5 rounded font-medium" style="background:#d7191c;color:#fff">N:{{ result.n_count }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Timestamp -->
+            <div class="text-[10px] text-base-content/40 mt-1">
+                {{ result.created_at|date:"d M Y H:i" }}
+            </div>
+        </div>
+
+        <!-- Toggle Active -->
+        <div class="flex items-center flex-shrink-0 gap-0.5" onclick="event.stopPropagation()">
+            <button class="result-toggle-btn btn btn-ghost btn-xs btn-square {% if result.is_active %}text-success{% else %}text-base-content/30{% endif %}"
+                    title="{% if result.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}"
+                    hx-post="{% url 'analysis:toggle_result' result.pk %}"
+                    hx-target="#toast-container"
+                    hx-swap="afterbegin">
+                <i class="bi {% if result.is_active %}bi-toggle-on text-lg{% else %}bi-toggle-off text-lg{% endif %}"></i>
+            </button>
+            <button class="result-delete-btn btn btn-ghost btn-xs btn-square text-error"
+                    title="Hapus hasil"
+                    hx-post="{% url 'analysis:delete_analysis' result.pk %}"
+                    hx-confirm="Hapus hasil analisis ini beserta seluruh data per fitur?"
+                    hx-swap="none">
+                <i class="bi bi-trash text-sm"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="py-16 text-center">
+    <div class="w-16 h-16 rounded-full bg-base-200 flex items-center justify-center mx-auto mb-4">
+        <i class="bi bi-inbox text-2xl text-base-content/40"></i>
+    </div>
+    <p class="text-sm text-base-content/60 font-medium">Tidak ada hasil analisis</p>
+    <p class="text-xs text-base-content/40 mt-1">Jalankan analisis dari Control Center terlebih dahulu</p>
+</div>
+{% endfor %}
+
+<!-- Pagination -->
+{% if is_paginated %}
+<div class="px-4 py-3 border-t border-base-200 flex items-center justify-between">
+    <p class="text-[11px] text-base-content/50">
+        {{ results.start_index }}-{{ results.end_index }} / {{ page_obj.paginator.count }}
+    </p>
+    <div class="flex gap-1">
+        {% if page_obj.has_previous %}
+        <button hx-get="{% url 'analysis:results_panel' %}"
+                hx-vals='{"page": "{{ page_obj.previous_page_number }}", "search": "{{ search }}", "status": "{{ status_filter }}"}'
+                hx-target="#results-list-content"
+                class="btn btn-xs btn-ghost btn-square">
+            <i class="bi bi-chevron-left text-xs"></i>
+        </button>
+        {% else %}
+        <button class="btn btn-xs btn-ghost btn-square opacity-30" disabled>
+            <i class="bi bi-chevron-left text-xs"></i>
+        </button>
+        {% endif %}
+
+        <span class="btn btn-xs btn-ghost font-medium pointer-events-none">
+            {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <button hx-get="{% url 'analysis:results_panel' %}"
+                hx-vals='{"page": "{{ page_obj.next_page_number }}", "search": "{{ search }}", "status": "{{ status_filter }}"}'
+                hx-target="#results-list-content"
+                class="btn btn-xs btn-ghost btn-square">
+            <i class="bi bi-chevron-right text-xs"></i>
+        </button>
+        {% else %}
+        <button class="btn btn-xs btn-ghost btn-square opacity-30" disabled>
+            <i class="bi bi-chevron-right text-xs"></i>
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

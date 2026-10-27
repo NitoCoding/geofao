@@ -1,0 +1,27 @@
+{# Stat Card Component for HTMX Refresh #}
+{# Usage: hx-get="{% url 'stats-refresh' %}" hx-target="#stats-container" hx-swap="innerHTML" #}
+
+<div class="stat bg-base-100 shadow-lg rounded-xl hover:shadow-xl transition-shadow duration-300">
+  <div class="stat-figure text-{{ color }}">
+    <i class="{{ icon }} text-3xl"></i>
+  </div>
+  <div class="stat-title">{{ title }}</div>
+  <div class="stat-value text-{{ color }} text-3xl">
+    {% if loading %}
+    <span class="loading loading-spinner loading-sm"></span>
+    {% else %}
+    {{ value }}
+    {% endif %}
+  </div>
+  {% if change is not none %}
+  <div class="stat-desc">
+    {% if change > 0 %}
+    <i class="bi bi-arrow-up text-success"></i> {{ change }}% dari bulan lalu
+    {% elif change < 0 %}
+    <i class="bi bi-arrow-down text-error"></i> {{ abs(change) }}% dari bulan lalu
+    {% else %}
+    <i class="bi bi-dash text-warning"></i> Tidak ada perubahan
+    {% endif %}
+  </div>
+  {% endif %}
+</div>

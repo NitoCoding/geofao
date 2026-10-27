@@ -1,0 +1,168 @@
+{# Layer Detail Partial for HTMX #}
+{# Content only, no extends base.html #}
+
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <div class="flex items-center gap-3">
+      <button
+        class="btn btn-ghost btn-sm"
+        hx-get="{% url 'spatial:layer_management' %}"
+        hx-target="#main-content"
+        hx-push-url="true">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <div>
+        <h2 class="text-3xl font-bold">{{ layer.name }}</h2>
+        <p class="text-base-content/70">Detail layer spasial</p>
+      </div>
+    </div>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'spatial:map_view' %}" class="btn btn-ghost">
+      <i class="bi bi-map"></i>
+    </a>
+    <button class="btn btn-ghost">
+      <i class="bi bi-pencil"></i>
+    </button>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+  <!-- Sidebar Informasi Layer -->
+  <div class="lg:col-span-1">
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h3 class="card-title text-lg mb-4">
+          <i class="bi bi-info-circle text-primary"></i>
+          Informasi Layer
+        </h3>
+        <div class="space-y-4">
+          <div class="stat bg-base-200 rounded-lg">
+            <div class="stat-title text-xs">Nama Layer</div>
+            <div class="stat-value text-lg">{{ layer.name }}</div>
+          </div>
+
+          <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+            <span class="font-semibold">Tipe</span>
+            <div class="badge badge-ghost">{{ layer.get_layer_type_display }}</div>
+          </div>
+
+          <div class="flex justify-between items-center p-3 bg-base-200 rounded-lg">
+            <span class="font-semibold">Status</span>
+            {% if layer.is_active %}
+            <div class="badge badge-success gap-1">
+              <i class="bi bi-check-circle-fill text-xs"></i>
+              Aktif
+            </div>
+            {% else %}
+            <div class="badge badge-error gap-1">
+              <i class="bi bi-x-circle-fill text-xs"></i>
+              Nonaktif
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="p-3 bg-base-200 rounded-lg">
+            <div class="font-semibold mb-1">Tabel Database</div>
+            <code class="text-xs bg-base-300 px-2 py-1 rounded block text-center">{{ layer.table_name }}</code>
+          </div>
+
+          <div class="stat bg-primary/10 rounded-lg">
+            <div class="stat-title text-xs">Total Fitur</div>
+            <div class="stat-value text-primary text-2xl">{{ layer.features.count }}</div>
+          </div>
+
+          <div class="p-3 bg-base-200 rounded-lg">
+            <div class="font-semibold mb-1">Dibuat</div>
+            <div class="text-sm opacity-70">{{ layer.created_at|date:"d M Y, H:i" }}</div>
+          </div>
+
+          {% if layer.updated_at %}
+          <div class="p-3 bg-base-200 rounded-lg">
+            <div class="font-semibold mb-1">Diperbarui</div>
+            <div class="text-sm opacity-70">{{ layer.updated_at|date:"d M Y, H:i" }}</div>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="card-actions flex-col gap-2 mt-6">
+          <a href="{% url 'spatial:map_view' %}" class="btn btn-primary btn-block">
+            <i class="bi bi-map me-2"></i>
+            Lihat di Peta
+          </a>
+          <a href="/admin/spatial/masterlayer/{{ layer.pk }}/change/" class="btn btn-outline btn-block">
+            <i class="bi bi-pencil-square me-2"></i>
+            Edit di Admin
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daftar Fitur -->
+  <div class="lg:col-span-3">
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="card-title text-lg">
+            <i class="bi bi-list-ul text-secondary"></i>
+            Daftar Fitur (10 pertama)
+          </h3>
+          <span class="badge badge-ghost">{{ layer.features.count }} total</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="table table-zebra w-full">
+            <thead class="bg-base-300">
+              <tr>
+                <th class="w-20">ID</th>
+                <th>Atribut</th>
+                <th class="w-24">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for feature in features %}
+              <tr class="hover">
+                <td class="font-mono text-sm">{{ feature.id }}</td>
+                <td>
+                  <div class="mockup-code bg-base-200 text-xs">
+                    <pre class="!p-2"><code>{{ feature.attributes|pprint }}</code></pre>
+                  </div>
+                </td>
+                <td>
+                  <div class="flex gap-1">
+                    <button class="btn btn-ghost btn-xs">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-ghost btn-xs text-error">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="text-center py-8">
+                  <div class="flex flex-col items-center gap-4 opacity-50">
+                    <i class="bi bi-inbox text-4xl"></i>
+                    <p>Tidak ada fitur dalam layer ini.</p>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if layer.features.count > 10 %}
+        <div class="mt-4 text-center">
+          <button class="btn btn-ghost btn-sm">
+            <i class="bi bi-chevron-down me-2"></i>
+            Muat lebih banyak
+          </button>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>

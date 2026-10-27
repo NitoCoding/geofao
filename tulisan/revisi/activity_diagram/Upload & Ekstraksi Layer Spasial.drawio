@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.0 Chrome/134.0.6998.88 Electron/34.3.1 Safari/537.36" version="26.0.0">
+  <diagram name="Upload &amp; Ekstraksi Layer Spasial" id="upload-layer">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="960" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- SWIMLANE: User -->
+        <mxCell id="u-swimlane" value="User" style="swimlane;startSize=40;horizontal=1;fillColor=#E3F2FD;fontStyle=1;fontSize=14;rounded=1;shadow=0;strokeColor=#90CAF9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="380" height="840" as="geometry" />
+        </mxCell>
+
+        <!-- SWIMLANE: System -->
+        <mxCell id="s-swimlane" value="Sistem" style="swimlane;startSize=40;horizontal=1;fillColor=#FFF3E0;fontStyle=1;fontSize=14;rounded=1;shadow=0;strokeColor=#FFB74D;" vertex="1" parent="1">
+          <mxGeometry x="420" y="40" width="460" height="840" as="geometry" />
+        </mxCell>
+
+        <!-- ===== START ===== -->
+        <mxCell id="start" value="" style="ellipse;fillColor=#4CAF50;strokeColor=#388E3C;" vertex="1" parent="1">
+          <mxGeometry x="200" y="60" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- ===== USER ACTIVITIES ===== -->
+        <mxCell id="u-login" value="Login ke Sistem" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="115" y="110" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="u-buka-halaman" value="Buka Halaman Manajemen Layer" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="170" width="200" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="u-klik-upload" value="Klik Tombol Upload" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="105" y="230" width="190" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Pilih file -->
+        <mxCell id="u-decision-file" value="Pilih File ZIP&#xa;&amp; Isi Form" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="117" y="290" width="166" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== SYSTEM ACTIVITIES (Flow A: Validasi) ===== -->
+        <mxCell id="s-validasi-form" value="Validasi Form &amp; File" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="230" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Valid? -->
+        <mxCell id="s-decision-valid" value="Form &amp; File Valid?" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="587" y="290" width="106" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== SYSTEM ACTIVITIES (Flow B: Ekstraksi) ===== -->
+        <mxCell id="s-buat-masterlayer" value="Buat Record&#xa;MasterLayer" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="380" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="s-temp-dir" value="Buat Direktori Temp" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="440" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="s-ekstrak-zip" value="Ekstrak File ZIP" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="500" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: .shp found? -->
+        <mxCell id="s-decision-shp" value="File .shp&#xa;Ditemukan?" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="587" y="560" width="106" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-baca-gdal" value="Baca Shapefile&#xa;via GDAL (DataSource)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="650" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: geom type supported? -->
+        <mxCell id="s-decision-geom" value="Tipe Geometri&#xa;Didukung?" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="587" y="710" width="106" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-simpan-layer-type" value="Simpan Layer Type&#xa;ke Database" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="800" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-simpan-fitur" value="Loop: Simpan Setiap&#xa;Fitur ke FeatureData" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="545" y="860" width="190" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- ===== NOTIFIKASI KE USER ===== -->
+        <mxCell id="u-notif-sukses" value="Notifikasi Sukses&#xa;(Toast + Close Modal)" style="rounded=1;fillColor=#E8F5E9;strokeColor=#66BB6A;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="105" y="660" width="190" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="u-lihat-layer" value="Lihat Layer Baru&#xa;di Daftar Layer" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="105" y="720" width="190" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- ===== END ===== -->
+        <mxCell id="end" value="" style="ellipse;fillColor=#F44336;strokeColor=#D32F2F;" vertex="1" parent="1">
+          <mxGeometry x="200" y="800" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- ===== ARROWS ===== -->
+        <mxCell id="e-start-login" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="start" target="u-login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-login-halaman" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-login" target="u-buka-halaman">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-halaman-upload" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-buka-halaman" target="u-klik-upload">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-upload-decision" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-klik-upload" target="u-decision-file">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User decision → System validasi -->
+        <mxCell id="e-decision-validasi" value="Submit Form" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="1" source="u-decision-file" target="s-validasi-form">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Validasi → Decision -->
+        <mxCell id="e-validasi-decision" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-validasi-form" target="s-decision-valid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision: Tidak Valid → User kembali -->
+        <mxCell id="e-decision-tidak-valid" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F44336;exitX=0;exitY=0.5;entryX=1;entryY=0.5;dashed=1;fontSize=10;" edge="1" parent="1" source="s-decision-valid" target="u-decision-file">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-label-tidak-valid" value="Tidak" style="text;fontSize=10;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;resizable=0;rotatable=0;" vertex="1" parent="1">
+          <mxGeometry x="535" y="308" width="30" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Decision: Ya → Buat MasterLayer -->
+        <mxCell id="e-decision-ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#4CAF50;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=10;fontColor=#2E7D32;" edge="1" parent="1" source="s-decision-valid" target="s-buat-masterlayer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Buat MasterLayer → Temp Dir -->
+        <mxCell id="e-master-temp" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-buat-masterlayer" target="s-temp-dir">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Temp Dir → Ekstrak ZIP -->
+        <mxCell id="e-temp-zip" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-temp-dir" target="s-ekstrak-zip">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Ekstrak ZIP → Decision .shp -->
+        <mxCell id="e-zip-shp" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-ekstrak-zip" target="s-decision-shp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision SHP: Tidak → Hapus & return error -->
+        <mxCell id="e-shp-tidak" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F44336;exitX=0;exitY=0.5;entryX=0.5;entryY=1;dashed=1;fontSize=10;" edge="1" parent="1" source="s-decision-shp" target="s-validasi-form">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="555" y="590" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Decision SHP: Ya → Baca GDAL -->
+        <mxCell id="e-shp-ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#4CAF50;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=10;fontColor=#2E7D32;" edge="1" parent="1" source="s-decision-shp" target="s-baca-gdal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Baca GDAL → Decision geom -->
+        <mxCell id="e-gdal-geom" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-baca-gdal" target="s-decision-geom">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision Geom: Tidak → Hapus & return error -->
+        <mxCell id="e-geom-tidak" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F44336;exitX=0;exitY=0.5;entryX=0.5;entryY=1;dashed=1;fontSize=10;" edge="1" parent="1" source="s-decision-geom" target="s-validasi-form">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="555" y="740" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Decision Geom: Ya → Simpan Layer Type -->
+        <mxCell id="e-geom-ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#4CAF50;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=10;fontColor=#2E7D32;" edge="1" parent="1" source="s-decision-geom" target="s-simpan-layer-type">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Simpan Layer Type → Simpan Fitur -->
+        <mxCell id="e-type-fitur" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-simpan-layer-type" target="s-simpan-fitur">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Simpan Fitur → User Notif (cross swimlane) -->
+        <mxCell id="e-fitur-notif" value="Notifikasi Sukses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0;exitY=0.5;entryX=1;entryY=0.5;fontSize=10;" edge="1" parent="1" source="s-simpan-fitur" target="u-notif-sukses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Notif → Lihat Layer -->
+        <mxCell id="e-notif-lihat" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-notif-sukses" target="u-lihat-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lihat Layer → End -->
+        <mxCell id="e-lihat-end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-lihat-layer" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

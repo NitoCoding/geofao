@@ -1,0 +1,130 @@
+<h2 class="card-title mb-4">
+    <i class="bi bi-intersect text-primary"></i>
+    Batch Layer Overlay
+</h2>
+
+<div class="space-y-6">
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle text-xl"></i>
+        <div>
+            <h3 class="font-bold">Batch Layer Overlay</h3>
+            <p class="text-sm">Overlay beberapa layer menjadi satu layer gabungan. Proses berjalan di background (Celery).</p>
+        </div>
+    </div>
+
+    <form id="batch-overlay-form"
+          hx-post="{% url 'analysis:execute_batch_overlay' %}"
+          hx-target="#overlay-result"
+          hx-swap="innerHTML"
+          hx-disabled-elt="find button[type='submit']"
+          class="card bg-base-200 shadow-sm p-4 space-y-4">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Output Layer Name</span></label>
+                <input type="text" name="output_layer_name" class="input input-bordered w-full"
+                       placeholder="e.g., Combined Soil Analysis" required />
+            </div>
+
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Overlay Method</span></label>
+                <select name="method" class="select select-bordered w-full">
+                    <option value="finest_resolution">Finest Resolution (Recommended)</option>
+                    <option value="finest_resolution_optimized">Finest Resolution Optimized</option>
+                </select>
+            </div>
+
+            <div class="form-control">
+                <label class="label"><span class="label-text font-medium">Wilayah Filter (Optional)</span></label>
+                <input type="text" name="wilayah" class="input input-bordered w-full"
+                       placeholder="e.g., Barru (kosongkan untuk tanpa filter)" />
+            </div>
+        </div>
+
+        <div class="divider">Pilih Layer (minimal 2)</div>
+        <div id="overlay-layers-container" class="space-y-2">
+            {% for layer in layers %}
+            <label class="flex items-center gap-3 p-3 bg-base-100 rounded-lg hover:bg-base-300 transition-colors cursor-pointer">
+                <input type="checkbox"
+                       name="layer_ids"
+                       value="{{ layer.id }}"
+                       class="checkbox checkbox-primary overlay-layer-checkbox"
+                       data-layer-name="{{ layer.name }}" />
+                <div class="flex-1">
+                    <p class="font-medium text-sm">{{ layer.name }}</p>
+                    <p class="text-xs text-slate-500">{{ layer.table_name }}</p>
+                </div>
+                {% if layer.layer_category %}
+                <span class="badge badge-sm badge-ghost">{{ layer.layer_category }}</span>
+                {% endif %}
+            </label>
+            {% empty %}
+            <div class="text-center py-4 text-slate-500">
+                <i class="bi bi-inbox text-2xl"></i>
+                <p>No layers available</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="divider">Layer Terpilih</div>
+        <div id="selected-layers-summary" class="flex flex-wrap gap-2 min-h-[2rem]"></div>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button type="reset" class="btn btn-ghost" id="overlay-reset-btn">
+                <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-play-fill me-1"></i> Execute Overlay
+            </button>
+        </div>
+    </form>
+
+    <div id="overlay-result"></div>
+</div>
+
+<script>
+(function () {
+    const form = document.getElementById('batch-overlay-form');
+    const summary = document.getElementById('selected-layers-summary');
+
+    function updateSelectedLayers() {
+        const checked = form.querySelectorAll('.overlay-layer-checkbox:checked');
+        summary.innerHTML = '';
+
+        if (checked.length === 0) {
+            const empty = document.createElement('span');
+            empty.className = 'text-sm text-slate-500 italic';
+            empty.textContent = 'Belum ada layer dipilih';
+            summary.appendChild(empty);
+            return;
+        }
+
+        checked.forEach(cb => {
+            const badge = document.createElement('span');
+            badge.className = 'badge badge-primary gap-1';
+            badge.textContent = cb.dataset.layerName;
+            summary.appendChild(badge);
+        });
+    }
+
+    form.addEventListener('change', e => {
+        if (e.target.classList.contains('overlay-layer-checkbox')) updateSelectedLayers();
+    });
+
+    form.addEventListener('reset', () => {
+        setTimeout(() => {
+            document.getElementById('overlay-result').innerHTML = '';
+            updateSelectedLayers();
+        }, 0);
+    });
+
+    form.addEventListener('htmx:afterRequest', e => {
+        if (e.detail.successful) {
+            form.querySelectorAll('.overlay-layer-checkbox').forEach(cb => cb.checked = false);
+            updateSelectedLayers();
+        }
+    });
+
+    updateSelectedLayers();
+})();
+</script>

@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="csrf-token" content="{{ csrf_token }}" />
+        <title>Login - Sistem Informasi Kesesuaian Lahan</title>
+        <!-- Tailwind + DaisyUI -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@5"
+              rel="stylesheet" />
+        <!-- HTMX -->
+        <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"></script>
+        <!-- Bootstrap Icons -->
+        <link rel="stylesheet"
+              href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+        <!-- Google Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+              rel="stylesheet">
+        <style>
+        html, body {
+            overflow-x: hidden;
+            max-width: 100vw;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        /* Custom primary color matching reference design */
+        :root {
+            --primary-custom: #4B00FE;
+            --primary-light: #6366F1;
+        }
+        </style>
+    </head>
+    <body class="min-h-screen flex text-base-content bg-base-600"
+          style="background-color: #F5F8FC">
+        <!-- Logo positioned absolute top-left -->
+        <div class="fixed top-4 left-4 md:top-6 md:left-6 z-50 flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-[#4B00FE] flex items-center justify-center text-white">
+                <i class="bi bi-map-fill text-white text-lg"></i>
+            </div>
+            <span class="text-xl font-bold tracking-wide" style="color: #4B00FE;">GeoFAO</span>
+        </div>
+        <main id="main-content" class="flex-1 flex flex-col">
+            <div class="flex-grow p-4 md:p-6 overflow-auto">
+                <div class="flex items-center justify-center min-h-[80vh]">
+                    <div class="w-full max-w-sm rounded-2xl bg-white shadow-sm"
+                         style="box-shadow: 0 1px 3px rgba(0,0,0,0.04)">
+                        <!-- Card Content -->
+                        <div class="p-6 md:p-8">
+                            <!-- Logo/Title Section -->
+                            <div class="text-center mb-5">
+                                <h1 class="text-xl font-bold text-slate-800">Sign In</h1>
+                                <p class="text-sm text-slate-500 mt-2">Welcome back! Let's continue with</p>
+                            </div>
+                            <!-- Divider -->
+                            <!-- Container untuk HTMX swap -->
+                            <div id="login-form-container"
+                                 hx-get="{% url 'iam:login' %}"
+                                 hx-trigger="load"
+                                 hx-swap="innerHTML">
+                                <div class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Sign Up Link -->
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- HTMX CSRF Setup -->
+        <script>
+        document.addEventListener('htmx:configRequest', function(event) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            if (csrfToken) {
+                event.detail.headers['X-CSRFToken'] = csrfToken;
+            }
+        });
+        </script>
+    </body>
+</html>

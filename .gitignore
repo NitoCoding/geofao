@@ -1,0 +1,59 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+.claude/
+
+mediafiles/
+projects/
+
+# Binary files - DO NOT commit these
+*.whl
+*.tar.gz
+
+# GDAL specific binaries (install via pip/uv instead)
+gdal-*.whl
+GDAL-*.whl
+gdal-*.tar.gz
+
+# Large data files (uploaded shapefiles go to mediafiles/)
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.sbn
+*.sbx
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+docs/
+*.swp
+*.swo
+.kiro/
+.aider*
+
+# Django / runtime artifacts
+*.sqlite3
+staticfiles/
+*.log
+logs/
+celerybeat-schedule*
+media/temp/
+
+# OS files
+.DS_Store
+Thumbs.db

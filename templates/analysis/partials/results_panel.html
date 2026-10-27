@@ -1,0 +1,325 @@
+{% if result %}
+<div class="space-y-6 animate-fade-in">
+
+  <!-- Overall Suitability Class -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="card-title text-lg">
+          <i class="bi bi-award-fill"></i>
+          Hasil Analisis
+        </h2>
+
+        <!-- Suitability Class Badge -->
+        {% if result.overall_class == 'S1' %}
+        <div class="badge badge-lg badge-success gap-1">
+          <i class="bi bi-check-circle-fill text-xl"></i>
+          <div class="text-left">
+            <div class="text-xs opacity-70">Kelas Kesesuaian</div>
+            <div class="font-bold text-sm">S1 - Sangat Sesuai</div>
+          </div>
+        </div>
+        {% elif result.overall_class == 'S2' %}
+        <div class="badge badge-lg badge-info gap-1">
+          <i class="bi bi-info-circle-fill text-xl"></i>
+          <div class="text-left">
+            <div class="text-xs opacity-70">Kelas Kesesuaian</div>
+            <div class="font-bold text-sm">S2 - Cukup Sesuai</div>
+          </div>
+        </div>
+        {% elif result.overall_class == 'S3' %}
+        <div class="badge badge-lg badge-warning gap-1">
+          <i class="bi bi-exclamation-triangle-fill text-xl"></i>
+          <div class="text-left">
+            <div class="text-xs opacity-70">Kelas Kesesuaian</div>
+            <div class="font-bold text-sm">S3 - Sesuai Marginal</div>
+          </div>
+        </div>
+        {% else %}
+        <div class="badge badge-lg badge-error gap-1">
+          <i class="bi bi-x-circle-fill text-xl"></i>
+          <div class="text-left">
+            <div class="text-xs opacity-70">Kelas Kesesuaian</div>
+            <div class="font-bold text-sm">N - Tidak Sesuai</div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Score Visualization -->
+      <div class="mb-6">
+        <div class="flex justify-between text-sm mb-2">
+          <span class="font-medium">Skor Kesesuaian</span>
+          <span class="font-bold text-primary text-lg">{{ result.overall_score|floatformat:1 }}/100</span>
+        </div>
+
+        {% if result.overall_class == 'S1' %}
+        <progress class="progress progress-success w-full" value="{{ result.overall_score }}" max="100"></progress>
+        {% elif result.overall_class == 'S2' %}
+        <progress class="progress progress-info w-full" value="{{ result.overall_score }}" max="100"></progress>
+        {% elif result.overall_class == 'S3' %}
+        <progress class="progress progress-warning w-full" value="{{ result.overall_score }}" max="100"></progress>
+        {% else %}
+        <progress class="progress progress-error w-full" value="{{ result.overall_score }}" max="100"></progress>
+        {% endif %}
+
+        <div class="flex justify-between text-xs mt-1 text-base-content/60">
+          <span>Metode: {{ result.method|title }}</span>
+          <span>{{ result.summary.total_characteristics }} karakteristik</span>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="stats stats-vertical lg:stats-horizontal shadow bg-base-200 w-full">
+        <div class="stat">
+          <div class="stat-figure text-success">
+            <i class="bi bi-check-circle text-2xl"></i>
+          </div>
+          <div class="stat-title">Sangat Sesuai</div>
+          <div class="stat-value text-success text-2xl">{{ result.summary.s1_count }}</div>
+          <div class="stat-desc">Karakteristik optimal</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-figure text-info">
+            <i class="bi bi-info-circle text-2xl"></i>
+          </div>
+          <div class="stat-title">Cukup Sesuai</div>
+          <div class="stat-value text-info text-2xl">{{ result.summary.s2_count }}</div>
+          <div class="stat-desc">Perlu sedikit perbaikan</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-figure text-warning">
+            <i class="bi bi-exclamation-triangle text-2xl"></i>
+          </div>
+          <div class="stat-title">Sesuai Marginal</div>
+          <div class="stat-value text-warning text-2xl">{{ result.summary.s3_count }}</div>
+          <div class="stat-desc">Memerlukan perhatian</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-figure text-error">
+            <i class="bi bi-x-circle text-2xl"></i>
+          </div>
+          <div class="stat-title">Tidak Sesuai</div>
+          <div class="stat-value text-error text-2xl">{{ result.summary.n_count }}</div>
+          <div class="stat-desc">Masalah kritis</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Characteristic Breakdown Table -->
+  <div class="card bg-base-100 shadow-lg">
+    <div class="card-body">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-lg">
+          <i class="bi bi-table"></i>
+          Rincian per Karakteristik
+        </h3>
+        <button class="btn btn-ghost btn-sm"
+                hx-get="{% url 'analysis:export_table' %}"
+                hx-target="#main-content">
+          <i class="bi bi-download"></i>
+          Export Excel
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="table table-zebra table-hover">
+          <thead class="bg-base-300">
+            <tr>
+              <th>Karakteristik</th>
+              <th>Nilai Input</th>
+              <th>Kelas</th>
+              <th>Skor</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for char in result.characteristics %}
+            <tr class="hover">
+              <td>
+                <div class="flex items-center gap-2">
+                  <i class="bi bi-speedometer2 text-primary"></i>
+                  <span class="font-medium">{{ char.characteristic }}</span>
+                </div>
+              </td>
+              <td>{{ char.value }}</td>
+              <td>
+                {% if char.class == 'S1' %}
+                <span class="badge badge-success">S1</span>
+                {% elif char.class == 'S2' %}
+                <span class="badge badge-info">S2</span>
+                {% elif char.class == 'S3' %}
+                <span class="badge badge-warning">S3</span>
+                {% else %}
+                <span class="badge badge-error">N</span>
+                {% endif %}
+              </td>
+              <td>{{ char.score|floatformat:1 }}</td>
+              <td>
+                {% if char.class == 'S1' %}
+                <span class="badge badge-success gap-1">
+                  <i class="bi bi-check-circle"></i>
+                  Optimal
+                </span>
+                {% elif char.class == 'S2' %}
+                <span class="badge badge-info gap-1">
+                  <i class="bi bi-info-circle"></i>
+                  Baik
+                </span>
+                {% elif char.class == 'S3' %}
+                <span class="badge badge-warning gap-1">
+                  <i class="bi bi-exclamation-triangle"></i>
+                  Perhatian
+                </span>
+                {% else %}
+                <span class="badge badge-error gap-1">
+                  <i class="bi bi-x-circle"></i>
+                  Kritis
+                </span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Limiting Factors & Recommendations -->
+  {% if result.limiting_factors.factors %}
+  <div class="card bg-base-100 shadow-lg border-l-4 border-warning">
+    <div class="card-body">
+      <h3 class="font-bold text-lg mb-4">
+        <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+        Faktor Pembatas & Rekomendasi
+      </h3>
+
+      <div class="space-y-4">
+        {% for factor in result.limiting_factors.factors %}
+        <div class="alert {% if factor.severity == 'N' %}alert-error{% elif factor.severity == 'S3' %}alert-warning{% else %}alert-info{% endif %}">
+          <div class="flex-1">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="font-bold">{{ factor.characteristic }} - Kelas {{ factor.severity }}</h4>
+                <p class="text-sm mt-1">
+                  {{ factor.description }}
+                </p>
+              </div>
+              {% if factor.severity == 'N' %}
+              <span class="badge badge-error badge-lg">
+                <i class="bi bi-exclamation-circle"></i>
+                Prioritas Tinggi
+              </span>
+              {% elif factor.severity == 'S3' %}
+              <span class="badge badge-warning badge-lg">
+                <i class="bi bi-info-circle"></i>
+                Prioritas Sedang
+              </span>
+              {% else %}
+              <span class="badge badge-info badge-lg">
+                <i class="bi bi-check-circle"></i>
+                Prioritas Rendah
+              </span>
+              {% endif %}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div class="bg-base-200 rounded-lg p-3">
+                <div class="text-xs text-base-content/60 mb-1">
+                  <i class="bi bi-wrench-adjustable"></i>
+                  Solusi
+                </div>
+                <div class="font-medium text-sm">
+                  {{ factor.solution }}
+                </div>
+              </div>
+
+              <div class="bg-base-200 rounded-lg p-3">
+                <div class="text-xs text-base-content/60 mb-1">
+                  <i class="bi bi-cash"></i>
+                  Estimasi Biaya
+                </div>
+                <div class="font-medium text-sm">
+                  {{ factor.cost_estimate }}
+                </div>
+              </div>
+
+              <div class="bg-base-200 rounded-lg p-3">
+                <div class="text-xs text-base-content/60 mb-1">
+                  <i class="bi bi-calendar-event"></i>
+                  Waktu
+                </div>
+                <div class="font-medium text-sm">
+                  {{ factor.time_required }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Action Buttons -->
+  <div class="card bg-base-100 shadow-lg">
+    <div class="card-body">
+      <h3 class="font-bold text-lg mb-4">
+        <i class="bi bi-download"></i>
+        Simpan & Export Hasil
+      </h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <button class="btn btn-outline btn-success"
+                hx-post="{% url 'analysis:save_result' %}"
+                hx-target="#toast-container">
+          <i class="bi bi-save"></i>
+          Simpan Hasil
+        </button>
+
+        <button class="btn btn-outline btn-primary"
+                hx-get="{% url 'analysis:export_pdf' %}">
+          <i class="bi bi-file-earmark-pdf"></i>
+          Export PDF
+        </button>
+
+        <button class="btn btn-outline btn-info" onclick="window.print()">
+          <i class="bi bi-printer"></i>
+          Cetak Laporan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Integration Placeholder -->
+  <div class="card bg-base-100 shadow-lg no-print">
+    <div class="card-body">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-lg">
+          <i class="bi bi-geo-alt"></i>
+          Peta Sebaran
+        </h3>
+        <button class="btn btn-ghost btn-sm">
+          <i class="bi bi-fullscreen"></i>
+          Fullscreen
+        </button>
+      </div>
+
+      <div class="aspect-video bg-base-200 rounded-lg flex items-center justify-center">
+        <div class="text-center">
+          <i class="bi bi-map text-6xl text-base-content/30"></i>
+          <p class="text-base-content/60 mt-2">Peta interaktif akan ditampilkan di sini</p>
+          <p class="text-xs text-base-content/40 mt-1">Integrasi dengan Leaflet</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endif %}

@@ -1,0 +1,502 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — GeoAibarru{% endblock %}
+{% block page_title %}Map Rework{% endblock %}
+
+{% block content %}
+<div class="max-w-[calc(100vw-256px)] mx-auto">
+    <div
+        class="bg-base-100 rounded-xl card-elevated overflow-hidden"
+        style="height: calc(100vh - 7.5rem)"
+    >
+        <div class="flex h-full">
+            <!-- ================================================================ -->
+            <!-- LEFT PANEL: Tabbed Active Items -->
+            <!-- ================================================================ -->
+            <aside class="w-80 border-r border-base-200 flex flex-col flex-shrink-0 bg-base-200/50">
+                <!-- Header -->
+                <div class="p-4 border-b border-base-200 bg-base-100">
+                    <div>
+                        <h2 class="text-sm font-bold text-base-content flex items-center gap-2">
+                            <i class="bi bi-toggle-on text-primary"></i>
+                            Item Aktif
+                        </h2>
+                        <p class="text-xs text-base-content/50 mt-0.5">
+                            Layer dan hasil analisis dengan status aktif
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex border-b border-base-200 bg-base-100">
+                    <button class="tab-btn flex-1 text-xs font-medium py-2.5 px-3 transition-colors relative"
+                            data-tab="layers"
+                            onclick="switchTab('layers')">
+                        <i class="bi bi-layers me-1.5"></i>Layer
+                        <span class="badge badge-xs badge-primary ms-1">{{ active_layers|length }}</span>
+                    </button>
+                    <button class="tab-btn flex-1 text-xs font-medium py-2.5 px-3 transition-colors relative"
+                            data-tab="results"
+                            onclick="switchTab('results')">
+                        <i class="bi bi-clipboard-data me-1.5"></i>Hasil
+                        <span class="badge badge-xs badge-secondary ms-1">{{ active_results|length }}</span>
+                    </button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="flex-1 overflow-y-auto">
+                    <!-- Layers Tab -->
+                    <div id="tab-layers" class="tab-content">
+                        {% for layer in active_layers %}
+                        <div class="layer-preview-row px-4 py-3 border-b border-base-200 hover:bg-base-100 cursor-pointer transition-colors border-l-[3px] border-l-transparent"
+                             data-layer-id="{{ layer.pk }}"
+                             data-layer-name="{{ layer.name }}">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="bi {% if layer.layer_type == 'polygon' %}bi-hexagon-fill{% elif layer.layer_type == 'point' %}bi-geo-alt-fill{% else %}bi-layers-fill{% endif %} text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-medium text-base-content truncate">{{ layer.name }}</span>
+                                        <span class="w-1.5 h-1.5 rounded-full bg-success flex-shrink-0" title="Aktif"></span>
+                                    </div>
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        <span class="text-[11px] text-base-content/50">{{ layer.data_year.year }}</span>
+                                        <span class="text-[11px] text-base-content/30">·</span>
+                                        <span class="text-[11px] px-1.5 py-0.5 rounded bg-base-200 text-base-content/60">
+                                            {{ layer.get_layer_category_display }}
+                                        </span>
+                                        <span class="text-[11px] text-base-content/30">·</span>
+                                        <span class="text-[11px] text-base-content/50">{{ layer.feature_count|default:"0" }} fitur</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="py-16 text-center">
+                            <div class="w-16 h-16 rounded-full bg-base-200 flex items-center justify-center mx-auto mb-4">
+                                <i class="bi bi-inbox text-2xl text-base-content/40"></i>
+                            </div>
+                            <p class="text-sm text-base-content/60 font-medium">Tidak ada layer aktif</p>
+                            <p class="text-xs text-base-content/40 mt-1">Aktifkan layer dari Layer Management</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Results Tab -->
+                    <div id="tab-results" class="tab-content hidden">
+                        {% for result in active_results %}
+                        <div class="result-preview-row px-4 py-3 border-b border-base-200 hover:bg-base-100 cursor-pointer transition-colors border-l-[3px] border-l-transparent"
+                             data-result-id="{{ result.pk }}"
+                             data-commodity-name="{{ result.commodity.name|default:'Multi-Komoditas' }}"
+                             data-layer-name="{{ result.base_layer.name }}">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                                    <i class="bi bi-clipboard-data text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm font-medium text-base-content truncate">
+                                            {{ result.commodity.name|default:"Multi-Komoditas" }}
+                                        </span>
+                                        {% if result.status == 'completed' %}
+                                        <span class="badge badge-success badge-xs flex-shrink-0">Selesai</span>
+                                        {% elif result.status == 'processing' %}
+                                        <span class="badge badge-warning badge-xs flex-shrink-0">Proses</span>
+                                        {% elif result.status == 'pending' %}
+                                        <span class="badge badge-ghost badge-xs flex-shrink-0">Antri</span>
+                                        {% elif result.status == 'failed' %}
+                                        <span class="badge badge-error badge-xs flex-shrink-0">Gagal</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-[11px] text-base-content/50 mt-0.5 truncate">
+                                        {{ result.base_layer.name }}
+                                    </div>
+                                    {% if result.status == 'completed' %}
+                                    <div class="flex items-center gap-2 mt-1.5">
+                                        {% if result.s1_count > 0 %}
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded font-medium" style="background:#1a9641;color:#fff">S1:{{ result.s1_count }}</span>
+                                        {% endif %}
+                                        {% if result.s2_count > 0 %}
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded font-medium" style="background:#a6d96a;color:#1a5e20">S2:{{ result.s2_count }}</span>
+                                        {% endif %}
+                                        {% if result.s3_count > 0 %}
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded font-medium" style="background:#fdae61;color:#7a3b00">S3:{{ result.s3_count }}</span>
+                                        {% endif %}
+                                        {% if result.n_count > 0 %}
+                                        <span class="text-[10px] px-1.5 py-0.5 rounded font-medium" style="background:#d7191c;color:#fff">N:{{ result.n_count }}</span>
+                                        {% endif %}
+                                    </div>
+                                    {% endif %}
+                                    <div class="text-[10px] text-base-content/40 mt-1">
+                                        {{ result.created_at|date:"d M Y H:i" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="py-16 text-center">
+                            <div class="w-16 h-16 rounded-full bg-base-200 flex items-center justify-center mx-auto mb-4">
+                                <i class="bi bi-inbox text-2xl text-base-content/40"></i>
+                            </div>
+                            <p class="text-sm text-base-content/60 font-medium">Tidak ada hasil aktif</p>
+                            <p class="text-xs text-base-content/40 mt-1">Aktifkan hasil dari Results Management</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </aside>
+
+            <!-- ================================================================ -->
+            <!-- RIGHT PANEL: Map -->
+            <!-- ================================================================ -->
+            <div class="flex-1 relative">
+                <div id="rework-map" class="w-full h-full"></div>
+
+                <!-- Map overlay info -->
+                <div id="rework-map-info"
+                     class="absolute top-3 left-3 z-[1000] pointer-events-none"></div>
+
+                <!-- Legend -->
+                <div id="rework-legend"
+                     class="absolute top-3 right-3 z-[1000] bg-base-100/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-base-200 text-xs opacity-0 transition-opacity duration-300 pointer-events-none">
+                    <div class="font-semibold mb-2 text-base-content">Legenda Kesesuaian</div>
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm inline-block" style="background:#1a9641"></span> S1 — Sangat Sesuai</div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm inline-block" style="background:#a6d96a"></span> S2 — Cukup Sesuai</div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm inline-block" style="background:#fdae61"></span> S3 — Marginal</div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm inline-block" style="background:#d7191c"></span> N  — Tidak Sesuai</div>
+                        <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm inline-block" style="background:#9ca3af"></span> ?  — Unknown</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    #rework-map {
+        background: #e8ecf0;
+    }
+    .leaflet-container {
+        background: #e8ecf0;
+    }
+    .tab-btn {
+        color: #64748b;
+        border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active {
+        color: #1e293b;
+        border-bottom-color: #3b82f6;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet/leaflet-maplibre-gl.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // ================================================================
+        // MAP INITIALIZATION
+        // ================================================================
+        const map = L.map("rework-map").setView([-2.5, 118], 5);
+
+        L.maplibreGL({
+            style: "https://tiles.openfreemap.org/styles/liberty",
+            attribution:
+                '<a href="https://openfreemap.org/">OpenFreeMap</a> &copy; ' +
+                '<a href="https://openmaptiles.org/">OpenMapTiles</a> ' +
+                'Data from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        }).addTo(map);
+
+        // ================================================================
+        // STATE
+        // ================================================================
+        const loadedLayers = {};
+        let activeLayerId = null;
+        let activeResultId = null;
+        let currentTab = "layers";
+        const $mapInfo = $("#rework-map-info");
+        const $legend = $("#rework-legend");
+
+        // ================================================================
+        // COLOR MAP for suitability classes
+        // ================================================================
+        const CLASS_COLORS = {
+            "S1": "#1a9641",
+            "S2": "#a6d96a",
+            "S3": "#fdae61",
+            "N": "#d7191c",
+            "Unknown": "#9ca3af",
+        };
+
+        function getColor(suitabilityClass) {
+            return CLASS_COLORS[suitabilityClass] || "#9ca3af";
+        }
+
+        // ================================================================
+        // TAB SWITCHING
+        // ================================================================
+        window.switchTab = function (tab) {
+            currentTab = tab;
+            $(".tab-btn").removeClass("active");
+            $(`.tab-btn[data-tab="${tab}"]`).addClass("active");
+            $(".tab-content").addClass("hidden");
+            $(`#tab-${tab}`).removeClass("hidden");
+
+            // Remove layer from map when switching tabs
+            if (activeLayerId && loadedLayers[activeLayerId]) {
+                map.removeLayer(loadedLayers[activeLayerId]);
+                delete loadedLayers[activeLayerId];
+                activeLayerId = null;
+            }
+            if (activeResultId && loadedLayers[activeResultId]) {
+                map.removeLayer(loadedLayers[activeResultId]);
+                delete loadedLayers[activeResultId];
+                activeResultId = null;
+            }
+            $mapInfo.html("");
+            $legend.css("opacity", "0");
+            $(".layer-preview-row, .result-preview-row").removeClass("bg-primary/10 border-l-primary");
+        };
+
+        // Activate layers tab by default
+        $(".tab-btn[data-tab='layers']").addClass("active");
+
+        // ================================================================
+        // LAYER PREVIEW — click row → load GeoJSON on map
+        // ================================================================
+        $(document).on("click", ".layer-preview-row", function () {
+            if (currentTab !== "layers") return;
+
+            const layerId = $(this).data("layer-id");
+            const layerName = $(this).data("layer-name");
+
+            // Remove any result layer
+            if (activeResultId && loadedLayers[activeResultId]) {
+                map.removeLayer(loadedLayers[activeResultId]);
+                delete loadedLayers[activeResultId];
+                activeResultId = null;
+            }
+
+            // Highlight active row
+            $(".layer-preview-row").removeClass("bg-primary/10 border-l-primary");
+            $(this).addClass("bg-primary/10 border-l-primary");
+
+            // Remove previous layer
+            if (activeLayerId && loadedLayers[activeLayerId]) {
+                map.removeLayer(loadedLayers[activeLayerId]);
+                delete loadedLayers[activeLayerId];
+            }
+
+            // If clicking same layer, just deselect
+            if (activeLayerId === String(layerId)) {
+                activeLayerId = null;
+                $mapInfo.html("");
+                $legend.css("opacity", "0");
+                return;
+            }
+
+            activeLayerId = String(layerId);
+
+            // Check cache
+            if (loadedLayers[layerId]) {
+                loadedLayers[layerId].addTo(map);
+                map.fitBounds(loadedLayers[layerId].getBounds());
+                $mapInfo.html(`
+                    <div class="bg-base-100/90 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-base-200 text-sm text-base-content">
+                        <i class="bi bi-layers text-primary me-2"></i>${layerName}
+                    </div>
+                `);
+                return;
+            }
+
+            // Fetch GeoJSON
+            $mapInfo.html(`
+                <div class="bg-base-100/90 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-base-200 text-sm text-base-content">
+                    <span class="loading loading-spinner loading-xs text-primary me-2"></span>Memuat...
+                </div>
+            `);
+
+            fetch(`/spatial/api/layers/${layerId}/geojson/`)
+                .then(res => res.json())
+                .then(data => {
+                    const geojsonLayer = L.geoJSON(data, {
+                        style: {
+                            color: "#3b82f6",
+                            weight: 2,
+                            fillOpacity: 0.15,
+                            fillColor: "#3b82f6",
+                        },
+                        onEachFeature: function (feature, layer) {
+                            if (feature.properties) {
+                                const props = Object.entries(feature.properties)
+                                    .filter(([k]) => !["the_geom", "geom", "geometry", "bbox"].includes(k))
+                                    .map(([k, v]) => `<tr><td class="py-1 pr-3 font-medium text-base-content/60">${k}</td><td class="py-1">${v ?? "-"}</td></tr>`)
+                                    .join("");
+                                layer.bindPopup(`
+                                    <div class="text-xs max-h-48 overflow-y-auto">
+                                        <table class="w-full">${props}</table>
+                                    </div>
+                                `);
+                            }
+                        },
+                    });
+
+                    loadedLayers[layerId] = geojsonLayer;
+                    geojsonLayer.addTo(map);
+                    map.fitBounds(geojsonLayer.getBounds());
+
+                    $mapInfo.html(`
+                        <div class="bg-base-100/90 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-base-200 text-sm text-base-content">
+                            <i class="bi bi-layers text-primary me-2"></i>${layerName}
+                        </div>
+                    `);
+                })
+                .catch(() => {
+                    $mapInfo.html(`
+                        <div class="bg-error/10 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-error/30 text-sm text-error">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Gagal memuat layer
+                        </div>
+                    `);
+                });
+        });
+
+        // ================================================================
+        // RESULT PREVIEW — click row → load GeoJSON on map
+        // ================================================================
+        $(document).on("click", ".result-preview-row", function () {
+            if (currentTab !== "results") return;
+
+            const resultId = $(this).data("result-id");
+            const commodityName = $(this).data("commodity-name");
+            const layerName = $(this).data("layer-name");
+
+            // Remove any layer layer
+            if (activeLayerId && loadedLayers[activeLayerId]) {
+                map.removeLayer(loadedLayers[activeLayerId]);
+                delete loadedLayers[activeLayerId];
+                activeLayerId = null;
+            }
+
+            // Highlight active row
+            $(".result-preview-row").removeClass("bg-primary/10 border-l-primary");
+            $(this).addClass("bg-primary/10 border-l-primary");
+
+            // Remove previous result layer
+            if (activeResultId && loadedLayers[activeResultId]) {
+                map.removeLayer(loadedLayers[activeResultId]);
+                delete loadedLayers[activeResultId];
+            }
+
+            // If clicking same result, just deselect
+            if (activeResultId === String(resultId)) {
+                activeResultId = null;
+                $mapInfo.html("");
+                $legend.css("opacity", "0");
+                return;
+            }
+
+            activeResultId = String(resultId);
+
+            // Check cache
+            if (loadedLayers[resultId]) {
+                loadedLayers[resultId].addTo(map);
+                map.fitBounds(loadedLayers[resultId].getBounds());
+                $mapInfo.html(`
+                    <div class="bg-base-100/90 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-base-200 text-sm text-base-content">
+                        <i class="bi bi-clipboard-data text-primary me-2"></i>${commodityName} — ${layerName}
+                    </div>
+                `);
+                $legend.css("opacity", "1");
+                return;
+            }
+
+            // Fetch GeoJSON
+            $mapInfo.html(`
+                <div class="bg-base-100/90 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-base-200 text-sm text-base-content">
+                    <span class="loading loading-spinner loading-xs text-primary me-2"></span>Memuat...
+                </div>
+            `);
+
+            fetch(`/analysis/api/results-geojson/${resultId}/`)
+                .then(res => res.json())
+                .then(data => {
+                    const geojsonLayer = L.geoJSON(data, {
+                        style: function (feature) {
+                            const cls = feature.properties.suitability_class || "Unknown";
+                            return {
+                                color: getColor(cls),
+                                weight: 1.5,
+                                fillOpacity: 0.4,
+                                fillColor: getColor(cls),
+                            };
+                        },
+                        onEachFeature: function (feature, layer) {
+                            if (feature.properties) {
+                                const props = feature.properties;
+                                const charResults = props.characteristic_results || [];
+                                let charHtml = "";
+                                if (charResults.length > 0) {
+                                    charHtml = charResults.map(c =>
+                                        `<tr><td class="py-1 pr-3 font-medium text-base-content/60">${c.characteristic || "—"}</td><td class="py-1">${c.value ?? "—"}</td><td class="py-1"><span class="inline-block w-2 h-2 rounded-sm mr-1" style="background:${getColor(c.suitability_class)}"></span>${c.class_display || c.suitability_class || "—"}</span></td></tr>`
+                                    ).join("");
+                                }
+                                layer.bindPopup(`
+                                    <div class="text-xs max-h-48 overflow-y-auto min-w-[200px]">
+                                        <div class="font-semibold mb-1">
+                                            <span class="inline-block w-2.5 h-2.5 rounded-sm mr-1.5" style="background:${getColor(props.suitability_class)}"></span>
+                                            ${props.suitability_class || "Unknown"}
+                                        </div>
+                                        <table class="w-full">${charHtml}</table>
+                                    </div>
+                                `);
+                            }
+                        },
+                    });
+
+                    loadedLayers[resultId] = geojsonLayer;
+                    geojsonLayer.addTo(map);
+                    map.fitBounds(geojsonLayer.getBounds());
+
+                    $mapInfo.html(`
+                        <div class="bg-base-100/90 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-base-200 text-sm text-base-content">
+                            <i class="bi bi-clipboard-data text-primary me-2"></i>${commodityName} — ${layerName}
+                        </div>
+                    `);
+                    $legend.css("opacity", "1");
+                })
+                .catch(() => {
+                    $mapInfo.html(`
+                        <div class="bg-error/10 backdrop-blur-sm rounded-lg px-4 py-2.5 shadow-lg border border-error/30 text-sm text-error">
+                            <i class="bi bi-exclamation-triangle me-2"></i>Gagal memuat hasil
+                        </div>
+                    `);
+                });
+        });
+
+        // ================================================================
+        // Re-highlight active row after HTMX refresh
+        // ================================================================
+        $(document).on("htmx:afterSettle", function (evt) {
+            const $target = $(evt.target);
+            if ($target.is("#rework-map-info")) return;
+            if (activeLayerId) {
+                $(`.layer-preview-row[data-layer-id="${activeLayerId}"]`).addClass("bg-primary/10 border-l-primary");
+            }
+            if (activeResultId) {
+                $(`.result-preview-row[data-result-id="${activeResultId}"]`).addClass("bg-primary/10 border-l-primary");
+            }
+        });
+    });
+</script>
+{% endblock %}

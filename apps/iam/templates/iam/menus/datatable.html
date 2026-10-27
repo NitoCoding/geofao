@@ -1,0 +1,170 @@
+{# Menu Table - Dynamic Content #}
+
+<!-- Summary Stats -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+  <div class="stat bg-base-100 shadow rounded-lg border-l-4 border-primary">
+    <div class="stat-title text-xs">Total Menu</div>
+    <div class="stat-value text-primary text-2xl">{{ total_menus }}</div>
+  </div>
+  <div class="stat bg-base-100 shadow rounded-lg border-l-4 border-success">
+    <div class="stat-title text-xs">Menu Aktif</div>
+    <div class="stat-value text-success text-2xl">{{ active_menus }}</div>
+  </div>
+  <div class="stat bg-base-100 shadow rounded-lg border-l-4 border-warning">
+    <div class="stat-title text-xs">Parent Menu</div>
+    <div class="stat-value text-warning text-2xl">{{ parent_menus }}</div>
+  </div>
+</div>
+
+<!-- Menu Table -->
+<div class="overflow-x-auto border border-base-200 rounded-lg">
+  <form method="get" id="menu-filter-form"
+        hx-get="{% url 'iam:menu_list' %}"
+        hx-target="#menu-content"
+        hx-replace-url="true"
+        hx-trigger="change, keyup changed delay:300ms">
+    <table class="table table-sm">
+      <thead class="bg-base-200">
+        <tr>
+          <th class="text-xs">Nama</th>
+          <th class="text-xs">Kode</th>
+          <th class="text-xs">Path</th>
+          <th class="text-xs">Induk</th>
+          <th class="text-xs">Tipe</th>
+          <th class="text-xs">Urutan</th>
+          <th class="text-xs">Status</th>
+          <th class="text-xs text-right">Aksi</th>
+        </tr>
+        <tr>
+          <th class="p-1">
+            <input type="text" name="filter_name" value="{{ filter_name }}" placeholder="Nama..."
+                   class="input input-bordered input-xs w-full" />
+          </th>
+          <th class="p-1">
+            <input type="text" name="filter_code" value="{{ filter_code }}" placeholder="Kode..."
+                   class="input input-bordered input-xs w-full" />
+          </th>
+          <th class="p-1">
+            <input type="text" name="filter_path" value="{{ filter_path }}" placeholder="Path..."
+                   class="input input-bordered input-xs w-full" />
+          </th>
+          <th class="p-1">
+            <input type="text" name="filter_parent" value="{{ filter_parent }}" placeholder="Induk..."
+                   class="input input-bordered input-xs w-full" />
+          </th>
+          <th class="p-1">
+            <select name="filter_type" class="select select-bordered select-xs w-full">
+              <option value="">Semua</option>
+              {% for value, label in menu_types %}
+              <option value="{{ value }}" {% if filter_type == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </th>
+          <th class="p-1">
+            <input type="number" min="0" name="filter_order" value="{{ filter_order }}" placeholder="Urutan..."
+                   class="input input-bordered input-xs w-full" />
+          </th>
+          <th class="p-1">
+            <select name="filter_status" class="select select-bordered select-xs w-full">
+              <option value="">Semua</option>
+              <option value="active" {% if filter_status == 'active' %}selected{% endif %}>Aktif</option>
+              <option value="inactive" {% if filter_status == 'inactive' %}selected{% endif %}>Nonaktif</option>
+            </select>
+          </th>
+          <th class="p-1 text-right">
+            <a href="{% url 'iam:menu_list' %}" class="btn btn-ghost btn-xs btn-square" title="Reset filter"
+               hx-get="{% url 'iam:menu_list' %}"
+               hx-target="#menu-content"
+               hx-replace-url="true">
+              <i class="bi bi-arrow-counterclockwise text-xs"></i>
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for menu in menus %}
+        <tr class="hover:bg-base-100">
+          <td class="text-sm font-medium">{{ menu.name }}</td>
+          <td class="text-sm font-mono text-xs">{{ menu.code|default:"—" }}</td>
+          <td class="text-sm font-mono text-xs">{{ menu.path|default:"—" }}</td>
+          <td class="text-sm">{{ menu.parent.name|default:"—" }}</td>
+          <td>
+            <span class="badge badge-ghost badge-xs">{{ menu.get_menu_type_display }}</span>
+          </td>
+          <td class="text-sm">{{ menu.order }}</td>
+          <td>
+            {% if menu.is_active %}
+              <span class="badge badge-success badge-xs">Aktif</span>
+            {% else %}
+              <span class="badge badge-error badge-xs">Nonaktif</span>
+            {% endif %}
+          </td>
+          <td class="text-right">
+            <div class="flex items-center justify-end gap-1">
+              <button type="button" class="btn btn-ghost btn-xs btn-square text-info"
+                      hx-get="{% url 'iam:menu_edit' menu.pk %}"
+                      hx-target="#menu-modal-container"
+                      hx-swap="innerHTML">
+                <i class="bi bi-pencil text-xs"></i>
+              </button>
+              <button type="button" class="btn btn-ghost btn-xs btn-square text-error"
+                      hx-post="{% url 'iam:menu_delete' menu.pk %}"
+                      hx-swap="none"
+                      hx-confirm="Hapus menu {{ menu.name }}? Submenu di bawahnya ikut terhapus.">
+                <i class="bi bi-trash3 text-xs"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center py-8 text-sm text-base-content/40">
+            <i class="bi bi-inbox text-lg block mb-1"></i>
+            Belum ada data menu
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="8" class="text-xs text-base-content/50 py-2">
+            {{ page_obj.paginator.count }} dari {{ total_menus }} menu
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </form>
+</div>
+
+<!-- Pagination -->
+<div class="flex justify-center mt-6">
+  <div class="join">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+       hx-get="?page={{ page_obj.previous_page_number }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+       hx-target="#menu-content"
+       hx-replace-url="true"
+       class="join-item btn btn-xs">&laquo;</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+      <button class="join-item btn btn-xs btn-active">{{ num }}</button>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+      <a href="?page={{ num }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+         hx-get="?page={{ num }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+         hx-target="#menu-content"
+         hx-replace-url="true"
+         class="join-item btn btn-xs">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+       hx-get="?page={{ page_obj.next_page_number }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
+       hx-target="#menu-content"
+       hx-replace-url="true"
+       class="join-item btn btn-xs">&raquo;</a>
+    {% endif %}
+  </div>
+</div>

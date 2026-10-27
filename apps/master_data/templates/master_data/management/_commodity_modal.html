@@ -1,0 +1,38 @@
+{# Modal Form: Komoditas #}
+<div id="management-modal" class="modal modal-open">
+  <div class="modal-box max-w-sm">
+    <h3 class="font-bold text-lg mb-4">
+      {% if instance %}Edit{% else %}Tambah{% endif %} Komoditas
+    </h3>
+
+    <form hx-post="{% url 'master_data:management_commodity_save' %}"
+          hx-target="#left-panel"
+          hx-swap="innerHTML"
+          _="on htmx:afterRequest if event.detail.successful then remove #management-modal">
+      {% csrf_token %}
+      {% if instance %}<input type="hidden" name="pk" value="{{ instance.pk }}">{% endif %}
+
+      <div class="form-control w-full mb-4">
+        <label class="label"><span class="label-text">Nama Komoditas</span></label>
+        {{ form.name }}
+      </div>
+
+      <div class="form-control w-full mb-4">
+        <label class="label"><span class="label-text">Grup Komoditas</span></label>
+        {{ form.group }}
+      </div>
+
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-error mb-4 text-sm">{{ form.non_field_errors|join:", " }}</div>
+      {% endif %}
+
+      <div class="modal-action">
+        <button type="button" class="btn btn-ghost btn-sm"
+                _="on click remove #management-modal">Batal</button>
+        <button type="submit" class="btn btn-primary btn-sm">Simpan</button>
+      </div>
+    </form>
+  </div>
+  <div class="modal-backdrop" _="on click remove #management-modal"></div>
+</div>

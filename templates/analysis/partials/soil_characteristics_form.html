@@ -1,0 +1,251 @@
+<!-- Soil Characteristics Input Form -->
+<div class="card bg-base-100 shadow-lg">
+  <div class="card-body">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="card-title text-lg">
+        <i class="bi bi-layers-half text-primary"></i>
+        Data Karakteristik Lahan
+      </h2>
+      <button class="btn btn-ghost btn-sm"
+              hx-get="{% url 'analysis:reset_form' %}"
+              hx-target="#analysis-form">
+        <i class="bi bi-arrow-counterclockwise"></i>
+        Reset Form
+      </button>
+    </div>
+
+    <!-- Characteristic Categories Accordion -->
+    <div class="space-y-4">
+
+      <!-- Category: Kimia Tanah -->
+      <div class="collapse collapse-plus bg-base-200 rounded-box">
+        <input type="checkbox" checked="checked" />
+        <div class="collapse-title text-lg font-medium flex items-center gap-2">
+          <i class="bi bi-droplet-fill text-info"></i>
+          Kimia Tanah
+          <span class="badge badge-sm badge-success ml-auto">3 parameter</span>
+        </div>
+        <div class="collapse-content">
+          <div class="space-y-4 mt-4">
+
+            <!-- pH Tanah -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">
+                  pH Tanah
+                  <i class="bi bi-info-circle text-base-content/50 ml-1"
+                     title="Tingkat keasaman atau kebasaan tanah"></i>
+                </span>
+                <span class="label-text-alt text-base-content/70">Unit: pH H2O</span>
+              </label>
+
+              <div class="join w-full">
+                <span class="join-item btn btn-ghost">
+                  <i class="bi bi-speedometer2"></i>
+                </span>
+                <input type="number"
+                       step="0.1"
+                       min="0"
+                       max="14"
+                       name="ph_tanah"
+                       placeholder="Contoh: 6.5"
+                       class="input input-bordered join-item w-full"
+                       hx-post="{% url 'analysis:validate_characteristic' %}"
+                       hx-trigger="change"
+                       hx-target="#ph-validation"
+                       required />
+              </div>
+
+              <!-- Validation Feedback -->
+              <div id="ph-validation"></div>
+
+              <!-- Range Indicator -->
+              <div class="flex flex-wrap gap-1 mt-2">
+                <div class="badge badge-success badge-sm">S1: 6-7</div>
+                <div class="badge badge-info badge-sm">S2: 5-6, 7-8</div>
+                <div class="badge badge-warning badge-sm">S3: 4-5, 8-9</div>
+                <div class="badge badge-error badge-sm">N: &lt;4, &gt;9</div>
+              </div>
+            </div>
+
+            <!-- C-Organik -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">
+                  C-Organik
+                  <i class="bi bi-info-circle text-base-content/50 ml-1"
+                     title="Kadar karbon organik dalam tanah"></i>
+                </span>
+                <span class="label-text-alt text-base-content/70">Unit: %</span>
+              </label>
+
+              <div class="join w-full">
+                <span class="join-item btn btn-ghost">
+                  <i class="bi bi-percent"></i>
+                </span>
+                <input type="number"
+                       step="0.1"
+                       min="0"
+                       max="10"
+                       name="c_organik"
+                       placeholder="Contoh: 2.5"
+                       class="input input-bordered join-item w-full"
+                       required />
+              </div>
+
+              <div class="flex flex-wrap gap-1 mt-2">
+                <div class="badge badge-success badge-sm">S1: &gt;2</div>
+                <div class="badge badge-info badge-sm">S2: 1.5-2</div>
+                <div class="badge badge-warning badge-sm">S3: 1-1.5</div>
+                <div class="badge badge-error badge-sm">N: &lt;1</div>
+              </div>
+            </div>
+
+            <!-- KTK (Kapasitas Tukar Kation) -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">KTK (Kapasitas Tukar Kation)</span>
+                <span class="label-text-alt text-base-content/70">Unit: cmol(+)/kg</span>
+              </label>
+
+              <div class="join w-full">
+                <span class="join-item btn btn-ghost">
+                  <i class="bi bi-lightning-charge"></i>
+                </span>
+                <input type="number"
+                       step="0.1"
+                       min="0"
+                       name="ktk"
+                       placeholder="Contoh: 16.5"
+                       class="input input-bordered join-item w-full" />
+              </div>
+
+              <label class="label">
+                <span class="label-text-alt text-base-content/60">
+                  <i class="bi bi-question-circle"></i>
+                  Kemampuan tanah mempertahankan nutrisi
+                </span>
+              </label>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Category: Fisika Tanah -->
+      <div class="collapse collapse-plus bg-base-200 rounded-box">
+        <input type="checkbox" />
+        <div class="collapse-title text-lg font-medium flex items-center gap-2">
+          <i class="bi bi-grid-3x3-gap text-warning"></i>
+          Fisika Tanah
+          <span class="badge badge-sm badge-warning ml-auto">2 parameter</span>
+        </div>
+        <div class="collapse-content">
+          <div class="space-y-4 mt-4">
+
+            <!-- Tekstur -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Tekstur Tanah</span>
+                <span class="label-text-alt text-base-content/70">Kelaskan: sedang, halus, kasar</span>
+              </label>
+
+              <div class="join w-full">
+                <span class="join-item btn btn-ghost">
+                  <i class="bi bi-grid"></i>
+                </span>
+                <select name="tekstur" class="select select-bordered join-item w-full" required>
+                  <option value="">Pilih tekstur...</option>
+                  <option value="sangat_halus">Sangat Halus (Liat berat)</option>
+                  <option value="halus">Halus (Liat)</option>
+                  <option value="sedang">Sedang (Liat berdebu)</option>
+                  <option value="kasar">Kasar (Pasir berdebu)</option>
+                  <option value="sangat_kasar">Sangat Kasar (Pasir)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Kedalaman Tanah -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Kedalaman Tanah Efektif</span>
+                <span class="label-text-alt text-base-content/70">Unit: cm</span>
+              </label>
+
+              <div class="join w-full">
+                <span class="join-item btn btn-ghost">
+                  <i class="bi bi-arrows-collapse"></i>
+                </span>
+                <input type="number"
+                       min="0"
+                       name="kedalaman_tanah"
+                       placeholder="Contoh: 60"
+                       class="input input-bordered join-item w-full" />
+              </div>
+
+              <div class="flex flex-wrap gap-1 mt-2">
+                <div class="badge badge-success badge-sm">S1: &gt;60</div>
+                <div class="badge badge-info badge-sm">S2: 40-60</div>
+                <div class="badge badge-warning badge-sm">S3: 25-40</div>
+                <div class="badge badge-error badge-sm">N: &lt;25</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Category: Topografi -->
+      <div class="collapse collapse-plus bg-base-200 rounded-box">
+        <input type="checkbox" />
+        <div class="collapse-title text-lg font-medium flex items-center gap-2">
+          <i class="bi bi-mountains text-error"></i>
+          Topografi
+          <span class="badge badge-sm badge-error ml-auto">1 parameter</span>
+        </div>
+        <div class="collapse-content">
+          <div class="space-y-4 mt-4">
+
+            <!-- Kemiringan Lereng -->
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-medium">Kemiringan Lereng</span>
+                <span class="label-text-alt text-base-content/70">Unit: %</span>
+              </label>
+
+              <div class="join w-full">
+                <span class="join-item btn btn-ghost">
+                  <i class="bi bi-signpost-2"></i>
+                </span>
+                <select name="kemiringan_lereng" class="select select-bordered join-item w-full" required>
+                  <option value="">Pilih kemiringan...</option>
+                  <option value="0-3">0-3% (Datar)</option>
+                  <option value="3-8">3-8% (Landai)</option>
+                  <option value="8-15">8-15% (Agak Curam)</option>
+                  <option value="15-30">15-30% (Curam)</option>
+                  <option value="30-45">30-45% (Sangat Curam)</option>
+                  <option value=">45">&gt;45% (Terjal)</option>
+                </select>
+              </div>
+
+              <!-- Visual slope indicator -->
+              <div class="mt-2">
+                <div class="flex items-center gap-2 text-xs text-base-content/60">
+                  <svg width="100" height="30" viewBox="0 0 100 30">
+                    <polygon points="0,30 100,30 100,0" fill="#e5e7eb" />
+                  </svg>
+                  <span>Ilustrasi lereng</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional characteristics can be added here -->
+      <!-- Drainase, Salinitas, Bulk Density, Curah Hujan, etc. -->
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+<h3 class="font-bold text-lg mb-4">{{ title }}</h3>
+
+<form hx-post="{{ request.path }}" hx-target="#modal-body" hx-swap="innerHTML">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-error mb-3 text-sm">{{ form.non_field_errors|join:" " }}</div>
+  {% endif %}
+
+  {% for field in form %}
+  <label class="form-control w-full mb-3">
+    <div class="label"><span class="label-text">{{ field.label }}</span></div>
+    {{ field }}
+    {% for e in field.errors %}
+      <div class="label"><span class="label-text-alt text-error">{{ e }}</span></div>
+    {% endfor %}
+  </label>
+  {% endfor %}
+
+  <div class="modal-action">
+    <button type="button" class="btn btn-ghost"
+            onclick="document.getElementById('form-modal').close()">Batal</button>
+    <button type="submit" class="btn btn-primary">Simpan</button>
+  </div>
+</form>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.0 Chrome/134.0.6998.88 Electron/34.3.1 Safari/537.36" version="26.0.0">
+  <diagram name="Main Dashboard" id="main-dashboard">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- SWIMLANE: User -->
+        <mxCell id="u-swimlane" value="User" style="swimlane;startSize=40;horizontal=1;fillColor=#E3F2FD;fontStyle=1;fontSize=14;rounded=1;shadow=0;strokeColor=#90CAF9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="380" height="720" as="geometry" />
+        </mxCell>
+
+        <!-- SWIMLANE: System -->
+        <mxCell id="s-swimlane" value="Sistem" style="swimlane;startSize=40;horizontal=1;fillColor=#FFF3E0;fontStyle=1;fontSize=14;rounded=1;shadow=0;strokeColor=#FFB74D;" vertex="1" parent="1">
+          <mxGeometry x="420" y="40" width="460" height="720" as="geometry" />
+        </mxCell>
+
+        <!-- START -->
+        <mxCell id="start" value="" style="ellipse;fillColor=#4CAF50;strokeColor=#388E3C;" vertex="1" parent="1">
+          <mxGeometry x="200" y="60" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- USER ACTIVITIES -->
+        <mxCell id="u-login" value="Login ke Sistem" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="115" y="110" width="170" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="u-lihat-dashboard" value="Lihat Halaman Dashboard" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="105" y="170" width="190" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="u-baca-stat" value="Membaca Statistik&#xa;(Layer, Komoditas, Analisis, Review)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="95" y="230" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Klik akses cepat? -->
+        <mxCell id="u-decision-akses" value="Klik Menu&#xa;Akses Cepat?" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="117" y="295" width="166" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u-navigasi" value="Navigasi ke Halaman Tujuan&#xa;(Control Center / Peta / Layer / Komoditas)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="85" y="380" width="230" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u-lihat-recent" value="Lihat Tabel Hasil Analisis Terbaru" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="95" y="445" width="210" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- END -->
+        <mxCell id="end" value="" style="ellipse;fillColor=#F44336;strokeColor=#D32F2F;" vertex="1" parent="1">
+          <mxGeometry x="200" y="680" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- SYSTEM ACTIVITIES -->
+        <mxCell id="s-query-stats" value="Query Statistik dari Database&#xa;(MasterLayer, Commodity,&#xa;SuitabilityAnalysisResult, ExpertReview)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="535" y="170" width="210" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-render-cards" value="Render 4 Stat Cards&#xa;(Layer, Komoditas, Analisis, Review)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="545" y="245" width="190" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-render-actions" value="Render Menu Akses Cepat&#xa;(Control Center, Peta, Layer, Komoditas)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="535" y="310" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-query-recent" value="Query 5 Hasil Analisis Terbaru&#xa;(select_related commodity &amp; layer)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="535" y="375" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-render-table" value="Render Tabel Hasil Terbaru&#xa;(Komoditas, Layer, Status, Progress, Tanggal)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="535" y="440" width="210" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-render-info" value="Render Info Bar&#xa;(Analisis Aktif, Layer Tersedia, Review)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="545" y="505" width="190" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ARROWS -->
+        <mxCell id="e-start-login" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="start" target="u-login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Login → System query stats -->
+        <mxCell id="e-login-query" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="u-login" target="s-query-stats">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Query Stats → Render Cards -->
+        <mxCell id="e-query-cards" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-query-stats" target="s-render-cards">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Render Cards → Render Actions -->
+        <mxCell id="e-cards-actions" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-render-cards" target="s-render-actions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Render Actions → Query Recent -->
+        <mxCell id="e-actions-recent" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-render-actions" target="s-query-recent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Query Recent → Render Table -->
+        <mxCell id="e-recent-table" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-query-recent" target="s-render-table">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Render Table → Render Info Bar -->
+        <mxCell id="e-table-info" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-render-table" target="s-render-info">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Render Info → User lihat dashboard -->
+        <mxCell id="e-info-user" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="s-render-info" target="u-lihat-dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lihat Dashboard → Baca Stat -->
+        <mxCell id="e-lihat-stat" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-lihat-dashboard" target="u-baca-stat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Baca Stat → Decision Akses -->
+        <mxCell id="e-stat-decision" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-baca-stat" target="u-decision-akses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision: Ya → Navigasi -->
+        <mxCell id="e-decision-ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#4CAF50;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=10;fontColor=#2E7D32;" edge="1" parent="1" source="u-decision-akses" target="u-navigasi">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision: Tidak → Lihat Recent -->
+        <mxCell id="e-decision-tidak" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=1;exitY=0.5;entryX=0.5;entryY=0;fontSize=10;" edge="1" parent="1" source="u-decision-akses" target="u-lihat-recent">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Navigasi → End -->
+        <mxCell id="e-navigasi-end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-navigasi" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Lihat Recent → End -->
+        <mxCell id="e-recent-end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-lihat-recent" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

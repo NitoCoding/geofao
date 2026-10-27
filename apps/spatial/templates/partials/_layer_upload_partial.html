@@ -1,0 +1,138 @@
+<div class="max-w-xl mx-auto">
+  <div class="bg-base-100 rounded-2xl shadow-sm border border-base-200">
+    <div class="p-6 md:p-8">
+      <h2 class="text-2xl font-bold mb-6">Upload Layer Baru</h2>
+
+      <!-- Messages -->
+      {% if messages %}
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% else %}alert-info{% endif %} mb-4">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Field Nama Layer -->
+        <div class="form-control w-full mb-5">
+          <label class="label" for="{{ form.name.id_for_label }}">
+            <span class="label-text font-semibold text-base-content">{{ form.name.label }}</span>
+          </label>
+          <input type="text" 
+                 name="{{ form.name.name }}" 
+                 id="{{ form.name.id_for_label }}"
+                 class="input input-bordered w-full bg-base-100 text-base-content" 
+                 value="{{ form.name.value|default:'' }}"
+                 placeholder="Masukkan nama layer">
+          {% if form.name.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ form.name.errors.0 }}</span>
+            </label>
+          {% endif %}
+        </div>
+
+        <!-- Informasi Tipe Layer -->
+        <div class="form-control w-full mb-5">
+          <label class="label">
+            <span class="label-text font-semibold text-base-content">Tipe Layer</span>
+          </label>
+          <div class="alert alert-info py-3 px-4 text-sm flex items-start gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-5 h-5 mt-0.5">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-base-content">Tipe geometri akan terdeteksi otomatis dari file shapefile yang diupload</span>
+          </div>
+        </div>
+
+        <!-- Field Kategori Layer -->
+        <div class="form-control w-full mb-5">
+          <label class="label" for="{{ form.layer_category.id_for_label }}">
+            <span class="label-text font-semibold text-base-content">{{ form.layer_category.label }}</span>
+          </label>
+          <select name="{{ form.layer_category.name }}" 
+                  id="{{ form.layer_category.id_for_label }}"
+                  class="select select-bordered w-full bg-base-100 text-base-content">
+            <option value="">Pilih kategori layer</option>
+            {% for value, label in form.layer_category.field.choices %}
+              <option value="{{ value }}" {% if form.layer_category.value == value|stringformat:"s" %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+          {% if form.layer_category.help_text %}
+            <label class="label">
+              <span class="label-text-alt text-base-content/70">{{ form.layer_category.help_text }}</span>
+            </label>
+          {% endif %}
+          {% if form.layer_category.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ form.layer_category.errors.0 }}</span>
+            </label>
+          {% endif %}
+        </div>
+
+        <!-- Field Tahun Data -->
+        <div class="form-control w-full mb-5">
+          <label class="label" for="{{ form.data_year.id_for_label }}">
+            <span class="label-text font-semibold text-base-content">{{ form.data_year.label }}</span>
+          </label>
+          <select name="{{ form.data_year.name }}" 
+                  id="{{ form.data_year.id_for_label }}"
+                  class="select select-bordered w-full bg-base-100 text-base-content">
+            <option value="">Pilih Tahun</option>
+            {% for value, label in form.data_year.field.choices %}
+              <option value="{{ value }}" {% if form.data_year.value == value|stringformat:"s" %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+          {% if form.data_year.help_text %}
+            <label class="label">
+              <span class="label-text-alt text-base-content/70">{{ form.data_year.help_text }}</span>
+            </label>
+          {% endif %}
+          {% if form.data_year.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ form.data_year.errors.0 }}</span>
+            </label>
+          {% endif %}
+        </div>
+
+        <!-- Field Shapefile -->
+        <div class="form-control w-full mb-6">
+          <label class="label" for="{{ form.shapefile.id_for_label }}">
+            <span class="label-text font-semibold text-base-content">{{ form.shapefile.label }}</span>
+          </label>
+          <input type="file" 
+                 name="{{ form.shapefile.name }}" 
+                 id="{{ form.shapefile.id_for_label }}"
+                 class="file-input file-input-bordered w-full bg-base-100" 
+                 accept=".zip" />
+          {% if form.shapefile.help_text %}
+            <label class="label">
+              <span class="label-text-alt text-base-content/70">{{ form.shapefile.help_text }}</span>
+            </label>
+          {% endif %}
+          {% if form.shapefile.errors %}
+            <label class="label">
+              <span class="label-text-alt text-error">{{ form.shapefile.errors.0 }}</span>
+            </label>
+          {% endif %}
+        </div>
+
+        <!-- Tombol Aksi -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-base-200">
+          <a href="{% url 'spatial:layer_management' %}" class="btn btn-ghost btn-sm">
+            Batal
+          </a>
+          <button type="submit" class="btn btn-primary btn-sm">
+
+            Upload & Proses
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

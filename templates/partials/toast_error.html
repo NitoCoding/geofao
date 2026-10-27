@@ -1,0 +1,13 @@
+{# Toast Error Notification for HTMX #}
+{# Use with hx-swaps-oob="innerHTML:#toast-container" #}
+
+<div class="alert alert-error shadow-lg" role="alert">
+  <i class="bi bi-exclamation-triangle-fill text-xl"></i>
+  <div>
+    <h3 class="font-bold">Error!</h3>
+    <div class="text-xs">{{ message }}</div>
+  </div>
+  <button class="btn btn-ghost btn-sm btn-circle" onclick="this.parentElement.remove()">
+    <i class="bi bi-x-lg"></i>
+  </button>
+</div>

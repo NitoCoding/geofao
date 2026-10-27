@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Menu | {{ block.super }}{% endblock %}
+{% block page_title %}Manajemen Menu{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+  <div>
+    <h2 class="text-3xl font-bold">Menu</h2>
+    <p class="text-base-content/70">Kelola struktur menu sistem</p>
+  </div>
+  <div class="flex gap-2">
+    <button class="btn btn-primary"
+            hx-get="{% url 'iam:menu_create' %}"
+            hx-target="#menu-modal-container"
+            hx-swap="innerHTML">
+      <i class="bi bi-plus-lg me-2"></i>Tambah Menu
+    </button>
+  </div>
+</div>
+
+<!-- Menu Content -->
+<div id="menu-content"
+     hx-get="{% url 'iam:menu_list' %}"
+     hx-include="#menu-filter-form"
+     hx-trigger="menuSaved from:body"
+     hx-replace-url="true">
+  {% include "iam/menus/datatable.html" %}
+</div>
+
+<!-- Modal Container -->
+<div id="menu-modal-container"></div>
+{% endblock %}

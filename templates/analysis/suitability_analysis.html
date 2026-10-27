@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% load static widget_tweaks %}
+
+{% block title %}Analisis Kesesuaian Lahan - FAO Framework{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6 max-w-7xl">
+
+  <!-- ========== PAGE HEADER ========== -->
+  <div class="mb-6">
+    <!-- Breadcrumbs -->
+    <div class="breadcrumbs text-sm mb-2">
+      <ul>
+        <li><a href="{% url 'dashboard' %}"><i class="bi bi-house-door"></i> Beranda</a></li>
+        <li>Analisis</li>
+        <li>Kesesuaian Lahan</li>
+      </ul>
+    </div>
+
+    <!-- Page Title -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-base-content">
+          <i class="bi bi-diagram-3 text-primary"></i>
+          Analisis Kesesuaian Lahan
+        </h1>
+        <p class="text-base-content/70 mt-1">
+          Evaluasi kesesuaian lahan berdasarkan kerangka FAO
+        </p>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex gap-2">
+        <button class="btn btn-ghost btn-sm"
+                hx-get="{% url 'analysis:history' %}"
+                hx-target="#main-content"
+                hx-push-url="true">
+          <i class="bi bi-clock-history"></i>
+          Riwayat
+        </button>
+        <button class="btn btn-ghost btn-sm"
+                hx-get="{% url 'analysis:compare' %}"
+                hx-target="#main-content"
+                hx-push-url="true">
+          <i class="bi bi-arrows-angle-expand"></i>
+          Bandingkan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MAIN GRID LAYOUT ========== -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- ========== LEFT COLUMN: INPUT FORM (1/3 width) ========== -->
+    <div class="lg:col-span-1 space-y-6">
+
+      <!-- Commodity Selection Card -->
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body">
+          <h2 class="card-title text-lg">
+            <i class="bi bi-basket text-primary"></i>
+            Pilih Komoditas
+          </h2>
+
+          <!-- Search Input -->
+          <div class="form-control mt-4">
+            <div class="join w-full">
+              <span class="join-item btn btn-ghost">
+                <i class="bi bi-search"></i>
+              </span>
+              <input type="text"
+                     placeholder="Cari komoditas (contoh: Padi, Jagung)..."
+                     class="input input-bordered join-item w-full"
+                     hx-get="{% url 'analysis:commodity_search' %}"
+                     hx-trigger="keyup changed delay:300ms"
+                     hx-target="#commodity-list" />
+            </div>
+          </div>
+
+          <!-- Category Tabs -->
+          <div class="tabs tabs-boxed mt-4">
+            <input type="radio" name="commodity-tabs" class="tab-toggle" checked="checked" />
+            <div class="tab tab-active"
+                 hx-get="{% url 'analysis:commodities' %}?category=pangan"
+                 hx-target="#commodity-list">
+              <i class="bi bi-grain"></i>
+              Pangan
+            </div>
+
+            <input type="radio" name="commodity-tabs" class="tab-toggle" />
+            <div class="tab"
+                 hx-get="{% url 'analysis:commodities' %}?category=hortikultura"
+                 hx-target="#commodity-list">
+              <i class="bi bi-flower1"></i>
+              Hortikultura
+            </div>
+
+            <input type="radio" name="commodity-tabs" class="tab-toggle" />
+            <div class="tab"
+                 hx-get="{% url 'analysis:commodities' %}?category=perkebunan"
+                 hx-target="#commodity-list">
+              <i class="bi bi-tree"></i>
+              Perkebunan
+            </div>
+
+            <input type="radio" name="commodity-tabs" class="tab-toggle" />
+            <div class="tab"
+                 hx-get="{% url 'analysis:commodities' %}?category=pakan_ternak"
+                 hx-target="#commodity-list">
+              <i class="bi bi-grid-3x3"></i>
+              Pakan Ternak
+            </div>
+          </div>
+
+          <!-- Commodity List -->
+          <div id="commodity-list" class="grid grid-cols-1 gap-2 mt-4 max-h-80 overflow-y-auto">
+            <!-- Loaded via HTMX -->
+            {% include 'analysis/partials/commodity_list.html' %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis Form -->
+      <form id="analysis-form"
+            class="space-y-6"
+            hx-post="{% url 'analysis:analyze' %}"
+            hx-target="#results-panel"
+            hx-indicator="#analyze-loading">
+
+        {% csrf_token %}
+
+        <!-- Selected Commodity Indicator -->
+        <div id="selected-commodity-card" class="card bg-primary/10 border border-primary/30 hidden">
+          <div class="card-body py-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs text-base-content/60">Komoditas Terpilih</div>
+                <div class="font-bold text-lg" id="selected-commodity-name">-</div>
+              </div>
+              <button type="button"
+                      class="btn btn-ghost btn-sm btn-circle"
+                      hx-get="{% url 'analysis:deselect_commodity' %}"
+                      hx-target="#selected-commodity-card">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Soil Characteristics Form -->
+        {% include 'analysis/partials/soil_characteristics_form.html' %}
+
+        <!-- Method Selection -->
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body">
+            <h2 class="card-title text-lg mb-4">
+              <i class="bi bi-gear text-primary"></i>
+              Metode Analisis
+            </h2>
+
+            <div class="form-control space-y-3">
+              <!-- Minimum Method -->
+              <label class="cursor-pointer">
+                <input type="radio" name="method" value="minimum" class="peer radio radio-primary hidden" checked />
+                <div class="card bg-base-200 peer-checked:bg-primary/10 peer-checked:border-primary border-2 border-transparent hover:border-primary/50 transition-all">
+                  <div class="card-body p-4">
+                    <div class="flex items-center gap-3">
+                      <div class="bg-primary/20 p-2 rounded-lg">
+                        <i class="bi bi-arrow-down-circle text-primary text-xl"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-bold">Minimum</h3>
+                        <p class="text-xs text-base-content/70">Kelas terendah</p>
+                      </div>
+                    </div>
+                    <p class="text-xs mt-2 text-base-content/60">
+                      Mengambil kelas terendah dari semua karakteristik
+                    </p>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Weighted Method -->
+              <label class="cursor-pointer">
+                <input type="radio" name="method" value="weighted" class="peer radio radio-primary hidden" />
+                <div class="card bg-base-200 peer-checked:bg-primary/10 peer-checked:border-primary border-2 border-transparent hover:border-primary/50 transition-all">
+                  <div class="card-body p-4">
+                    <div class="flex items-center gap-3">
+                      <div class="bg-primary/20 p-2 rounded-lg">
+                        <i class="bi bi-calculator text-primary text-xl"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-bold">Weighted</h3>
+                        <p class="text-xs text-base-content/70">Tertimbang</p>
+                      </div>
+                    </div>
+                    <p class="text-xs mt-2 text-base-content/60">
+                      Rata-rata tertimbang berdasarkan bobot pentingnya
+                    </p>
+                  </div>
+                </div>
+              </label>
+
+              <!-- Parametric Method -->
+              <label class="cursor-pointer">
+                <input type="radio" name="method" value="parametric" class="peer radio radio-primary hidden" />
+                <div class="card bg-base-200 peer-checked:bg-primary/10 peer-checked:border-primary border-2 border-transparent hover:border-primary/50 transition-all">
+                  <div class="card-body p-4">
+                    <div class="flex items-center gap-3">
+                      <div class="bg-primary/20 p-2 rounded-lg">
+                        <i class="bi bi-graph-up text-primary text-xl"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-bold">Parametric</h3>
+                        <p class="text-xs text-base-content/70">Parametrik</p>
+                      </div>
+                    </div>
+                    <p class="text-xs mt-2 text-base-content/60">
+                      Indeks kesesuaian dengan interval lebih detail
+                    </p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="card bg-base-100 shadow-lg sticky bottom-4 z-40">
+          <div class="card-body py-4">
+            <div class="flex flex-col md:flex-row gap-3 justify-end">
+
+              <!-- Reset Button -->
+              <button type="reset"
+                      class="btn btn-ghost"
+                      hx-get="{% url 'analysis:reset_form' %}"
+                      hx-target="#analysis-form">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                Reset
+              </button>
+
+              <!-- Save Draft Button -->
+              <button type="button"
+                      class="btn btn-outline btn-secondary"
+                      hx-post="{% url 'analysis:save_draft' %}"
+                      hx-target="#toast-container">
+                <i class="bi bi-save"></i>
+                Simpan Draft
+              </button>
+
+              <!-- Analyze Button -->
+              <button type="submit" class="btn btn-primary flex-1 md:flex-none">
+                <i class="bi bi-play-circle"></i>
+                Analisis Kesesuaian
+                <span id="analyze-loading" class="loading loading-spinner hidden"></span>
+              </button>
+
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- ========== RIGHT COLUMN: RESULTS PANEL (2/3 width) ========== -->
+    <div class="lg:col-span-2">
+      <div id="results-panel" class="sticky top-4 space-y-6">
+        <!-- Initial placeholder -->
+        {% include 'analysis/partials/results_placeholder.html' %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="toast toast-top toast-end z-50"></div>
+{% endblock %}

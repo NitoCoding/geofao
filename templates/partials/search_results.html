@@ -1,0 +1,57 @@
+{# Search Results Partial for HTMX #}
+{# Target: hx-target="#search-results" #}
+
+<div id="search-results" class="space-y-3">
+  {% if results %}
+  <div class="text-sm opacity-70 mb-2">
+    Ditemukan {{ results|length }} hasil
+  </div>
+
+  {% for item in results %}
+  <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+       hx-get="{{ item.url }}"
+       hx-target="#main-content"
+       hx-push-url="true">
+    <div class="card-body p-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-primary/10 text-primary rounded-lg p-2">
+          <i class="{{ item.icon|default:'bi bi-file-text' }}"></i>
+        </div>
+        <div class="flex-grow">
+          <h4 class="font-medium">{{ item.name }}</h4>
+          <p class="text-xs opacity-70">{{ item.description }}</p>
+        </div>
+        <i class="bi bi-chevron-right opacity-50"></i>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if has_more %}
+  <button
+    class="btn btn-ghost btn-block"
+    hx-get="?search={{ query }}&page={{ page|add:1 }}"
+    hx-target="#search-results">
+    <i class="bi bi-arrow-down-circle me-2"></i>
+    Muat lebih banyak
+  </button>
+  {% endif %}
+
+  {% elif query %}
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle"></i>
+    <div>
+      <h3 class="font-bold">Tidak ada hasil</h3>
+      <div class="text-xs">Tidak ditemukan hasil untuk "{{ query }}"</div>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert">
+    <i class="bi bi-search"></i>
+    <div>
+      <h3 class="font-bold">Mulai mencari</h3>
+      <div class="text-xs">Ketik untuk mencari...</div>
+    </div>
+  </div>
+  {% endif %}
+</div>

@@ -1,0 +1,84 @@
+{# Single Layer Row for HTMX Toggle/Update #}
+{# Target: hx-target="closest tr" hx-swap="outerHTML" #}
+
+<tr class="hover">
+  <td>
+    <div class="flex items-center gap-3">
+      <div class="avatar placeholder">
+        <div class="bg-primary/10 text-primary rounded-lg w-12 h-12 flex items-center justify-center">
+          <i class="bi bi-layers-fill text-lg"></i>
+        </div>
+      </div>
+      <div>
+        <div class="font-bold">
+          <a
+            hx-get="{% url 'spatial:layer_detail' layer.pk %}"
+            hx-target="#main-content"
+            hx-push-url="true"
+            class="link link-primary link-hover">
+            {{ layer.name }}
+          </a>
+        </div>
+        <div class="text-xs opacity-50 font-mono">{{ layer.table_name }}</div>
+      </div>
+    </div>
+  </td>
+  <td>
+    <div class="badge badge-ghost">{{ layer.get_layer_type_display }}</div>
+  </td>
+  <td>
+    <code class="text-xs bg-base-300 px-2 py-1 rounded">{{ layer.crs|default:"EPSG:4326" }}</code>
+  </td>
+  <td>
+    <div class="text-sm">
+      <span class="font-semibold">{{ layer.feature_count }}</span> fitur
+    </div>
+  </td>
+  <td>
+    {% if layer.is_active %}
+    <div class="badge badge-success gap-1">
+      <i class="bi bi-check-circle-fill text-xs"></i>
+      Aktif
+    </div>
+    {% else %}
+    <div class="badge badge-error gap-1">
+      <i class="bi bi-x-circle-fill text-xs"></i>
+      Nonaktif
+    </div>
+    {% endif %}
+  </td>
+  <td>
+    <div class="text-xs opacity-70">
+      {% if layer.updated_at %}{{ layer.updated_at|timesince }} yang lalu{% else %}-{% endif %}
+    </div>
+  </td>
+  <td>
+    <div class="flex justify-end gap-1">
+      <button
+        class="btn btn-ghost btn-sm"
+        title="Lihat Detail"
+        hx-get="{% url 'spatial:layer_detail' layer.pk %}"
+        hx-target="#main-content"
+        hx-push-url="true">
+        <i class="bi bi-eye"></i>
+      </button>
+      <button
+        class="btn btn-ghost btn-sm"
+        title="Toggle Status"
+        hx-post="{% url 'spatial:layer_toggle' layer.pk %}"
+        hx-target="closest tr"
+        hx-swap="outerHTML">
+        <i class="bi bi-power"></i>
+      </button>
+      <button
+        class="btn btn-ghost btn-sm text-error"
+        title="Hapus"
+        hx-delete="{% url 'spatial:layer_delete' layer.pk %}"
+        hx-confirm="Apakah Anda yakin ingin menghapus layer '{{ layer.name }}'?"
+        hx-target="closest tr"
+        hx-swap="outerHTML">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  </td>
+</tr>

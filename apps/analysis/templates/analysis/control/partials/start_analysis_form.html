@@ -1,0 +1,45 @@
+<!-- Start Analysis Form - HTMX + Universal Modal -->
+<form id="start-analysis-form" class="text-left"
+      hx-post="{% url 'analysis:start_analysis_api' %}"
+      hx-target="#modalBody"
+      hx-swap="innerHTML"
+      hx-indicator="#modal-submit-spinner">
+    {% csrf_token %}
+    <div class="space-y-4">
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text font-medium">Pilih Komoditas</span>
+                <span class="label-text-alt text-base-content/50">Bisa pilih lebih dari satu</span>
+            </label>
+            <select name="commodity_ids" class="select select-bordered w-full h-40" multiple required>
+                {% for commodity in commodities %}
+                <option value="{{ commodity.id }}">{{ commodity.name }}</option>
+                {% endfor %}
+            </select>
+            <label class="label">
+                <span class="label-text-alt text-base-content/50">Tahan Ctrl (Windows) atau Cmd (Mac) untuk memilih beberapa komoditas</span>
+            </label>
+        </div>
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text font-medium">Pilih Layer</span>
+            </label>
+            <select name="layer_id" class="select select-bordered w-full" required>
+                <option value="" disabled selected>-- Pilih Layer --</option>
+                {% for layer in layers %}
+                <option value="{{ layer.id }}">{{ layer.name }} ({{ layer.layer_category|default:"N/A" }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+            <button type="button" class="btn btn-ghost"
+                    onclick="document.getElementById('universalModal').close()">
+                Batal
+            </button>
+            <button type="submit" class="btn btn-primary">
+                <span id="modal-submit-spinner" class="loading loading-spinner loading-sm hidden"></span>
+                Mulai Analisis
+            </button>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/static
+      - /app/media
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=gisportal.settings
+      - DB_HOST=db  # Docker internal network
+    depends_on:
+      - db
+    command: python manage.py runserver 0.0.0.0:8000
+    networks:
+      - gis-network
+    profiles:
+      - full  # Only start with --profile full
+
+  db:
+    image: postgis/postgis:15-3.3
+    environment:
+      - POSTGRES_DB=gisdb
+      - POSTGRES_USER=gisuser
+      - POSTGRES_PASSWORD=secret123
+      - POSTGRES_HOST_AUTH_METHOD=md5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - gis-network
+    profiles:
+      - full  # Only start with --profile full
+
+volumes:
+  postgres_data:
+
+networks:
+  gis-network:
+    driver: bridge

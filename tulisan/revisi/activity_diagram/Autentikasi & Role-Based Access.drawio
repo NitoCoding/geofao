@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.0 Chrome/134.0.6998.88 Electron/34.3.1 Safari/537.36" version="26.0.0">
+  <diagram name="Autentikasi &amp; Role-Based Access" id="auth-role">
+    <mxGraphModel dx="0" dy="0" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- SWIMLANE: User -->
+        <mxCell id="u-swimlane" value="User" style="swimlane;startSize=40;horizontal=1;fillColor=#E3F2FD;fontStyle=1;fontSize=14;rounded=1;shadow=0;strokeColor=#90CAF9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="380" height="820" as="geometry" />
+        </mxCell>
+
+        <!-- SWIMLANE: System -->
+        <mxCell id="s-swimlane" value="Sistem" style="swimlane;startSize=40;horizontal=1;fillColor=#FFF3E0;fontStyle=1;fontSize=14;rounded=1;shadow=0;strokeColor=#FFB74D;" vertex="1" parent="1">
+          <mxGeometry x="420" y="40" width="460" height="820" as="geometry" />
+        </mxCell>
+
+        <!-- START -->
+        <mxCell id="start" value="" style="ellipse;fillColor=#4CAF50;strokeColor=#388E3C;" vertex="1" parent="1">
+          <mxGeometry x="200" y="60" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- USER ACTIVITIES -->
+        <mxCell id="u-akses-halaman" value="Akses Halaman Web" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="115" y="110" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Login? -->
+        <mxCell id="u-decision-login" value="Sudah Login?" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="117" y="170" width="166" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u-login-form" value="Isi Form Login&#x0a;(Username &amp; Password)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="105" y="260" width="190" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="u-lihat-halaman" value="Akses Halaman&#x0a;Berdasarkan Menu Yang Tersedia" style="rounded=1;fillColor=#FFFFFF;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="95" y="400" width="210" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- END -->
+        <mxCell id="end" value="" style="ellipse;fillColor=#F44336;strokeColor=#D32F2F;" vertex="1" parent="1">
+          <mxGeometry x="200" y="780" width="24" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- SYSTEM ACTIVITIES -->
+        <mxCell id="s-cek-login" value="Cek Session&#x0a;(Authenticated?)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="170" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Authenticated? -->
+        <mxCell id="s-decision-auth" value="User&#x0a;Terautentikasi?" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="587" y="230" width="106" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-validasi-login" value="Validasi Username&#x0a;&amp; Password" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="565" y="260" width="150" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Credentials valid? -->
+        <mxCell id="s-decision-cred" value="Kredensial&#x0a;Valid?" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="577" y="330" width="106" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-set-session" value="Set Session&#x0a;(Login User)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="565" y="420" width="150" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- GET ROLE & MENU -->
+        <mxCell id="s-cek-role" value="Cek User Role&#x0a;(superuser/has_role)" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="555" y="480" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- DECISION: Role? -->
+        <mxCell id="s-decision-role" value="Superuser?" style="diamond;fillColor=#FFF9C4;strokeColor=#F9A825;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="577" y="540" width="106" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- LOOP: Periksa Menu Role -->
+        <mxCell id="s-loop-menu" value="Loop: Periksa MenuRole&#x0a;untuk Setiap Role User" style="hexagon;fillColor=#E3F2FD;strokeColor=#1976D2;fontSize=11;align=center;verticalAlign=middle;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="545" y="630" width="170" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-render-menu" value="Render Sidebar Menu&#x0a;Sesuai Hak Akses" style="rounded=1;fillColor=#FFFFFF;strokeColor=#E65100;fontSize=11;align=center;verticalAlign=middle;shadow=0;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="545" y="710" width="170" height="36" as="geometry" />
+        </mxCell>
+
+        <!-- ARROWS -->
+        <mxCell id="e-start-akses" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="start" target="u-akses-halaman">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-akses-decision-user" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-akses-halaman" target="u-decision-login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User decision → System: cek session -->
+        <mxCell id="e-decision-cek-session" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="u-decision-login" target="s-cek-login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- System: Cek Session → Decision Auth -->
+        <mxCell id="e-cek-decision-auth" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-cek-login" target="s-decision-auth">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision Auth: Ya (sudah login) → Cek Role -->
+        <mxCell id="e-auth-ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#4CAF50;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=10;fontColor=#2E7D32;" edge="1" parent="1" source="s-decision-auth" target="s-cek-role">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision Auth: Tidak → Login form -->
+        <mxCell id="e-auth-tidak" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F44336;exitX=0;exitY=0.5;entryX=0.5;entryY=0;dashed=1;fontSize=10;" edge="1" parent="1" source="s-decision-auth" target="u-login-form">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Login Form → System: validasi -->
+        <mxCell id="e-user-form-system" value="Submit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=1;exitY=0.5;entryX=0;entryY=0.5;fontSize=10;" edge="1" parent="1" source="u-login-form" target="s-validasi-login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Validasi → Decision Cred -->
+        <mxCell id="e-validasi-cred" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-validasi-login" target="s-decision-cred">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision Cred: Tidak → Kembali ke login form -->
+        <mxCell id="e-cred-tidak" value="Tidak" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F44336;exitX=0;exitY=0.5;entryX=0.5;entryY=0;dashed=1;fontSize=10;" edge="1" parent="1" source="s-decision-cred" target="u-login-form">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision Cred: Ya → Set Session -->
+        <mxCell id="e-cred-ya" value="Ya" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#4CAF50;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=10;fontColor=#2E7D32;" edge="1" parent="1" source="s-decision-cred" target="s-set-session">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Set Session → Cek Role -->
+        <mxCell id="e-session-role" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-set-session" target="s-cek-role">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Cek Role → Decision Role -->
+        <mxCell id="e-role-decision" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-cek-role" target="s-decision-role">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision Role: Ya (superuser) → Semua menu -->
+        <mxCell id="e-role-ya" value="Ya → Semua Menu" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#4CAF50;exitX=0.5;exitY=1;entryX=0.5;entryY=0;fontSize=10;fontColor=#2E7D32;" edge="1" parent="1" source="s-decision-role" target="s-loop-menu">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Decision Role: Tidak → Filter per role -->
+        <mxCell id="e-role-tidak" value="Tidak → Filter MenuRole" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#F57C00;exitX=0;exitY=0.5;entryX=0.5;entryY=0;dashed=1;fontSize=10;" edge="1" parent="1" source="s-decision-role" target="s-loop-menu">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Loop Menu → Render Menu -->
+        <mxCell id="e-loop-render" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="s-loop-menu" target="s-render-menu">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Render Menu → User lihat halaman -->
+        <mxCell id="e-render-user" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="s-render-menu" target="u-lihat-halaman">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- User lihat halaman → End -->
+        <mxCell id="e-user-end" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=1.5;strokeColor=#333333;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="u-lihat-halaman" target="end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

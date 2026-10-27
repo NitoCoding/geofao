@@ -1,0 +1,138 @@
+
+<!-- Tabel Layer -->
+<div class="bg-base-100 rounded-xl card-elevated overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="table w-full">
+      <thead class="bg-base-200 text-xs font-semibold text-base-content/60 uppercase tracking-wider">
+        <tr>
+          <th class="px-6 py-3 text-left bg-base-200">#</th>
+          <th class="px-6 py-3 text-left bg-base-200">
+            <a href="#" hx-get="{% url 'spatial:layer_list_table' %}"
+               hx-vals='{"sort": "{% if sort == "name" %}-name{% else %}name{% endif %}"}'
+               hx-target="#layer-content" hx-push-url="true"
+               class="flex items-center gap-1 hover:text-primary">
+              Nama
+              {% if sort == "name" %}<i class="bi bi-arrow-down-short"></i>
+              {% elif sort == "-name" %}<i class="bi bi-arrow-up-short"></i>{% endif %}
+            </a>
+          </th>
+          <th class="px-6 py-3 text-left bg-base-200">Tahun</th>
+          <th class="px-6 py-3 text-left bg-base-200">Kategori</th>
+          <th class="px-6 py-3 text-left bg-base-200">Tipe</th>
+          <th class="px-6 py-3 text-left bg-base-200">Fitur</th>
+          <th class="px-6 py-3 text-left bg-base-200">Status</th>
+          <th class="px-6 py-3 text-right bg-base-200">Aksi</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-base-200">
+        {% for layer in layers %}
+        <tr class="hover:bg-base-200 transition-colors">
+          <td class="px-6 py-3.5 text-sm text-base-content/60">{{ forloop.counter0|add:layers.start_index }}</td>
+          <td class="px-6 py-3.5">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+                <i class="bi {% if layer.layer_type == 'polygon' %}bi-hexagon-fill{% elif layer.layer_type == 'point' %}bi-geo-alt-fill{% else %}bi-layers-fill{% endif %} text-sm"></i>
+              </div>
+              <span class="text-sm font-medium text-base-content">{{ layer.name }}</span>
+            </div>
+          </td>
+          <td class="px-6 py-3.5 text-sm text-base-content/70">{{ layer.data_year.year }}</td>
+          <td class="px-6 py-3.5">
+            <span class="inline-block text-[11px] font-medium px-2.5 py-1 rounded-md bg-base-200 text-base-content/70">
+              {{ layer.get_layer_category_display }}
+            </span>
+          </td>
+          <td class="px-6 py-3.5">
+            <span class="inline-block text-[11px] font-medium px-2.5 py-1 rounded-md
+              {% if layer.layer_type == 'polygon' %}bg-primary/10 text-primary
+              {% elif layer.layer_type == 'point' %}bg-warning/10 text-warning
+              {% else %}bg-info/10 text-info{% endif %}">
+              {{ layer.get_layer_type_display }}
+            </span>
+          </td>
+          <td class="px-6 py-3.5 text-sm text-base-content/70">{{ layer.feature_count|default:"0" }}</td>
+          <td class="px-6 py-3.5">
+            <span class="inline-block text-[11px] font-medium px-2.5 py-1 rounded-md
+              {% if layer.is_active %}bg-success/10 text-success{% else %}bg-error/10 text-error{% endif %}">
+              {{ layer.is_active|yesno:"Aktif,Nonaktif" }}
+            </span>
+          </td>
+          <td class="px-6 py-3.5">
+            <div class="flex justify-end gap-1.5">
+              <a href="{% url 'spatial:layer_detail' layer.pk %}" class="btn btn-sm btn-ghost btn-square text-primary" title="Detail">
+                <i class="bi bi-eye"></i>
+              </a>
+              <button class="btn btn-sm btn-ghost btn-square" title="Toggle Status"
+                      hx-post="{% url 'spatial:layer_toggle' layer.pk %}"
+                      hx-target="#toast-container" hx-swap="afterbegin"
+                      hx-on::after-request="htmx.trigger('#layer-content', 'refresh')">
+                <i class="bi bi-power"></i>
+              </button>
+              <button class="btn btn-sm btn-ghost btn-square text-error" title="Hapus"
+                      hx-post="{% url 'spatial:layer_delete' layer.pk %}"
+                      hx-confirm="Hapus layer '{{ layer.name }}'?"
+                      hx-target="#toast-container" hx-swap="afterbegin"
+                      hx-on::after-request="htmx.trigger('#layer-content', 'refresh')">
+                <i class="bi bi-trash3"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8">
+            <div class="py-16 text-center">
+              <div class="w-16 h-16 rounded-full bg-base-200 flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-inbox text-2xl text-base-content/40"></i>
+              </div>
+              <p class="text-sm text-base-content/60 font-medium">Tidak ada layer ditemukan</p>
+              <p class="text-xs text-base-content/40 mt-1">Coba ubah filter atau upload layer baru</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <div class="px-6 py-4 border-t border-base-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <p class="text-xs text-base-content/60">
+      Menampilkan <span class="font-semibold text-base-content">{{ layers.start_index }}-{{ layers.end_index }}</span>
+      dari <span class="font-semibold text-base-content">{{ page_obj.paginator.count }}</span> total
+    </p>
+    <div class="btn-group btn-group-horizontal flex gap-1">
+      {% if page_obj.has_previous %}
+      <button hx-get="{% url 'spatial:layer_list_table' %}"
+              hx-vals='{"page": "{{ page_obj.previous_page_number }}"}'
+              hx-target="#layer-content" hx-push-url="true"
+              class="btn btn-sm btn-outline btn-square">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      {% else %}
+      <button class="btn btn-sm btn-outline btn-square opacity-30" disabled>
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      {% endif %}
+
+      <span class="btn btn-sm btn-outline font-medium" disabled>
+        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+      </span>
+
+      {% if page_obj.has_next %}
+      <button hx-get="{% url 'spatial:layer_list_table' %}"
+              hx-vals='{"page": "{{ page_obj.next_page_number }}"}'
+              hx-target="#layer-content" hx-push-url="true"
+              class="btn btn-sm btn-outline btn-square">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+      {% else %}
+      <button class="btn btn-sm btn-outline btn-square opacity-30" disabled>
+        <i class="bi bi-chevron-right"></i>
+      </button>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>

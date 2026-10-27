@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Grup Komoditas | {{ block.super }}{% endblock %}
+{% block content %}
+<!-- Page Header (Static - never refreshes) -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+  <div>
+    <h2 class="text-3xl font-bold">Grup Komoditas</h2>
+    <p class="text-base-content/70">Kelola kategori komoditas pertanian</p>
+  </div>
+  <div class="flex gap-2">
+    <a
+      href="{% url 'master_data:commoditygroup_list' %}"
+      class="btn btn-ghost">
+      <i class="bi bi-arrow-clockwise"></i>
+    </a>
+    <a
+      href="{% url 'master_data:commoditygroup_create' %}"
+      class="btn btn-primary">
+      <i class="bi bi-plus-lg me-2"></i>Tambah Grup Baru
+    </a>
+  </div>
+</div>
+
+<!-- Commodity Group Content -->
+<div id="commoditygroup-content">
+  {% include "master_data/commoditygroup_list_content.html" %}
+</div>
+{% endblock %}

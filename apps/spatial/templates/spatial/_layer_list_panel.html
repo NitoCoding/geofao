@@ -1,0 +1,118 @@
+{% for layer in layers %}
+<div class="layer-preview-row px-4 py-3 border-b border-base-200 hover:bg-base-100 cursor-pointer transition-colors border-l-[3px] border-l-transparent"
+     data-layer-id="{{ layer.pk }}"
+     data-layer-name="{{ layer.name }}">
+    <div class="flex items-start gap-3">
+        <!-- Icon -->
+        <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+            <i class="bi {% if layer.layer_type == 'polygon' %}bi-hexagon-fill{% elif layer.layer_type == 'point' %}bi-geo-alt-fill{% else %}bi-layers-fill{% endif %} text-sm"></i>
+        </div>
+
+        <!-- Info -->
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-base-content truncate">{{ layer.name }}</span>
+                {% if layer.is_active %}
+                <span class="w-1.5 h-1.5 rounded-full bg-success flex-shrink-0" title="Aktif"></span>
+                {% else %}
+                <span class="w-1.5 h-1.5 rounded-full bg-error flex-shrink-0" title="Nonaktif"></span>
+                {% endif %}
+            </div>
+            <div class="flex items-center gap-2 mt-0.5">
+                <span class="text-[11px] text-base-content/50">{{ layer.data_year.year }}</span>
+                <span class="text-[11px] text-base-content/30">·</span>
+                <span class="text-[11px] px-1.5 py-0.5 rounded bg-base-200 text-base-content/60">
+                    {{ layer.get_layer_category_display }}
+                </span>
+                <span class="text-[11px] text-base-content/30">·</span>
+                <span class="text-[11px] text-base-content/50">{{ layer.feature_count|default:"0" }} fitur</span>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-0.5 flex-shrink-0" onclick="event.stopPropagation()">
+            <a href="{% url 'spatial:layer_detail' layer.pk %}"
+               class="btn btn-ghost btn-xs btn-square text-primary"
+               title="Detail">
+                <i class="bi bi-eye text-xs"></i>
+            </a>
+            <a hx-get="{% url 'spatial:layer_edit' layer.pk %}"
+                                hx-target="#management-modal-container"
+                                hx-swap="innerHTML"
+                                _="on htmx:afterSettle remove .hidden from #management-modal"
+               class="btn btn-ghost btn-xs btn-square text-info"
+               title="Edit metadata">
+                <i class="bi bi-pencil text-xs"></i>
+            </a>
+            {% comment %} <a href="{% url 'spatial:layer_edit' layer.pk %}"
+               class="btn btn-ghost btn-xs btn-square text-info"
+               title="Edit metadata">
+                <i class="bi bi-pencil text-xs"></i>
+            </a> {% endcomment %}
+            <button class="btn btn-ghost btn-xs btn-square {% if layer.is_active %}text-success{% else %}text-base-content/30{% endif %}"
+                    title="{% if layer.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}"
+                    hx-post="{% url 'spatial:layer_toggle' layer.pk %}"
+                    hx-target="#toast-container" hx-swap="afterbegin"
+                    hx-on::after-request="htmx.ajax('GET', '{% url 'spatial:layer_list_table' %}?view=panel', {target: '#layer-list-content'})">
+                <i class="bi {% if layer.is_active %}bi-toggle-on text-lg{% else %}bi-toggle-off text-lg{% endif %}"></i>
+            </button>
+            <button class="btn btn-ghost btn-xs btn-square text-error"
+                    title="Hapus"
+                    hx-post="{% url 'spatial:layer_delete' layer.pk %}"
+                    hx-confirm="Hapus layer '{{ layer.name }}'?"
+                    hx-target="#toast-container" hx-swap="afterbegin"
+                    hx-on::after-request="htmx.ajax('GET', '{% url 'spatial:layer_list_table' %}?view=panel', {target: '#layer-list-content'})">
+                <i class="bi bi-trash3 text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="py-16 text-center">
+    <div class="w-16 h-16 rounded-full bg-base-200 flex items-center justify-center mx-auto mb-4">
+        <i class="bi bi-inbox text-2xl text-base-content/40"></i>
+    </div>
+    <p class="text-sm text-base-content/60 font-medium">Tidak ada layer ditemukan</p>
+    <p class="text-xs text-base-content/40 mt-1">Coba ubah filter atau upload layer baru</p>
+</div>
+{% endfor %}
+
+<!-- Pagination -->
+{% if is_paginated %}
+<div class="px-4 py-3 border-t border-base-200 flex items-center justify-between">
+    <p class="text-[11px] text-base-content/50">
+        {{ layers.start_index }}-{{ layers.end_index }} / {{ page_obj.paginator.count }}
+    </p>
+    <div class="flex gap-1">
+        {% if page_obj.has_previous %}
+        <button hx-get="{% url 'spatial:layer_list_table' %}?view=panel"
+                hx-vals='{"page": "{{ page_obj.previous_page_number }}"}'
+                hx-target="#layer-list-content"
+                class="btn btn-xs btn-ghost btn-square">
+            <i class="bi bi-chevron-left text-xs"></i>
+        </button>
+        {% else %}
+        <button class="btn btn-xs btn-ghost btn-square opacity-30" disabled>
+            <i class="bi bi-chevron-left text-xs"></i>
+        </button>
+        {% endif %}
+
+        <span class="btn btn-xs btn-ghost font-medium pointer-events-none">
+            {{ page_obj.number }}/{{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <button hx-get="{% url 'spatial:layer_list_table' %}?view=panel"
+                hx-vals='{"page": "{{ page_obj.next_page_number }}"}'
+                hx-target="#layer-list-content"
+                class="btn btn-xs btn-ghost btn-square">
+            <i class="bi bi-chevron-right text-xs"></i>
+        </button>
+        {% else %}
+        <button class="btn btn-xs btn-ghost btn-square opacity-30" disabled>
+            <i class="bi bi-chevron-right text-xs"></i>
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

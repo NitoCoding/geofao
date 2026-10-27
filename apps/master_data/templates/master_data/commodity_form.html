@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}{% if form.instance.pk %}Edit{% else %}Tambah{% endif %} Komoditas | {{ block.super }}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <h2 class="card-title">{% if form.instance.pk %}Edit{% else %}Tambah{% endif %} Komoditas</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-control w-full mb-4"><label class="label">{{ form.name.label }}</label>{{ form.name }}</div>
+                <div class="form-control w-full mb-4"><label class="label">{{ form.group.label }}</label>{{ form.group }}</div>
+                <div class="form-control w-full mb-4"><label class="label">{{ form.suitability_table.label }}</label>{{ form.suitability_table }}</div>
+                <div class="card-actions justify-end">
+                    <a href="{% url 'master_data:commodity_list' %}" class="btn btn-ghost">Batal</a>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

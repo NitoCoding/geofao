@@ -1,0 +1,159 @@
+<!-- Suitability Analysis Partial - For Control Center Tab -->
+<div class="space-y-6">
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle text-xl"></i>
+        <div>
+            <h3 class="font-bold">Analisis Kesesuaian Lahan</h3>
+            <p class="text-sm">Pilih komoditas dan layer untuk menjalankan analisis kesesuaian lahan.</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Komoditas Selection -->
+        <div class="lg:col-span-2 card bg-base-200 shadow-sm p-4">
+            <h3 class="text-lg font-bold mb-4">
+                <i class="bi bi-basket text-primary me-2"></i>Pilih Komoditas
+            </h3>
+
+            <!-- Search -->
+            <input type="text"
+                   id="suitability-commodity-search"
+                   placeholder="Cari komoditas..."
+                   class="input input-bordered w-full mb-4" />
+
+            <!-- Commodity List -->
+            <div id="suitability-commodity-list" class="space-y-3 max-h-96 overflow-y-auto">
+                {% for commodity in commodities %}
+                <label class="flex items-center gap-3 p-3 bg-base-100 rounded-lg hover:bg-base-300 transition-colors cursor-pointer suitability-commodity-item"
+                       data-commodity-name="{{ commodity.name|lower }}">
+                    <input type="checkbox"
+                           class="checkbox checkbox-primary suitability-commodity-checkbox"
+                           data-commodity-id="{{ commodity.id }}"
+                           data-commodity-name="{{ commodity.name }}" />
+                    <div class="flex-1">
+                        <p class="font-medium text-sm">{{ commodity.name }}</p>
+                        {% if commodity.description %}
+                        <p class="text-xs text-slate-500">{{ commodity.description|truncatewords:8 }}</p>
+                        {% endif %}
+                    </div>
+                </label>
+                {% empty %}
+                <div class="text-center py-4 text-slate-500">
+                    <i class="bi bi-inbox text-2xl"></i>
+                    <p>Tidak ada komoditas tersedia</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Selected Summary -->
+            <div class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p class="text-sm font-medium text-blue-600">
+                    <span id="suitability-selected-count">0</span> komoditas dipilih
+                </p>
+                <div id="suitability-selected-tags" class="flex flex-wrap gap-2 mt-2"></div>
+            </div>
+        </div>
+
+        <!-- Layer Selection -->
+        <div class="lg:col-span-1">
+            <div class="card bg-base-200 shadow-sm p-4 sticky top-4">
+                <h3 class="text-lg font-bold mb-4">
+                    <i class="bi bi-layers text-primary me-2"></i>Pilih Layer
+                </h3>
+
+                <div id="suitability-layer-list" class="space-y-2 max-h-64 overflow-y-auto">
+                    {% for layer in layers %}
+                    <label class="flex items-center gap-3 p-3 bg-base-100 rounded-lg hover:bg-base-300 transition-colors cursor-pointer suitability-layer-item">
+                        <input type="radio"
+                               name="suitability-layer"
+                               class="radio radio-primary suitability-layer-radio"
+                               data-layer-id="{{ layer.id }}"
+                               data-layer-name="{{ layer.name }}" />
+                        <div class="flex-1">
+                            <p class="font-medium text-sm">{{ layer.name }}</p>
+                            <p class="text-xs text-slate-500">{{ layer.layer_category|default:"N/A" }}</p>
+                        </div>
+                    </label>
+                    {% empty %}
+                    <div class="text-center py-4 text-slate-500">
+                        <i class="bi bi-inbox text-2xl"></i>
+                        <p>Tidak ada layer tersedia</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Action Button -->
+                <button id="suitability-start-btn"
+                        type="button"
+                        class="btn btn-primary btn-block mt-4"
+                        disabled
+                        hx-post="{% url 'analysis:start_analysis' %}"
+                        hx-target="#suitability-results"
+                        hx-swap="innerHTML"
+                        hx-disabled-elt="this">
+                    <span class="loading loading-spinner loading-sm htmx-indicator"></span>
+                    <i class="bi bi-play-fill me-1"></i> Mulai Analisis
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Container -->
+    <div id="suitability-results"></div>
+</div>
+
+<script>
+(function () {
+    const btn = document.getElementById('suitability-start-btn');
+    const searchInput = document.getElementById('suitability-commodity-search');
+    const countEl = document.getElementById('suitability-selected-count');
+    const tagsEl = document.getElementById('suitability-selected-tags');
+
+    function selectedCommodities() {
+        return Array.from(document.querySelectorAll('.suitability-commodity-checkbox:checked'));
+    }
+
+    function selectedLayer() {
+        return document.querySelector('.suitability-layer-radio:checked');
+    }
+
+    function refreshState() {
+        const commodities = selectedCommodities();
+        const hasLayer = !!selectedLayer();
+
+        countEl.textContent = commodities.length;
+        tagsEl.innerHTML = '';
+        commodities.forEach(function (cb) {
+            const tag = document.createElement('span');
+            tag.className = 'badge badge-primary badge-outline';
+            tag.textContent = cb.dataset.commodityName;
+            tagsEl.appendChild(tag);
+        });
+
+        btn.disabled = !(commodities.length > 0 && hasLayer);
+    }
+
+    document.querySelectorAll('.suitability-commodity-checkbox, .suitability-layer-radio')
+        .forEach(function (el) { el.addEventListener('change', refreshState); });
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            const term = this.value.trim().toLowerCase();
+            document.querySelectorAll('.suitability-commodity-item').forEach(function (item) {
+                item.style.display = item.dataset.commodityName.includes(term) ? '' : 'none';
+            });
+        });
+    }
+
+    // Kirim semua komoditas terpilih (array) dan layer ke endpoint start_analysis
+    btn.addEventListener('htmx:configRequest', function (evt) {
+        const layer = selectedLayer();
+        evt.detail.parameters['commodity_ids'] = selectedCommodities().map(function (cb) {
+            return cb.dataset.commodityId;
+        });
+        evt.detail.parameters['layer_id'] = layer ? layer.dataset.layerId : '';
+    });
+
+    refreshState();
+})();
+</script>

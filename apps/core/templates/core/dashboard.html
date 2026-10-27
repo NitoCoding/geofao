@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — GeoAibarru{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+
+  <!-- ===== STATS ROW (4 cards) ===== -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+    <!-- Card: Layer Aktif -->
+    <div class="bg-base-100 rounded-xl p-5 shadow-sm border border-base-200 hover:border-primary/30 transition-colors">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+          <i class="bi bi-layers text-primary text-lg"></i>
+        </div>
+        <span class="text-[10px] font-medium text-success bg-success/10 px-2 py-0.5 rounded-full">Aktif</span>
+      </div>
+      <p class="text-2xl font-bold text-base-content">{{ total_layers|default:"0" }}</p>
+      <p class="text-xs text-base-content/50 mt-0.5">Layer Spasial</p>
+    </div>
+
+    <!-- Card: Komoditas -->
+    <div class="bg-base-100 rounded-xl p-5 shadow-sm border border-base-200 hover:border-secondary/30 transition-colors">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+          <i class="bi bi-basket text-secondary text-lg"></i>
+        </div>
+        <span class="text-[10px] font-medium text-base-content/50 bg-base-200 px-2 py-0.5 rounded-full">{{ total_commodity_groups }} grup</span>
+      </div>
+      <p class="text-2xl font-bold text-base-content">{{ total_commodities|default:"0" }}</p>
+      <p class="text-xs text-base-content/50 mt-0.5">Total Komoditas</p>
+    </div>
+
+    <!-- Card: Hasil Analisis -->
+    <div class="bg-base-100 rounded-xl p-5 shadow-sm border border-base-200 hover:border-accent/30 transition-colors">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center">
+          <i class="bi bi-clipboard-data text-accent text-lg"></i>
+        </div>
+        <span class="text-[10px] font-medium text-success bg-success/10 px-2 py-0.5 rounded-full">{{ completed_analysis }} selesai</span>
+      </div>
+      <p class="text-2xl font-bold text-base-content">{{ total_analysis|default:"0" }}</p>
+      <p class="text-xs text-base-content/50 mt-0.5">Hasil Analisis</p>
+    </div>
+
+    <!-- Card: Review Ahli -->
+    <div class="bg-base-100 rounded-xl p-5 shadow-sm border border-base-200 hover:border-info/30 transition-colors">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center">
+          <i class="bi bi-chat-square-text text-info text-lg"></i>
+        </div>
+      </div>
+      <p class="text-2xl font-bold text-base-content">{{ total_reviews|default:"0" }}</p>
+      <p class="text-xs text-base-content/50 mt-0.5">Review Tenaga Ahli</p>
+    </div>
+  </div>
+
+  <!-- ===== CHARTS ROW ===== -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+    <!-- Chart: Distribusi Komoditas per Grup -->
+    <div class="bg-base-100 rounded-xl shadow-sm border border-base-200 p-5">
+      <h3 class="text-sm font-bold text-base-content flex items-center gap-2 mb-4">
+        <i class="bi bi-pie-chart text-primary"></i>
+        Komoditas per Grup
+      </h3>
+      <div class="h-56">
+        <canvas id="commodityGroupChart"></canvas>
+      </div>
+      {% if not commodity_group_chart.labels %}
+      <p class="text-xs text-base-content/50 text-center mt-2">Belum ada data komoditas</p>
+      {% endif %}
+    </div>
+
+    <!-- Chart: Distribusi Kelas Kesesuaian -->
+    <div class="bg-base-100 rounded-xl shadow-sm border border-base-200 p-5">
+      <h3 class="text-sm font-bold text-base-content flex items-center gap-2 mb-4">
+        <i class="bi bi-bar-chart text-accent"></i>
+        Distribusi Kelas Kesesuaian (S1–N)
+      </h3>
+      <div class="h-56">
+        <canvas id="classDistributionChart"></canvas>
+      </div>
+      {% if class_distribution.data|join:"" == "0000" %}
+      <p class="text-xs text-base-content/50 text-center mt-2">Belum ada hasil analisis</p>
+      {% endif %}
+    </div>
+
+    <!-- Card: Komoditas Tanpa Kriteria -->
+    <div class="bg-base-100 rounded-xl shadow-sm border border-base-200 p-5 flex flex-col justify-center">
+      <h3 class="text-sm font-bold text-base-content flex items-center gap-2 mb-4">
+        <i class="bi bi-exclamation-triangle text-warning"></i>
+        Kualitas Data Komoditas
+      </h3>
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-warning/10 flex items-center justify-center">
+          <i class="bi bi-clipboard-x text-warning text-2xl"></i>
+        </div>
+        <div>
+          <p class="text-3xl font-bold text-base-content">{{ commodities_without_criteria|default:"0" }}</p>
+          <p class="text-xs text-base-content/50">komoditas belum memiliki kriteria kesesuaian</p>
+        </div>
+      </div>
+      <a href="{% url 'master_data:commodity_list' %}"
+         class="btn btn-sm btn-outline btn-warning mt-4 w-full">
+        <i class="bi bi-plus-circle"></i> Lengkapi Kriteria
+      </a>
+    </div>
+  </div>
+
+  <!-- ===== QUICK ACTIONS + RECENT ===== -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+    <!-- Quick Actions -->
+    <div class="bg-base-100 rounded-xl shadow-sm border border-base-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-base-200">
+        <h3 class="text-sm font-bold text-base-content flex items-center gap-2">
+          <i class="bi bi-lightning-charge text-warning"></i>
+          Akses Cepat
+        </h3>
+      </div>
+      <div class="p-3 space-y-1">
+        <a href="{% url 'analysis:control_center' %}"
+           class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200 transition-colors group">
+          <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+            <i class="bi bi-play-circle text-primary"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-base-content">Control Center</p>
+            <p class="text-xs text-base-content/50">Jalankan analisis baru</p>
+          </div>
+          <i class="bi bi-chevron-right text-base-content/30 group-hover:text-primary"></i>
+        </a>
+
+        <a href="{% url 'spatial:map_view' %}"
+           class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200 transition-colors group">
+          <div class="w-8 h-8 rounded-lg bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors">
+            <i class="bi bi-map text-success"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-base-content">Peta Interaktif</p>
+            <p class="text-xs text-base-content/50">Visualisasi & input ahli</p>
+          </div>
+          <i class="bi bi-chevron-right text-base-content/30 group-hover:text-success"></i>
+        </a>
+
+        {% if is_admin %}
+        <a href="{% url 'spatial:layer_management' %}"
+           class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200 transition-colors group">
+          <div class="w-8 h-8 rounded-lg bg-info/10 flex items-center justify-center group-hover:bg-info/20 transition-colors">
+            <i class="bi bi-cloud-upload text-info"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-base-content">Layer Management</p>
+            <p class="text-xs text-base-content/50">Upload & kelola layer</p>
+          </div>
+          <i class="bi bi-chevron-right text-base-content/30 group-hover:text-info"></i>
+        </a>
+        {% endif %}
+
+        <a href="{% url 'master_data:commodity_list' %}"
+           class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200 transition-colors group">
+          <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
+            <i class="bi bi-basket text-secondary"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-base-content">Data Komoditas</p>
+            <p class="text-xs text-base-content/50">Kelola komoditas & kriteria</p>
+          </div>
+          <i class="bi bi-chevron-right text-base-content/30 group-hover:text-secondary"></i>
+        </a>
+
+        <a href="{% url 'analysis:results_management' %}"
+           class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200 transition-colors group">
+          <div class="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+            <i class="bi bi-clipboard-data text-accent"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-base-content">Hasil Analisis</p>
+            <p class="text-xs text-base-content/50">Lihat & kelola hasil</p>
+          </div>
+          <i class="bi bi-chevron-right text-base-content/30 group-hover:text-accent"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Recent Results -->
+    <div class="bg-base-100 rounded-xl shadow-sm border border-base-200 overflow-hidden lg:col-span-2">
+      <div class="px-5 py-4 border-b border-base-200 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-base-content flex items-center gap-2">
+          <i class="bi bi-clock-history text-primary"></i>
+          Hasil Analisis Terbaru
+        </h3>
+        <a href="{% url 'analysis:results_management' %}" class="text-xs text-primary hover:underline">Lihat semua</a>
+      </div>
+
+      {% if recent_results %}
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="border-b border-base-200 bg-base-200/50">
+              <th class="text-left px-5 py-2.5 font-semibold text-base-content/60">Komoditas</th>
+              <th class="text-left px-5 py-2.5 font-semibold text-base-content/60">Layer</th>
+              <th class="text-left px-5 py-2.5 font-semibold text-base-content/60">Status</th>
+              <th class="text-left px-5 py-2.5 font-semibold text-base-content/60">Progress</th>
+              <th class="text-left px-5 py-2.5 font-semibold text-base-content/60">Tanggal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for result in recent_results %}
+            <tr class="border-b border-base-200 hover:bg-base-100 transition-colors">
+              <td class="px-5 py-3">
+                <span class="font-medium text-base-content">{{ result.commodity.name }}</span>
+              </td>
+              <td class="px-5 py-3 text-base-content/60">{{ result.base_layer.name|default:"—" }}</td>
+              <td class="px-5 py-3">
+                {% if result.status == 'completed' %}
+                <span class="badge badge-success badge-xs">Selesai</span>
+                {% elif result.status == 'processing' %}
+                <span class="badge badge-warning badge-xs">Proses</span>
+                {% elif result.status == 'failed' %}
+                <span class="badge badge-error badge-xs">Gagal</span>
+                {% else %}
+                <span class="badge badge-ghost badge-xs">{{ result.status }}</span>
+                {% endif %}
+              </td>
+              <td class="px-5 py-3">
+                <div class="flex items-center gap-2">
+                  <progress class="progress progress-primary w-16 h-2" value="{{ result.progress }}" max="100"></progress>
+                  <span class="text-base-content/50">{{ result.progress }}%</span>
+                </div>
+              </td>
+              <td class="px-5 py-3 text-base-content/50">{{ result.created_at|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="p-8 text-center text-base-content/50">
+        <i class="bi bi-inbox text-2xl"></i>
+        <p class="text-xs mt-2">Belum ada hasil analisis</p>
+        <a href="{% url 'analysis:control_center' %}" class="btn btn-primary btn-sm mt-3">Mulai Analisis</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== INFO BAR ===== -->
+  <div class="bg-base-100 rounded-xl shadow-sm border border-base-200 p-4 flex flex-wrap items-center gap-4 text-xs text-base-content/60">
+    <div class="flex items-center gap-2">
+      <i class="bi bi-check2-circle text-success"></i>
+      <span><strong class="text-base-content">{{ active_analysis }}</strong> hasil analisis aktif</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <i class="bi bi-layers text-primary"></i>
+      <span><strong class="text-base-content">{{ total_layers }}</strong> layer tersedia</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <i class="bi bi-people text-info"></i>
+      <span><strong class="text-base-content">{{ total_reviews }}</strong> review ahli</span>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Palet warna
+    const palette = [
+      "#3b82f6", "#22c55e", "#f59e0b", "#ef4444",
+      "#8b5cf6", "#06b6d4", "#f97316", "#84cc16",
+    ];
+
+    // 1) Doughnut: Komoditas per Grup
+    const groupChart = {{ commodity_group_chart_json|safe }};
+    if (groupChart.labels.length) {
+      new Chart(document.getElementById("commodityGroupChart"), {
+        type: "doughnut",
+        data: {
+          labels: groupChart.labels,
+          datasets: [{
+            data: groupChart.data,
+            backgroundColor: palette,
+            borderWidth: 2,
+            borderColor: "#ffffff",
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "55%",
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 12, font: { size: 10 } } },
+          },
+        },
+      });
+    }
+
+    // 2) Bar: Distribusi Kelas Kesesuaian
+    const classChart = {{ class_distribution_json|safe }};
+    const classColors = ["#22c55e", "#84cc16", "#f59e0b", "#ef4444"];
+    const hasClassData = classChart.data.some(function (v) { return v > 0; });
+    if (hasClassData) {
+      new Chart(document.getElementById("classDistributionChart"), {
+        type: "bar",
+        data: {
+          labels: classChart.labels,
+          datasets: [{
+            label: "Jumlah Fitur",
+            data: classChart.data,
+            backgroundColor: classColors,
+            borderRadius: 6,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+            x: { ticks: { font: { size: 10 } } },
+          },
+        },
+      });
+    }
+  });
+</script>
+{% endblock %}
