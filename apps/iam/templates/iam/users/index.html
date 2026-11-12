@@ -12,8 +12,7 @@
   <div class="flex gap-2">
     <button class="btn btn-primary"
             hx-get="{% url 'iam:user_create' %}"
-            hx-target="#user-modal-container"
-            hx-swap="innerHTML">
+            hx-target="#modalBody">
       <i class="bi bi-plus-lg me-2"></i>Tambah User
     </button>
   </div>
@@ -22,11 +21,8 @@
 <!-- User Content -->
 <div id="user-content"
      hx-get="{% url 'iam:user_list' %}"
-     hx-trigger="userSaved from:body"
-     hx-replace-url="true">
+     hx-trigger="userSaved from:body">
   {% include "iam/users/datatable.html" %}
 </div>
 
-<!-- Modal Container -->
-<div id="user-modal-container"></div>
 {% endblock %}

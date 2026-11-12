@@ -1,0 +1,96 @@
+<div class="text-center mb-4">
+  <h3 class="text-xl font-bold text-slate-800">{{ result.commodity.name|default:"Hasil Analisis" }}</h3>
+  <p class="text-sm text-slate-500">{{ result.base_layer.name }}</p>
+</div>
+<div class="space-y-4">
+    <!-- Status -->
+    <div class="flex items-center justify-between">
+        <span class="text-xs text-base-content/50">Status</span>
+        <span class="badge {% if result.status == 'completed' %}badge-success{% elif result.status == 'failed' %}badge-error{% elif result.status == 'processing' %}badge-warning{% else %}badge-ghost{% endif %}">
+            {{ result.get_status_display }}
+        </span>
+    </div>
+
+    <!-- Komoditas -->
+    <div class="flex items-center justify-between">
+        <span class="text-xs text-base-content/50">Komoditas</span>
+        <span class="text-sm font-medium text-base-content">{{ result.commodity.name|default:"Multi-Komoditas" }}</span>
+    </div>
+
+    <!-- Layer -->
+    <div class="flex items-center justify-between">
+        <span class="text-xs text-base-content/50">Layer</span>
+        <span class="text-sm text-base-content">{{ result.base_layer.name }}</span>
+    </div>
+
+    <!-- Metode -->
+    <div class="flex items-center justify-between">
+        <span class="text-xs text-base-content/50">Metode</span>
+        <span class="text-sm text-base-content">FAO Minimum</span>
+    </div>
+
+    <!-- Total Features -->
+    <div class="flex items-center justify-between">
+        <span class="text-xs text-base-content/50">Total Fitur</span>
+        <span class="text-sm font-medium text-base-content">{{ result.total_features|default:"—" }}</span>
+    </div>
+
+    {% if result.status == 'completed' %}
+    <!-- Class Distribution -->
+    <div class="border-t border-base-200 pt-3">
+        <p class="text-xs font-semibold text-base-content mb-2">Distribusi Kelas</p>
+        <div class="flex flex-wrap gap-2">
+            {% if result.s1_count > 0 %}
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium" style="background:#1a9641;color:#fff">
+                <span>S1</span>
+                <span class="font-bold">{{ result.s1_count }}</span>
+            </div>
+            {% endif %}
+            {% if result.s2_count > 0 %}
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium" style="background:#a6d96a;color:#1a5e20">
+                <span>S2</span>
+                <span class="font-bold">{{ result.s2_count }}</span>
+            </div>
+            {% endif %}
+            {% if result.s3_count > 0 %}
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium" style="background:#fdae61;color:#7a3b00">
+                <span>S3</span>
+                <span class="font-bold">{{ result.s3_count }}</span>
+            </div>
+            {% endif %}
+            {% if result.n_count > 0 %}
+            <div class="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium" style="background:#d7191c;color:#fff">
+                <span>N</span>
+                <span class="font-bold">{{ result.n_count }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Timestamps -->
+    <div class="border-t border-base-200 pt-3 space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-base-content/50">Dibuat</span>
+            <span class="text-xs text-base-content/60">{{ result.created_at|date:"d M Y H:i" }}</span>
+        </div>
+        {% if result.completed_at %}
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-base-content/50">Selesai</span>
+            <span class="text-xs text-base-content/60">{{ result.completed_at|date:"d M Y H:i" }}</span>
+        </div>
+        {% endif %}
+        <div class="flex items-center justify-between">
+            <span class="text-xs text-base-content/50">Oleh</span>
+            <span class="text-xs text-base-content/60">{{ result.created_by.get_full_name|default:result.created_by.username|default:"System" }}</span>
+        </div>
+    </div>
+
+    <!-- Action -->
+    <div class="border-t border-base-200 pt-3">
+        <a href="{% url 'analysis:results_management' %}?highlight={{ result.id }}"
+           class="btn btn-primary btn-sm w-full">
+            <i class="bi bi-eye me-1"></i>Lihat di Peta
+        </a>
+    </div>
+</div>

@@ -285,19 +285,13 @@
 </main>
 <!-- ============ UNIVERSAL MODAL ============ -->
 <dialog id="universalModal" class="modal modal-bottom sm:modal-middle">
-  <div class="modal-box rounded-xl max-w-2xl bg-white shadow-2xl">
+  <div class="modal-box rounded-xl max-w-2xl">
     <form method="dialog">
       <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
     </form>
-    <div class="text-center mb-4">
-      <h3 id="modalTitle" class="text-xl font-bold text-slate-800 mb-1"></h3>
-      <p id="modalSubtitle" class="text-sm text-slate-500"></p>
-    </div>
     <div id="modalBody"></div>
   </div>
-  <form method="dialog" class="modal-backdrop">
-    <button>close</button>
-  </form>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
 </dialog>
 <!-- ============ TOAST CONTAINER ============ -->
 <div id="toast-container" class="toast toast-top toast-end z-50"></div>
@@ -467,43 +461,21 @@ document.body.addEventListener("htmx:confirm", function (event) {
                     });
 
                 // ===== MODAL HELPERS =====
-                window.openModal = function (title, subtitle, url) {
-                    var modal = document.getElementById("universalModal");
-                    document.getElementById("modalTitle").textContent =
-                        title || "";
-                    document.getElementById("modalSubtitle").textContent =
-                        subtitle || "";
-                    if (url) {
-                        document.getElementById("modalBody").innerHTML =
-                            '<div class="flex justify-center py-8"><span class="loading loading-spinner loading-lg text-blue-600"></span></div>';
-                        modal.showModal();
-                        htmx.ajax("GET", url, {
-                            target: "#modalBody",
-                            swap: "innerHTML",
-                        });
-                    } else {
-                        modal.showModal();
-                    }
-                };
+                const modal = document.getElementById("universalModal");
+                const modalBody = document.getElementById("modalBody");
 
-                document.body.addEventListener(
-                    "htmx:afterSwap",
-                    function (evt) {
-                        var xhr = evt.detail.xhr;
-                        var openHeader = xhr.getResponseHeader("X-Open-Modal");
-                        if (openHeader) {
-                            try {
-                                var c = JSON.parse(openHeader);
-                                openModal(c.title, c.subtitle, c.url);
-                            } catch (e) {
-                                openModal("", "", openHeader);
-                            }
-                        }
-                        if (xhr.getResponseHeader("X-Close-Modal") === "true") {
-                            document.getElementById("universalModal").close();
-                        }
-                    },
-                );
+                // buka modal hanya jika konten berhasil dimuat
+                document.body.addEventListener("htmx:afterSwap", (e) => {
+                  if (e.detail.target === modalBody && modalBody.innerHTML.trim() && !modal.open) {
+                    modal.showModal();
+                  }       
+                });
+
+                // tutup modal setelah sukses simpan (dikirim server via HX-Trigger)
+                document.body.addEventListener("modalClose", () => modal.close());
+
+                // kosongkan isi saat ditutup (ESC, backdrop, tombol ✕) supaya tidak ada sisa form lama
+                modal.addEventListener("close", () => (modalBody.innerHTML = ""));
             });
 </script>
 {% block extra_js %}

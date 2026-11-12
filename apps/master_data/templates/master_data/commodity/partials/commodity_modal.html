@@ -1,0 +1,35 @@
+<!-- Modal Form: Komoditas -->
+<div class="text-center mb-4">
+  <h3 class="text-xl font-bold text-slate-800">
+    {% if instance %}Edit{% else %}Tambah{% endif %} Komoditas
+  </h3>
+  <p class="text-sm text-slate-500">{% if instance %}Ubah data komoditas{% else %}Buat komoditas baru{% endif %}</p>
+</div>
+
+<form hx-post="{% url 'master_data:management_commodity_save' %}"
+      hx-target="#modalBody"
+      hx-swap="innerHTML"
+      hx-on::after-request="if(event.detail.successful) window.dispatchEvent(new Event('modalClose'))">
+  {% csrf_token %}
+  {% if instance %}<input type="hidden" name="pk" value="{{ instance.pk }}">{% endif %}
+
+  <div class="form-control w-full mb-4">
+    <label class="label"><span class="label-text">Nama Komoditas</span></label>
+    {{ form.name }}
+  </div>
+
+  <div class="form-control w-full mb-4">
+    <label class="label"><span class="label-text">Grup Komoditas</span></label>
+    {{ form.group }}
+  </div>
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-error mb-4 text-sm">{{ form.non_field_errors|join:", " }}</div>
+  {% endif %}
+
+  <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-base-200">
+    <button type="button" class="btn btn-ghost btn-sm"
+            onclick="universalModal.close()">Batal</button>
+    <button type="submit" class="btn btn-primary btn-sm">Simpan</button>
+  </div>
+</form>

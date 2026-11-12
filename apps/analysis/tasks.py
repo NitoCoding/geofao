@@ -404,10 +404,7 @@ def run_crop_recommendation_analysis(
 
             if soil_data:
                 # Rekomendasikan semua komoditas yang cocok untuk poligon ini
-                recs = recommend_crops_for_land(
-                    soil_data,
-                    include_limiting_factors=False
-                )
+                recs = recommend_crops_for_land(soil_data)
                 recommendation_count += len(recs)
                 processed += 1
 

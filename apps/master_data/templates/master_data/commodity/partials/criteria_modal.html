@@ -1,0 +1,77 @@
+<!-- Modal Form: Kriteria Kesesuaian -->
+<div class="text-center mb-4">
+  <h3 class="text-xl font-bold text-slate-800">
+    {% if instance %}Edit{% else %}Tambah{% endif %} Kriteria Kesesuaian
+  </h3>
+  <p class="text-sm text-slate-500">{% if instance %}Ubah kriteria kesesuaian{% else %}Buat kriteria kesesuaian baru{% endif %}</p>
+</div>
+
+<form hx-post="{% if instance %}{% url 'master_data:management_criteria_modal' instance.pk %}{% else %}{% url 'master_data:management_criteria_modal' %}{% endif %}"
+      hx-target="#modalBody"
+      hx-swap="innerHTML"
+      hx-on::after-request="if(event.detail.successful) window.dispatchEvent(new Event('modalClose'))">
+  {% csrf_token %}
+
+  <div class="form-control w-full mb-3">
+    <label class="label"><span class="label-text">{{ form.commodity.label }}</span></label>
+    {{ form.commodity }}
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+    <div class="form-control w-full">
+      <label class="label"><span class="label-text">{{ form.name.label }}</span></label>
+      {{ form.name }}
+    </div>
+    <div class="form-control w-full">
+      <label class="label"><span class="label-text">{{ form.source_field.label }}</span></label>
+      {{ form.source_field }}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+    <div class="form-control w-full">
+      <label class="label"><span class="label-text">{{ form.data_type.label }}</span></label>
+      {{ form.data_type }}
+    </div>
+    <div class="form-control w-full">
+      <label class="label"><span class="label-text">{{ form.unit.label }}</span></label>
+      {{ form.unit }}
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+    <div class="form-control w-full">
+      <label class="label"><span class="label-text text-xs">{{ form.s1_value.label }}</span></label>
+      {{ form.s1_value }}
+    </div>
+    <div class="form-control w-full">
+      <label class="label"><span class="label-text text-xs">{{ form.s2_value.label }}</span></label>
+      {{ form.s2_value }}
+    </div>
+    <div class="form-control w-full">
+      <label class="label"><span class="label-text text-xs">{{ form.s3_value.label }}</span></label>
+      {{ form.s3_value }}
+    </div>
+    <div class="form-control w-full">
+      <label class="label"><span class="label-text text-xs">{{ form.n_value.label }}</span></label>
+      {{ form.n_value }}
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label class="flex items-center gap-2 cursor-pointer">
+      {{ form.is_active }}
+      <span class="label-text">Aktif</span>
+    </label>
+  </div>
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-error mb-4 text-sm">{{ form.non_field_errors|join:", " }}</div>
+  {% endif %}
+
+  <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-base-200">
+    <button type="button" class="btn btn-ghost btn-sm"
+            onclick="universalModal.close()">Batal</button>
+    <button type="submit" class="btn btn-primary btn-sm">Simpan</button>
+  </div>
+</form>

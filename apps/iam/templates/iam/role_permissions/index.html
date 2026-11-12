@@ -12,8 +12,7 @@
   <div class="flex gap-2">
     <button class="btn btn-primary"
             hx-get="{% url 'iam:role_permission_create' %}"
-            hx-target="#role-permission-modal-container"
-            hx-swap="innerHTML">
+            hx-target="#modalBody">
       <i class="bi bi-plus-lg me-2"></i>Tambah Permission
     </button>
   </div>
@@ -28,6 +27,4 @@
   {% include "iam/role_permissions/datatable.html" %}
 </div>
 
-<!-- Modal Container -->
-<div id="role-permission-modal-container"></div>
 {% endblock %}

@@ -12,8 +12,7 @@
   <div class="flex gap-2">
     <button class="btn btn-primary"
             hx-get="{% url 'iam:menu_role_create' %}"
-            hx-target="#menu-role-modal-container"
-            hx-swap="innerHTML">
+            hx-target="#modalBody">
       <i class="bi bi-plus-lg me-2"></i>Tambah Menu Role
     </button>
   </div>
@@ -28,6 +27,4 @@
   {% include "iam/menu_roles/datatable.html" %}
 </div>
 
-<!-- Modal Container -->
-<div id="menu-role-modal-container"></div>
 {% endblock %}

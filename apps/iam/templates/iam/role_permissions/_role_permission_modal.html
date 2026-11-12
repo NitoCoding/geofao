@@ -1,52 +1,43 @@
 <!-- Role Permission Modal -->
-<div id="role-permission-modal" class="modal modal-open hidden z-[9999]"
-     _="on load remove .hidden from me">
-  <div class="modal-box rounded-xl max-w-md bg-base-100 shadow-2xl">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-sm font-bold text-base-content">Tambah Role Permission</h3>
-      <button type="button" class="btn btn-ghost btn-sm btn-square"
-              _="on click add .hidden to #role-permission-modal">
-        <i class="bi bi-x text-lg"></i>
-      </button>
-    </div>
-
-    <form method="post"
-          hx-post="{% url 'iam:role_permission_create' %}"
-          hx-target="#role-permission-modal-container"
-          hx-swap="innerHTML"
-          hx-on::after-request="if(event.detail.successful) document.querySelector('#role-permission-modal').classList.add('hidden')">
-      {% csrf_token %}
-
-      <div class="space-y-3">
-        <div>
-          <label class="label py-0.5"><span class="label-text text-xs font-medium">Role <span class="text-error">*</span></span></label>
-          {{ form.role }}
-          {% if form.role.errors %}<p class="text-error text-xs mt-1">{{ form.role.errors.0 }}</p>{% endif %}
-        </div>
-        <div>
-          <label class="label py-0.5"><span class="label-text text-xs font-medium">Permission <span class="text-error">*</span></span></label>
-          {{ form.permission }}
-          {% if form.permission.errors %}<p class="text-error text-xs mt-1">{{ form.permission.errors.0 }}</p>{% endif %}
-        </div>
-      </div>
-
-      {% if form.non_field_errors %}
-      <div class="alert alert-error mt-4">
-        <i class="bi bi-exclamation-triangle"></i>
-        <span>{{ form.non_field_errors|join:", " }}</span>
-      </div>
-      {% endif %}
-
-      <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-base-200">
-        <button type="button" class="btn btn-ghost btn-sm"
-                _="on click add .hidden to #role-permission-modal">
-          Batal
-        </button>
-        <button type="submit" class="btn btn-primary btn-sm">
-          <i class="bi bi-check-lg me-1"></i>Simpan
-        </button>
-      </div>
-    </form>
-  </div>
-  <div class="modal-backdrop" _="on click add .hidden to #role-permission-modal"></div>
+<div class="text-center mb-4">
+  <h3 class="text-xl font-bold text-slate-800">Tambah Role Permission</h3>
+  <p class="text-sm text-slate-500">Berikan permission tertentu kepada role</p>
 </div>
+
+<form method="post"
+      hx-post="{% url 'iam:role_permission_create' %}"
+      hx-target="#modalBody"
+      hx-swap="innerHTML"
+      hx-on::after-request="if(event.detail.successful) window.dispatchEvent(new Event('modalClose'))">
+  {% csrf_token %}
+
+  <div class="space-y-3">
+    <div>
+      <label class="label py-0.5"><span class="label-text text-xs font-medium">Role <span class="text-error">*</span></span></label>
+      {{ form.role }}
+      {% if form.role.errors %}<p class="text-error text-xs mt-1">{{ form.role.errors.0 }}</p>{% endif %}
+    </div>
+    <div>
+      <label class="label py-0.5"><span class="label-text text-xs font-medium">Permission <span class="text-error">*</span></span></label>
+      {{ form.permission }}
+      {% if form.permission.errors %}<p class="text-error text-xs mt-1">{{ form.permission.errors.0 }}</p>{% endif %}
+    </div>
+  </div>
+
+  {% if form.non_field_errors %}
+  <div class="alert alert-error mt-4">
+    <i class="bi bi-exclamation-triangle"></i>
+    <span>{{ form.non_field_errors|join:", " }}</span>
+  </div>
+  {% endif %}
+
+  <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-base-200">
+    <button type="button" class="btn btn-ghost btn-sm"
+            onclick="universalModal.close()">
+      Batal
+    </button>
+    <button type="submit" class="btn btn-primary btn-sm">
+      <i class="bi bi-check-lg me-1"></i>Simpan
+    </button>
+  </div>
+</form>

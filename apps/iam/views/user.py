@@ -1,3 +1,4 @@
+from django_htmx.http import trigger_client_event
 from urllib.parse import urlencode
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -19,9 +20,9 @@ class UserListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_template_names(self):
-        if self.request.headers.get("HX-Request"):
-            return ["iam/users/datatable.html"]
-        return [self.template_name]
+        if self.request.headers.get("HX-Request") or self.request.htmx:
+            return "iam/users/datatable.html"
+        return self.template_name
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -100,14 +101,15 @@ class UserCreateView(LoginRequiredMixin, CreateView):
 
     def get_template_names(self):
         if self.request.headers.get("HX-Request"):
-            return ["iam/users/_user_modal.html"]
-        return ["iam/users/form.html"]
+            return "iam/users/_user_modal.html"
+        return "iam/users/form.html"
 
     def form_valid(self, form):
         self.object = form.save()
         if self.request.headers.get("HX-Request"):
-            response = HttpResponse()
-            response["HX-Trigger"] = "userSaved"
+            response = HttpResponse(status=204)
+            trigger_client_event(response, "userSaved")
+            trigger_client_event(response, "modalClose")
             return response
         return super().form_valid(form)
 
@@ -130,8 +132,9 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         if self.request.headers.get("HX-Request"):
-            response = HttpResponse()
-            response["HX-Trigger"] = "userSaved"
+            response = HttpResponse(status=204)
+            trigger_client_event(response, "userSaved")
+            trigger_client_event(response, "modalClose")
             return response
         return super().form_valid(form)
 

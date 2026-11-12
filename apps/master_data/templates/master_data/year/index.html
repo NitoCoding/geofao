@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Tahun Data | {{ block.super }}{% endblock %}
+{% block page_title %}Manajemen Tahun Data{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+  <div>
+    <h2 class="text-3xl font-bold">Tahun Data</h2>
+    <p class="text-base-content/70">Kelola tahun data yang digunakan oleh layer spasial dan hasil analisis</p>
+  </div>
+  <div class="flex gap-2">
+    <button class="btn btn-primary"
+            hx-get="{% url 'master_data:management_data_year_modal' %}"
+            hx-target="#modalBody">
+      <i class="bi bi-plus-lg me-2"></i>Tambah Tahun
+    </button>
+  </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+  <div class="stat bg-base-100 shadow rounded-lg border-l-4 border-primary">
+    <div class="stat-title text-xs">Total Tahun</div>
+    <div class="stat-value text-primary text-2xl">{{ total_years }}</div>
+  </div>
+  <div class="stat bg-base-100 shadow rounded-lg border-l-4 border-success">
+    <div class="stat-title text-xs">Tahun Aktif</div>
+    <div class="stat-value text-success text-2xl">
+      {% if active_year %}{{ active_year.name|default:active_year.year }}{% else %}—{% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- DataYear Panel -->
+{% include "master_data/year/partials/data_year_panel.html" %}
+
+
+{% endblock %}

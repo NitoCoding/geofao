@@ -1,0 +1,86 @@
+{# Right Panel: Kriteria Kesesuaian #}
+
+{% if commodity_id %}
+<div class="flex items-center justify-between mb-3">
+  <h3 class="text-sm font-bold text-base-content flex items-center gap-2">
+    <i class="bi bi-sliders text-primary"></i> Kriteria Kesesuaian
+    {% if commodity_name %}
+    <span class="badge badge-xs badge-primary">{{ commodity_name }}</span>
+    {% endif %}
+    <span class="badge badge-xs badge-ghost">{{ criteria|length }}</span>
+  </h3>
+  <button class="btn btn-primary btn-xs"
+          hx-get="{% url 'master_data:management_criteria_modal' %}?commodity={{ commodity_id }}"
+          hx-target="#modalBody">
+    <i class="bi bi-plus-lg"></i> Tambah
+  </button>
+</div>
+
+{% if criteria %}
+<div class="overflow-x-auto rounded-lg border border-base-200">
+  <table class="table table-sm table-zebra w-full">
+    <thead class="bg-base-200">
+      <tr>
+        <th class="text-xs">Nama</th>
+        <th class="text-xs">Source Field</th>
+        <th class="text-xs">Tipe</th>
+        <th class="text-xs w-14">S1</th>
+        <th class="text-xs w-14">S2</th>
+        <th class="text-xs w-14">S3</th>
+        <th class="text-xs w-14">N</th>
+        <th class="text-xs w-10"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in criteria %}
+      <tr class="hover">
+        <td class="text-sm font-medium flex items-center gap-1.5">
+          {% if item.is_active %}
+          <span class="w-1.5 h-1.5 rounded-full bg-success inline-block" title="Aktif"></span>
+          {% else %}
+          <span class="w-1.5 h-1.5 rounded-full bg-base-300 inline-block" title="Non-aktif"></span>
+          {% endif %}
+          {{ item.name }}
+        </td>
+        <td class="text-xs font-mono text-base-content/60">{{ item.source_field|default:"—" }}</td>
+        <td><span class="badge badge-xs badge-ghost">{{ item.get_data_type_display }}</span></td>
+        <td class="text-xs text-base-content/60">{{ item.s1_value|default:"—" }}</td>
+        <td class="text-xs text-base-content/60">{{ item.s2_value|default:"—" }}</td>
+        <td class="text-xs text-base-content/60">{{ item.s3_value|default:"—" }}</td>
+        <td class="text-xs text-base-content/60">{{ item.n_value|default:"—" }}</td>
+        <td>
+          <div class="flex gap-0.5">
+            <button class="btn btn-ghost btn-xs"
+                    hx-get="{% url 'master_data:management_criteria_modal' item.pk %}"
+                    hx-target="#modalBody"
+                    title="Edit">
+              <i class="bi bi-pencil text-xs"></i>
+            </button>
+            <button class="btn btn-ghost btn-xs text-error"
+                    hx-delete="{% url 'master_data:management_criteria_delete' item.pk %}"
+                    hx-target="#right-panel"
+                    hx-confirm="Hapus kriteria '{{ item.name }}'?"
+                    title="Hapus">
+              <i class="bi bi-trash text-xs"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <div class="text-center py-8 opacity-50">
+    <i class="bi bi-inbox text-3xl"></i>
+    <p class="text-xs mt-1">Belum ada kriteria kesesuaian.</p>
+  </div>
+{% endif %}
+
+{% else %}
+  <div class="flex flex-col items-center justify-center h-full text-base-content/40">
+    <i class="bi bi-hand-index-thumb text-4xl mb-3"></i>
+    <p class="text-sm font-medium">Klik row table komoditas</p>
+    <p class="text-xs mt-1">Pilih komoditas untuk melihat kriteria kesesuaian</p>
+  </div>
+{% endif %}

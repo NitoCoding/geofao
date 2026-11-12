@@ -75,6 +75,11 @@ class SuitabilityCharacteristicForm(forms.ModelForm):
             ),
             "is_active": forms.CheckboxInput(attrs={"class": "checkbox checkbox-primary"}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk:
+            self.fields["commodity"].disabled = True
 
 
 class DataYearForm(forms.ModelForm):

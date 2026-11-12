@@ -37,9 +37,7 @@
                 <i class="bi bi-eye text-xs"></i>
             </a>
             <a hx-get="{% url 'spatial:layer_edit' layer.pk %}"
-                                hx-target="#management-modal-container"
-                                hx-swap="innerHTML"
-                                _="on htmx:afterSettle remove .hidden from #management-modal"
+                                hx-target="#modalBody"
                class="btn btn-ghost btn-xs btn-square text-info"
                title="Edit metadata">
                 <i class="bi bi-pencil text-xs"></i>

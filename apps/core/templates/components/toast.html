@@ -1,0 +1,10 @@
+<div class="alert alert-{{ variant|default:'success' }} shadow-lg" role="alert">
+  <i class="bi {% if variant == 'error' %}bi-exclamation-triangle-fill{% else %}bi-check-circle-fill{% endif %} text-xl"></i>
+  <div>
+    <h3 class="font-bold">{{ title|default:'Berhasil' }}</h3>
+    <div class="text-xs">{{ message }}</div>
+  </div>
+  <button class="btn btn-ghost btn-sm btn-circle" onclick="this.parentElement.remove()">
+    <i class="bi bi-x-lg"></i>
+  </button>
+</div>

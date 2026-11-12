@@ -122,8 +122,8 @@
           <div class="flex items-center justify-end gap-1">
             <button class="btn btn-ghost btn-xs btn-square text-info"
                     hx-get="{% url 'iam:user_edit' user.pk %}"
-                    hx-target="#user-modal-container"
-                    hx-swap="innerHTML">
+                    hx-indicator="#modalBody"
+                    hx-target="#modalBody">
               <i class="bi bi-pencil text-xs"></i>
             </button>
             <button class="btn btn-ghost btn-xs btn-square text-error"
@@ -174,7 +174,7 @@
          hx-get="?page={{ num }}{% if filter_qs %}&{{ filter_qs }}{% endif %}"
          hx-target="#user-content"
          hx-replace-url="true"
-         class="join-item btn btn-xs">{{ num }}</a>
+         class="join-item btn btn-xs">{{ num }}</a> 
       {% endif %}
     {% endfor %}
 

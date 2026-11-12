@@ -103,8 +103,7 @@
             <div class="flex items-center justify-end gap-1">
               <button type="button" class="btn btn-ghost btn-xs btn-square text-info"
                       hx-get="{% url 'iam:menu_edit' menu.pk %}"
-                      hx-target="#menu-modal-container"
-                      hx-swap="innerHTML">
+                      hx-target="#modalBody">
                 <i class="bi bi-pencil text-xs"></i>
               </button>
               <button type="button" class="btn btn-ghost btn-xs btn-square text-error"

@@ -5,21 +5,25 @@ Re-exports all views for backward compatibility.
 This allows urls.py to continue using `from . import views` without changes.
 """
 
-# Layer CRUD Views
-from .layer_views import (
+# Layer CRUD Views (list, detail, toggle, edit, delete)
+from .layers import (
     layer_management,
     layer_list,
     layer_list_table,
-    layer_upload,
-    layer_upload_modal,
     layer_detail,
     layer_toggle,
     layer_edit,
     layer_delete,
 )
 
+# Layer Upload Views
+from .upload import (
+    layer_upload,
+    layer_upload_modal,
+)
+
 # Map and GeoJSON Views
-from .map_views import (
+from .map import (
     map_view,
     api_layer_geojson,
     api_feature_at_point,
@@ -28,26 +32,26 @@ from .map_views import (
 )
 
 # Category API Views
-from .api_views import (
+from .categories import (
     api_land_categories,
     api_commodity_categories,
     api_commodities_by_category,
 )
 
 # Layer Extraction Views
-from .extraction_views import (
+from .extraction import (
     api_extract_layer_attribute,
     api_batch_extract_layers,
 )
 
 # Layer Overlay Views
-from .overlay_views import (
+from .overlay import (
     api_overlay_layers,
     api_layer_statistics,
 )
 
 # Admin Views
-from .admin_views import (
+from .admin import (
     set_active_data_year,
 )
 
@@ -57,12 +61,13 @@ __all__ = [
     'layer_management',
     'layer_list',
     'layer_list_table',
-    'layer_upload',
-    'layer_upload_modal',
     'layer_detail',
     'layer_toggle',
     'layer_edit',
     'layer_delete',
+    # Layer Upload
+    'layer_upload',
+    'layer_upload_modal',
     # Map and GeoJSON
     'map_view',
     'api_layer_geojson',

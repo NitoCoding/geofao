@@ -1,0 +1,61 @@
+<div id="data-year-panel"
+     hx-get="{% url 'master_data:management_data_year' %}"
+     hx-trigger="dataYearChanged from:body"
+     hx-swap="outerHTML">
+    <!-- Table -->
+    <div class="overflow-x-auto border border-base-200 rounded-lg">
+        <table class="table table-sm">
+            <thead class="bg-base-200">
+                <tr>
+                    <th class="text-xs">Tahun</th>
+                    <th class="text-xs text-center">Aktif</th>
+                    <th class="text-xs text-right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dy in data_years %}
+                <tr class="hover:bg-base-100">
+                    <td class="text-sm font-medium">{{ dy.year }}<span class="text-xs text-base-content/50 ml-1">{{ dy.name|default:"" }}</span></td>
+                    <td class="text-center">
+                        {% if dy.is_active %}
+                        <span class="w-2 h-2 rounded-full bg-success inline-block"></span>
+                        {% else %}
+                        <span class="w-2 h-2 rounded-full bg-error inline-block"></span>
+                        {% endif %}
+                    </td>
+                    <td class="text-right">
+                        <div class="flex items-center justify-end gap-1">
+                            <button class="btn btn-ghost btn-xs btn-square text-info"
+                                    hx-get="{% url 'master_data:management_data_year_modal' dy.pk %}"
+                                    hx-target="#modalBody">
+                                <i class="bi bi-pencil text-xs"></i>
+                            </button>
+                            <button class="btn btn-ghost btn-xs btn-square text-error"
+                                    hx-post="{% url 'master_data:management_data_year_delete' dy.pk %}"
+                                    hx-target="#data-year-panel"
+                                    hx-swap="outerHTML"
+                                    hx-confirm="Hapus tahun {{ dy.year }}? Layer yang terkait tidak akan terpengaruh.">
+                                <i class="bi bi-trash3 text-xs"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center py-8 text-sm text-base-content/40">
+                        <i class="bi bi-calendar-x text-lg block mb-1"></i>
+                        Belum ada data tahun
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+      <tr>
+        <td colspan="6" class="text-xs text-base-content/50 py-2">
+          {{ data_years|length }} dari {{ total_years }} data
+        </td>
+      </tr>
+    </tfoot>
+        </table>
+    </div>
+</div>

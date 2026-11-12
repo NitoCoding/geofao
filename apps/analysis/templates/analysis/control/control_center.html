@@ -1,0 +1,109 @@
+{% extends 'base.html' %} 
+{% block title %}Analysis Control Center - GeoFAO{% endblock %} 
+{% block page_title %}Analysis Control Center{% endblock %} 
+{% block content %}
+<div class="space-y-6">
+
+    <div>
+        <h2 class="text-2xl font-bold">Analysis Control Center</h2>
+        <p class="text-sm text-base-content/60">
+            Pantau task, jalankan batch extract dan overlay, serta analisis
+            kesesuaian lahan.
+        </p>
+    </div>
+
+
+    <!-- Navigation Tabs -->
+    <div
+        class="tabs tabs-border"
+        role="tablist"
+        hx-target="#tab-content"
+        hx-swap="innerHTML"
+        onclick="
+            const t = event.target.closest('[role=tab]');
+            if (t)
+                this.querySelectorAll('[role=tab]').forEach((b) =>
+                    b.setAttribute('aria-selected', b === t),
+                );
+        "
+    >
+        <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium tab aria-selected:tab-active"
+            role="tab"
+            aria-selected="true"
+            aria-controls="tab-content"
+            id="tab-monitoring"
+            hx-get="{% url 'analysis:task_monitoring' %}"
+        >
+            <i class="bi bi-graph-up"></i>
+            Monitoring
+        </button>
+
+        <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium tab aria-selected:tab-active"
+            role="tab"
+            aria-selected="false"
+            aria-controls="tab-content"
+            id="tab-batch-extract"
+            hx-get="{% url 'analysis:batch_extract_ui' %}"
+        >
+            <i class="bi bi-layers"></i>
+            Batch Extract
+        </button>
+
+        <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium tab aria-selected:tab-active"
+            role="tab"
+            aria-selected="false"
+            aria-controls="tab-content"
+            id="tab-batch-overlay"
+            hx-get="{% url 'analysis:batch_overlay_ui' %}"
+        >
+            <i class="bi bi-intersect"></i>
+            Batch Overlay
+        </button>
+
+        <button
+            type="button"
+            class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium tab aria-selected:tab-active"
+            role="tab"
+            aria-selected="false"
+            aria-controls="tab-content"
+            id="tab-suitability"
+            hx-get="{% url 'analysis:suitability_ui' %}"
+        >
+            <i class="bi bi-clipboard-check"></i>
+            Suitability
+        </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div
+        id="tab-content"
+        role="tabpanel"
+        class="card bg-base-100 shadow-md"
+        hx-get="{% url 'analysis:task_monitoring' %}"
+        hx-trigger="load"
+        hx-swap="innerHTML"
+    >
+        <div class="card-body">
+            <div class="flex justify-center py-8">
+                <span
+                    class="loading loading-spinner loading-lg text-primary"
+                ></span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+    document.body.addEventListener("htmx:afterOnLoad", function (evt) {
+        if (evt.detail.triggeringEvent === "analysisStarted") {
+            document.getElementById("universalModal").close();
+        }
+    });
+</script>
+{% endblock %}

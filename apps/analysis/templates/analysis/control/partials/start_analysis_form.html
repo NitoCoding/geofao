@@ -1,4 +1,8 @@
 <!-- Start Analysis Form - HTMX + Universal Modal -->
+<div class="text-center mb-4">
+  <h3 class="text-xl font-bold text-slate-800">Mulai Analisis Baru</h3>
+  <p class="text-sm text-slate-500">Pilih komoditas dan layer untuk analisis</p>
+</div>
 <form id="start-analysis-form" class="text-left"
       hx-post="{% url 'analysis:start_analysis_api' %}"
       hx-target="#modalBody"

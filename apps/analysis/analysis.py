@@ -23,7 +23,6 @@ import re
 from apps.master_data.models import (
     Commodity,
     SuitabilityCharacteristic,
-    # LimitingFactor  # Uncomment jika sudah punya model LimitingFactor
 )
 
 logger = logging.getLogger(__name__)
@@ -32,7 +31,6 @@ logger = logging.getLogger(__name__)
 def recommend_crops_for_land(
     soil_data: dict[str, Any],
     limit: int = None,
-    include_limiting_factors: bool = True
 ) -> list[dict]:
     """
     Rekomendasikan komoditas yang sesuai untuk suatu unit lahan.
@@ -49,7 +47,6 @@ def recommend_crops_for_land(
     Args:
         soil_data: Dictionary data tanah {characteristic_name: value}
         limit: Batas maksimum jumlah rekomendasi (None = tanpa batas)
-        include_limiting_factors: Apakah menyertakan analisi limiting factors
 
     Returns:
         List rekomendasi komoditas yang sesuai (S1 atau S2), diurutkan
@@ -61,7 +58,6 @@ def recommend_crops_for_land(
             'overall_class': str,
             'overall_class_display': str,
             'overall_score': float,
-            'limiting_factors': dict (jika include_limiting_factors=True)
         }
     """
     if not soil_data:
@@ -76,7 +72,6 @@ def recommend_crops_for_land(
             result = analyze_suitability(
                 commodity.id,
                 soil_data,
-                include_limiting_factors=include_limiting_factors
             )
 
             # Hanya ambil yang S1 atau S2
@@ -88,7 +83,6 @@ def recommend_crops_for_land(
                     'overall_class': result['overall_class'],
                     'overall_class_display': result['overall_class_display'],
                     'overall_score': result['overall_score'],
-                    'limiting_factors': result.get('limiting_factors'),
                 })
 
         except Exception as e:
@@ -136,7 +130,6 @@ CACHE_TIMEOUT = 3600  # 1 hour
 def analyze_suitability(
     commodity_id: int,
     soil_data: dict[str, Any],
-    include_limiting_factors: bool = True
 ) -> dict[str, Any]:
     """
     Analisis kesesuaian lahan dengan FAO Minimum Method.
@@ -147,7 +140,6 @@ def analyze_suitability(
     Args:
         commodity_id: ID komoditas yang dianalisis
         soil_data: Dictionary data tanah {characteristic_name: value}
-        include_limiting_factors: Apakah menyertakan analisis limiting factors
 
     Returns:
         Dictionary hasil analisis dengan struktur:
@@ -157,8 +149,6 @@ def analyze_suitability(
             'overall_class': str,  # 'S1', 'S2', 'S3', or 'N'
             'overall_score': float,
             'characteristics': list[dict],
-            'limiting_factors': dict,
-            'recommendations': list[dict],
             'summary': dict
         }
 
@@ -180,7 +170,7 @@ def analyze_suitability(
         raise ValueError(f"Commodity with id {commodity_id} not found")
 
     analyzer = SuitabilityAnalyzer(commodity_id)
-    return analyzer.analyze(soil_data, include_limiting_factors)
+    return analyzer.analyze(soil_data)
 
 
 class SuitabilityAnalyzer:
@@ -219,23 +209,21 @@ class SuitabilityAnalyzer:
             return None
 
     def _get_characteristics(self):
-        """Get characteristics for this commodity with limiting factors prefetched."""
+        """Get active characteristics for this commodity."""
         return SuitabilityCharacteristic.objects.filter(
             commodity_id=self.commodity_id,
             is_active=True
-        ).prefetch_related('limiting_factors')
+        )
 
     def analyze(
         self,
         soil_data: dict[str, Any],
-        include_limiting_factors: bool = True
     ) -> dict[str, Any]:
         """
         Analisis kesesuaian lahan berdasarkan data tanah.
 
         Args:
             soil_data: Dictionary data tanah
-            include_limiting_factors: Apakah menyertakan limiting factors
 
         Returns:
             Dictionary hasil analisis
@@ -274,14 +262,9 @@ class SuitabilityAnalyzer:
             # Update counter
             class_counts[suitability_class] += 1
 
-            # Get limiting factor if needed
-            limiting_factor = None
-            if include_limiting_factors:
-                limiting_factor = self._get_limiting_factor(
-                    characteristic, suitability_class
-                )
-
-            # Build result
+            # Build result — limiting_factor selalu None karena
+            # data klasifikasi per karakteristik sudah disimpan
+            # di SuitabilityAnalysisResultPerFeature.characteristic_results
             result = {
                 'characteristic': char_name,
                 'value': current_value,
@@ -290,7 +273,7 @@ class SuitabilityAnalyzer:
                     suitability_class, 'Tidak Diketahui'
                 ),
                 'score': score,
-                'limiting_factor': limiting_factor if limiting_factor else None
+                'limiting_factor': None,
             }
 
             characteristic_results.append(result)
@@ -308,7 +291,6 @@ class SuitabilityAnalyzer:
             ),
             'overall_score': overall_score,
             'characteristics': characteristic_results,
-            'limiting_factors': summarize_limiting_factors(characteristic_results),
             'summary': {
                 'total_characteristics': len(characteristic_results),
                 's1_count': class_counts['S1'],
@@ -343,49 +325,6 @@ class SuitabilityAnalyzer:
         # Fallback jika tidak ada karakteristik yang dianalisis
         logger.warning("No characteristics analyzed, returning Unknown")
         return 'Unknown', 0.0
-
-    def _get_limiting_factor(
-        self,
-        _characteristic: SuitabilityCharacteristic,
-        _suitability_class: str
-    ) -> Optional[dict]:
-        """
-        Get limiting factor untuk characteristic dan class tertentu.
-
-        Args:
-            _characteristic: SuitabilityCharacteristic object
-            _suitability_class: Kelas kesesuaian
-
-        Returns:
-            Limiting factor dictionary or None
-
-        Note: Saat ini return None karena model LimitingFactor belum tersedia.
-              Untuk mengaktifkan, uncomment kode di bawah dan tambahkan import LimitingFactor.
-        """
-        # TODO: Implement setelah model LimitingFactor tersedia
-        # Un-comment kode di bawah setelah model LimitingFactor dibuat:
-        #
-        from apps.spatial.models import LimitingFactor
-        
-        if _suitability_class == 'S1':
-            return None
-        
-        try:
-            limiting_factor = LimitingFactor.objects.get(
-                characteristic=_characteristic,
-                suitability_class=_suitability_class
-            )
-            return {
-                'class': _suitability_class,
-                'issue': limiting_factor.issue,
-                'solution': limiting_factor.solution,
-                'priority': limiting_factor.priority
-            }
-        except LimitingFactor.DoesNotExist:
-            return None
-
-        # Sementara return None
-        return None
 
 
 def determine_suitability_class(
@@ -437,7 +376,7 @@ def _determine_class_for_text_value(
 ) -> str:
     """
     Determine class for text-based characteristics.
-    
+
     Menggunakan field *_value (CharField) untuk pencocokan string.
     """
     value_lower = value.lower().strip()
@@ -490,6 +429,18 @@ def _try_extract_numeric_from_string(value: str) -> Optional[float]:
 
     cleaned = re.sub(r'\s*–\s*|\s*-\s*', '-', cleaned)
 
+    if cleaned.startswith('>='):
+        try:
+            return float(cleaned[2:])
+        except ValueError:
+            pass
+
+    if cleaned.startswith('<='):
+        try:
+            return float(cleaned[2:])
+        except ValueError:
+            pass
+
     if cleaned.startswith('>'):
         try:
             return float(cleaned[1:])
@@ -525,6 +476,8 @@ def _parse_multi_range(value_str: str) -> list[dict]:
       "1.500 – 2.000"              → [{min: 1500, max: 2000}]
       "1.000 – <1.500, >2.000 – 2.500" → [{min:1000, max:1500, max_inclusive:False}, ...]
       "<700, >3.000"               → [{max:700, max_inclusive:False}, {min:3000, min_inclusive:False}]
+      "<=16"                       → [{max:16, max_inclusive:True}]
+      ">=50"                       → [{min:50, min_inclusive:True}]
       "<4.0"                       → [{max:4.0, max_inclusive:False}]
       ">9.0"                       → [{min:9.0, min_inclusive:False}]
       "6.0"                        → [{min:6.0, max:6.0}]
@@ -555,7 +508,13 @@ def _parse_multi_range(value_str: str) -> list[dict]:
             left, right = part.split('-', 1)
             left, right = left.strip(), right.strip()
 
-            if left.startswith('>'):
+            if left.startswith('>='):
+                cond['min'] = float(left[2:].strip())
+                cond['min_inclusive'] = True
+            elif left.startswith('<='):
+                cond['max'] = float(left[2:].strip())
+                cond['max_inclusive'] = True
+            elif left.startswith('>'):
                 cond['min'] = float(left[1:].strip())
                 cond['min_inclusive'] = False
             elif left.startswith('<'):
@@ -564,7 +523,13 @@ def _parse_multi_range(value_str: str) -> list[dict]:
             else:
                 cond['min'] = float(left)
 
-            if right.startswith('>'):
+            if right.startswith('>='):
+                cond['min'] = float(right[2:].strip())
+                cond['min_inclusive'] = True
+            elif right.startswith('<='):
+                cond['max'] = float(right[2:].strip())
+                cond['max_inclusive'] = True
+            elif right.startswith('>'):
                 cond['min'] = float(right[1:].strip())
                 cond['min_inclusive'] = False
             elif right.startswith('<'):
@@ -572,6 +537,12 @@ def _parse_multi_range(value_str: str) -> list[dict]:
                 cond['max_inclusive'] = False
             else:
                 cond['max'] = float(right)
+        elif part.startswith('<='):
+            cond['max'] = float(part[2:].strip())
+            cond['max_inclusive'] = True
+        elif part.startswith('>='):
+            cond['min'] = float(part[2:].strip())
+            cond['min_inclusive'] = True
         elif part.startswith('<'):
             cond['max'] = float(part[1:].strip())
             cond['max_inclusive'] = False
@@ -630,38 +601,3 @@ def _determine_class_for_numeric_value(
         f"s3={characteristic.s3_value}, n={characteristic.n_value})"
     )
     return 'Unknown'
-
-
-def summarize_limiting_factors(characteristic_results: list[dict]) -> dict:
-    """
-    Buat summary dari limiting factors yang ditemukan.
-
-    Args:
-        characteristic_results: List hasil analisis per karakteristik
-
-    Returns:
-        Dictionary summary limiting factors
-    """
-    limiting_factors_list = []
-
-    for result in characteristic_results:
-        if result.get('limiting_factor'):
-            limiting_factors_list.append({
-                'characteristic': result['characteristic'],
-                'class': result['suitability_class'],
-                'issue': result['limiting_factor']['issue'],
-                'solution': result['limiting_factor']['solution'],
-                'priority': result['limiting_factor']['priority']
-            })
-
-    # Sort by priority (high to low)
-    priority_order = {'high': 0, 'medium': 1, 'low': 2}
-    limiting_factors_list.sort(
-        key=lambda x: priority_order.get(x['priority'], 3)
-    )
-
-    return {
-        'count': len(limiting_factors_list),
-        'factors': limiting_factors_list
-    }
-

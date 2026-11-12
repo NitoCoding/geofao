@@ -103,7 +103,7 @@
           <p class="text-xs text-base-content/50">komoditas belum memiliki kriteria kesesuaian</p>
         </div>
       </div>
-      <a href="{% url 'master_data:commodity_list' %}"
+      <a href="{% url 'master_data:management' %}"
          class="btn btn-sm btn-outline btn-warning mt-4 w-full">
         <i class="bi bi-plus-circle"></i> Lengkapi Kriteria
       </a>
@@ -160,7 +160,7 @@
         </a>
         {% endif %}
 
-        <a href="{% url 'master_data:commodity_list' %}"
+        <a href="{% url 'master_data:management' %}"
            class="flex items-center gap-3 p-3 rounded-lg hover:bg-base-200 transition-colors group">
           <div class="w-8 h-8 rounded-lg bg-secondary/10 flex items-center justify-center group-hover:bg-secondary/20 transition-colors">
             <i class="bi bi-basket text-secondary"></i>

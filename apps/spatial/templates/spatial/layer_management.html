@@ -28,9 +28,7 @@
                         </div>
                         <button class="btn btn-primary btn-sm"
                                 hx-get="{% url 'spatial:layer_upload_modal' %}"
-                                hx-target="#management-modal-container"
-                                hx-swap="innerHTML"
-                                _="on htmx:afterSettle remove .hidden from #management-modal">
+                                hx-target="#modalBody">
                             <i class="bi bi-plus-lg me-1"></i>Upload
                         </button>
                     </div>
@@ -89,8 +87,6 @@
     </div>
 </div>
 
-<!-- Modal Container -->
-<div id="management-modal-container"></div>
 {% endblock %}
 
 {% block extra_css %}
@@ -223,20 +219,6 @@
                 });
         });
 
-        // ================================================================
-        // MODAL HANDLING
-        // ================================================================
-        $(document).on("closeModal", function () {
-            $("#management-modal").addClass("hidden");
-        });
-
-        // Close modal on backdrop click
-        $(document).on("click", "#management-modal", function (e) {
-            if (e.target === this) {
-                $(this).addClass("hidden");
-            }
-        });
-
         // After upload success → refresh list
         $(document).on("htmx:afterSettle", function (evt) {
             if ($(evt.target).is("#layer-list-content")) {
@@ -245,11 +227,6 @@
                     $(`.layer-preview-row[data-layer-id="${activeLayerId}"]`).addClass("bg-primary/10 border-l-primary");
                 }
             }
-        });
-
-        // Invalidate map size when modal closes
-        $(document).on("transitionend", "#management-modal", function () {
-            map.invalidateSize();
         });
     });
 </script>

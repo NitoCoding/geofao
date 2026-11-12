@@ -1,107 +1,137 @@
 <!-- Stats Cards -->
-<div class="flex justify-between items-center mb-4">
-    <h2 class="card-title">
-        <i class="bi bi-activity text-primary"></i>
-        Task Monitoring
-    </h2>
-    <button class="btn btn-sm btn-outline btn-primary"
-            hx-get="/analysis/control/monitoring/"
+<div class="card-body">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="card-title">
+            <i class="bi bi-activity text-primary"></i>
+            Task Monitoring
+        </h2>
+        <button
+            class="btn btn-sm btn-outline btn-primary"
+            hx-get="{% url 'analysis:task_monitoring' %}"
             hx-target="#tab-content"
-            hx-swap="innerHTML">
-        <i class="bi bi-arrow-clockwise me-1"></i> Refresh
-    </button>
-</div>
-<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-    <div class="stat bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
-        <div class="stat-title text-xs">Total</div>
-        <div class="stat-value text-lg text-blue-600">{{ stats.total }}</div>
+            hx-swap="innerHTML"
+        >
+            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+        </button>
     </div>
-    <div class="stat bg-warning/10 rounded-lg p-3">
-        <div class="stat-title text-xs">Pending</div>
-        <div class="stat-value text-lg text-warning">{{ stats.pending }}</div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+        <div class="stat bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+            <div class="stat-title text-xs">Total</div>
+            <div class="stat-value text-lg text-blue-600">
+                {{ stats.total }}
+            </div>
+        </div>
+        <div class="stat bg-warning/10 rounded-lg p-3">
+            <div class="stat-title text-xs">Pending</div>
+            <div class="stat-value text-lg text-warning">
+                {{ stats.pending }}
+            </div>
+        </div>
+        <div class="stat bg-warning/10 rounded-lg p-3">
+            <div class="stat-title text-xs">Processing</div>
+            <div class="stat-value text-lg text-warning">
+                {{ stats.processing }}
+            </div>
+        </div>
+        <div class="stat bg-success/10 rounded-lg p-3">
+            <div class="stat-title text-xs">Completed</div>
+            <div class="stat-value text-lg text-success">
+                {{ stats.completed }}
+            </div>
+        </div>
     </div>
-    <div class="stat bg-warning/10 rounded-lg p-3">
-        <div class="stat-title text-xs">Processing</div>
-        <div class="stat-value text-lg text-warning">{{ stats.processing }}</div>
+    <!-- Action Bar -->
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+            <i class="bi bi-clipboard-data text-primary"></i> Analisis History
+        </h3>
+        <button
+            class="btn btn-primary btn-sm"
+            hx-get="{% url 'analysis:start_analysis_form' %}"
+            hx-target="#modalBody"
+        >
+            <i class="bi bi-plus-lg me-1"></i> Mulai Analisis Baru
+        </button>
     </div>
-    <div class="stat bg-success/10 rounded-lg p-3">
-        <div class="stat-title text-xs">Completed</div>
-        <div class="stat-value text-lg text-success">{{ stats.completed }}</div>
-    </div>
-</div>
-<!-- Action Bar -->
-<div class="flex justify-between items-center mb-4">
-    <h3 class="text-lg font-bold flex items-center gap-2">
-        <i class="bi bi-clipboard-data text-primary"></i> Analisis History
-    </h3>
-    <button class="btn btn-primary btn-sm" onclick="openStartAnalysisModal()">
-        <i class="bi bi-plus-lg me-1"></i> Mulai Analisis Baru
-    </button>
-</div>
-<!-- Analysis History Table -->
-<div class="overflow-x-auto">
-    <table class="table table-zebra w-full">
-        <thead>
-            <tr>
-                <th class="bg-base-200">ID</th>
-                <th class="bg-base-200">Commodity</th>
-                <th class="bg-base-200">Layer</th>
-                <th class="bg-base-200">Status</th>
-                <th class="bg-base-200">Progress</th>
-                <th class="bg-base-200">Created</th>
-                <th class="bg-base-200">By</th>
-                <th class="bg-base-200 w-16">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for analysis in recent_analyses %}
+    <!-- Analysis History Table -->
+    <div class="overflow-x-auto">
+        <table class="table table-zebra w-full">
+            <thead>
+                <tr>
+                    <th class="bg-base-200">ID</th>
+                    <th class="bg-base-200">Commodity</th>
+                    <th class="bg-base-200">Layer</th>
+                    <th class="bg-base-200">Status</th>
+                    <th class="bg-base-200">Progress</th>
+                    <th class="bg-base-200">Created</th>
+                    <th class="bg-base-200">By</th>
+                    <th class="bg-base-200 w-16">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for analysis in recent_analyses %}
                 <tr class="hover:bg-base-200 transition-colors">
                     <td class="font-mono text-xs">#{{ analysis.id }}</td>
                     <td class="font-medium">{{ analysis.commodity.name }}</td>
-                    <td class="text-sm text-slate-600 dark:text-slate-400">{{ analysis.base_layer.name|default:"N/A" }}</td>
+                    <td class="text-sm text-slate-600 dark:text-slate-400">
+                        {{ analysis.base_layer.name|default:"N/A" }}
+                    </td>
                     <td>
                         {% if analysis.status == 'completed' %}
-                            <span class="badge badge-success gap-1">
-                                <i class="bi bi-check-circle-fill"></i> {{ analysis.status }}
-                            </span>
+                        <span class="badge badge-success gap-1">
+                            <i class="bi bi-check-circle-fill"></i> {{ analysis.status }}
+                        </span>
                         {% elif analysis.status == 'processing' %}
-                            <span class="badge badge-warning gap-1">
-                                <span class="loading loading-spinner loading-xs"></span>
-                                {{ analysis.status }}
-                            </span>
+                        <span class="badge badge-warning gap-1">
+                            <span
+                                class="loading loading-spinner loading-xs"
+                            ></span>
+                            {{ analysis.status }}
+                        </span>
                         {% elif analysis.status == 'failed' %}
-                            <span class="badge badge-error gap-1">
-                                <i class="bi bi-x-circle-fill"></i> {{ analysis.status }}
-                            </span>
+                        <span class="badge badge-error gap-1">
+                            <i class="bi bi-x-circle-fill"></i> {{ analysis.status }}
+                        </span>
                         {% else %}
-                            <span class="badge badge-ghost gap-1">
-                                <span class="loading loading-dots loading-xs"></span>
-                                {{ analysis.status }}
-                            </span>
+                        <span class="badge badge-ghost gap-1">
+                            <span
+                                class="loading loading-dots loading-xs"
+                            ></span>
+                            {{ analysis.status }}
+                        </span>
                         {% endif %}
                     </td>
                     <td>
                         <div class="flex items-center gap-2">
-                            <progress class="progress w-24 {% if analysis.status == 'completed' %}progress-success {% elif analysis.status == 'failed' %}progress-error {% else %}progress-info{% endif %}"
-                                      value="{{ analysis.progress_percentage }}"
-                                      max="100"></progress>
-                            <span class="text-xs font-medium">{{ analysis.progress_percentage }}%</span>
+                            <progress
+                                class="progress w-24 {% if analysis.status == 'completed' %}progress-success {% elif analysis.status == 'failed' %}progress-error {% else %}progress-info{% endif %}"
+                                value="{{ analysis.progress_percentage }}"
+                                max="100"
+                            ></progress>
+                            <span class="text-xs font-medium"
+                                >{{ analysis.progress_percentage }}%</span
+                            >
                         </div>
                     </td>
-                    <td class="text-xs text-slate-500">{{ analysis.created_at|date:"d/m/Y H:i" }}</td>
-                    <td class="text-xs">{{ analysis.created_by|default:"System" }}</td>
+                    <td class="text-xs text-slate-500">
+                        {{ analysis.created_at|date:"d/m/Y H:i" }}
+                    </td>
+                    <td class="text-xs">
+                        {{ analysis.created_by|default:"System" }}
+                    </td>
                     <td>
-                        <button class="btn btn-ghost btn-xs btn-square text-error"
-                                hx-post="{% url 'analysis:delete_analysis' analysis.id %}"
-                                hx-confirm="Hapus analisis #{{ analysis.id }}?"
-                                hx-target="#tab-content"
-                                hx-swap="innerHTML"
-                                title="Hapus">
+                        <button
+                            class="btn btn-ghost btn-xs btn-square text-error"
+                            hx-post="{% url 'analysis:delete_analysis' analysis.id %}"
+                            hx-confirm="Hapus analisis #{{ analysis.id }}?"
+                            hx-swap="none"
+                            title="Hapus"
+                        >
                             <i class="bi bi-trash3"></i>
                         </button>
                     </td>
                 </tr>
-            {% empty %}
+                {% empty %}
                 <tr>
                     <td colspan="8" class="text-center py-8">
                         <div class="flex flex-col items-center gap-2">
@@ -110,16 +140,19 @@
                         </div>
                     </td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% if recent_analyses %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if recent_analyses %}
     <div class="mt-4 flex justify-between items-center text-sm text-slate-500">
         <span>Showing {{ recent_analyses|length }} recent analyses</span>
-        <button class="btn btn-sm btn-ghost"
-                onclick="setTimeout(refreshMonitoring, 3000)">
+        <button
+            class="btn btn-sm btn-ghost"
+            onclick="setTimeout(refreshMonitoring, 3000)"
+        >
             <i class="bi bi-arrow-clockwise me-1"></i> Auto-refresh in 3s
         </button>
     </div>
-{% endif %}
+    {% endif %}
+</div>
