@@ -10,12 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from decouple import config
+from decouple import Config, RepositoryEnv
 from pathlib import Path
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# File konfigurasi: produksi lewat DJANGO_ENV_FILE (mis. .env.prod), default .env untuk dev.
+# Pendekatan ini dipilih supaya rahasia produksi tidak perlu masuk ke environment
+# proses systemd (tidak muncul di `systemctl show`), cukup dibaca file 600.
+_ENV_FILE = os.environ.get("DJANGO_ENV_FILE") or str(BASE_DIR / ".env")
+config = Config(RepositoryEnv(_ENV_FILE))
 
 
 # Quick-start development settings - unsuitable for production
@@ -52,7 +58,7 @@ THIRD_PARTY_APPS = [
     "crispy_tailwind",
     'widget_tweaks',
     'django_htmx',
-    'debug_toolbar',  # Hanya di development
+    'dbbackup',
 ]
 
 LOCAL_APPS = [
@@ -69,15 +75,36 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     "django_htmx.middleware.HtmxMiddleware",
 ]
+
+# Whitelist host tambahan untuk Cloudflare Tunnel (isi lewat .env)
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in config('CSRF_TRUSTED_ORIGINS', default='').split(',') if o.strip()
+]
+
+if DEBUG:
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+    # INTERNAL_IPS sengaja TIDAK diisi.
+    # Toolbar hanya tampil bila REMOTE_ADDR ada di INTERNAL_IPS, dan
+    # config/urls.py belum meng-include debug_toolbar.urls -- tanpa include itu
+    # toolbar langsung error 500 "NoReverseMatch: 'djdt' is not a registered namespace".
+    # Cara mengaktifkan dengan benar (dua langkah, jangan salah satu saja):
+    #   1. config/urls.py:  urlpatterns += [path('__debug__/', include('debug_toolbar.urls'))]
+    #   2. baris ini:       INTERNAL_IPS = ['127.0.0.1']
+else:
+    # Berjalan di belakang Cloudflare Tunnel -> Cloudflare mengirim header ini
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
 
 ROOT_URLCONF = 'config.urls'
 
@@ -154,6 +181,17 @@ CRISPY_TEMPLATE_PACK = "tailwind"
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage'},
+    "dbbackup": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": "/backup/",
+        },
+    },
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -163,15 +201,25 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'iam.user'
 LOGIN_URL = '/iam/login/'
-LOGIN_REDIRECT_URL = '/'  # dasbor (DashboardView ada di '/')
+LOGIN_REDIRECT_URL = '/spatial/map/'  # peta interaktif
 LOGOUT_REDIRECT_URL = '/spatial/map/'  # peta interaktif
 
 
-GDAL_LIBRARY_PATH = r"C:\Proyek\penelitian\rework_geoaibarru\.venv\Lib\site-packages\osgeo\gdal.dll"
-GEOS_LIBRARY_PATH = r"C:\Proyek\penelitian\rework_geoaibarru\.venv\Lib\site-packages\osgeo\geos_c.dll"
+if os.name == "nt":  # pengembangan di Windows (dibiarkan apa adanya)
+    GDAL_LIBRARY_PATH = r"C:\Proyek\penelitian\rework_geoaibarru\.venv\Lib\site-packages\osgeo\gdal.dll"
+    GEOS_LIBRARY_PATH = r"C:\Proyek\penelitian\rework_geoaibarru\.venv\Lib\site-packages\osgeo\geos_c.dll"
+else:  # Linux: pakai libgdal/libgeos sistem (apt: gdal-bin libgdal-dev libgeos-dev)
+    import ctypes.util
 
-PROJ_DATA_PATH = r"C:\Proyek\penelitian\rework_geoaibarru\.venv\lib\site-packages\pyproj\proj_dir\share\proj"
-os.environ['PROJ_LIB'] = PROJ_DATA_PATH
+    for _var, _lib, _fallbacks in (
+        ("GDAL_LIBRARY_PATH", "gdal", ("/usr/lib/x86_64-linux-gnu/libgdal.so",)),
+        ("GEOS_LIBRARY_PATH", "geos_c", ("/usr/lib/x86_64-linux-gnu/libgeos_c.so",)),
+    ):
+        _path = ctypes.util.find_library(_lib)
+        if not _path:
+            _path = next((p for p in _fallbacks if os.path.exists(p)), None)
+        if _path:
+            globals()[_var] = _path
 
 # ========== CELERY CONFIGURATION ==========
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')

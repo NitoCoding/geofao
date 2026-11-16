@@ -5,7 +5,7 @@ app_name = 'master_data'
 
 urlpatterns = [
     # ===== SINGLE-PAGE MASTER DATA MANAGEMENT =====
-    path('commodity-criteria', views.MasterDataManagementView.as_view(), name='management'),
+    path('commodity-criteria/', views.MasterDataManagementView.as_view(), name='management'),
 
     # Panel kiri & kanan (HTMX partial)
     path('_left/', views.left_panel, name='management_left'),

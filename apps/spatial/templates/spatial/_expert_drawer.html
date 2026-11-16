@@ -1,0 +1,139 @@
+<!-- Expert Drawer Content Partial (server-rendered) -->
+
+{% if error %}
+<div class="p-4 text-center text-error text-sm">{{ error }}</div>
+{% else %}
+
+<!-- Drawer Header -->
+<div class="flex items-center justify-between p-4 border-b border-base-200 bg-base-200/50">
+    <div>
+        <h3 class="text-sm font-bold text-base-content flex items-center gap-2">
+            <i class="bi bi-chat-square-text text-primary"></i>
+            Input Tenaga Ahli
+        </h3>
+        <p id="expert-drawer-subtitle" class="text-[11px] text-base-content/50 mt-0.5">
+            {{ commodity_name|default:"—" }} — {{ suitability_class|default:"—" }}
+        </p>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-square" onclick="closeExpertDrawer()">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+
+<!-- Data Poligon (collapsible) -->
+<details id="expert-feature-context" class="border-b border-base-200 bg-base-100" {% if feature_attrs %}open{% endif %}>
+    <summary class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-base-200/50 text-xs font-semibold text-base-content">
+        <i class="bi bi-chevron-right text-[10px] text-base-content/40 transition-transform details-marker-rotate"></i>
+        <i class="bi bi-pin-map text-primary"></i>
+        Data Poligon
+    </summary>
+    <div id="expert-feature-table" class="px-4 pb-3 text-xs max-h-40 overflow-y-auto">
+        {% if feature_attrs %}
+        <table class="w-full">
+            {% for attr in feature_attrs %}
+            <tr>
+                <td class="py-1 pr-3 font-medium text-base-content/60">{{ attr.key }}</td>
+                <td class="py-1">{{ attr.value|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="text-base-content/50">Data tidak tersedia</p>
+        {% endif %}
+    </div>
+</details>
+
+<!-- Hasil Analisis (collapsible) -->
+<details id="expert-analysis-context" class="border-b border-base-200 bg-base-100" {% if char_results %}open{% endif %}>
+    <summary class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-base-200/50 text-xs font-semibold text-base-content">
+        <i class="bi bi-chevron-right text-[10px] text-base-content/40 transition-transform details-marker-rotate"></i>
+        <i class="bi bi-graph-up text-primary"></i>
+        Hasil Analisis Sistem
+    </summary>
+    <div id="expert-context-table" class="px-4 pb-3 text-xs max-h-40 overflow-y-auto">
+        {% if char_results %}
+        <table class="w-full">
+            {% for c in char_results %}
+            <tr>
+                <td class="py-1 pr-3 font-medium text-base-content/60">{{ c.characteristic|default:"—" }}</td>
+                <td class="py-1">{{ c.value|default:"—" }}</td>
+                <td class="py-1">
+                    <span class="inline-block w-2 h-2 rounded-sm mr-1" style="background:{% if c.suitability_class == 'S1' %}#22c55e{% elif c.suitability_class == 'S2' %}#eab308{% elif c.suitability_class == 'S3' %}#f97316{% elif c.suitability_class == 'N' %}#ef4444{% else %}#6b7280{% endif %}"></span>
+                    {{ c.class_display|default:c.suitability_class|default:"—" }}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="text-base-content/50">Data tidak tersedia</p>
+        {% endif %}
+    </div>
+</details>
+
+<!-- Reviews List -->
+<div id="expert-reviews-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+    {% if reviews %}
+        {% for r in reviews %}
+        <div class="bg-base-200/50 rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-semibold text-base-content">
+                    <i class="bi bi-person-circle me-1 text-primary"></i>{{ r.expert.get_full_name|default:r.expert.username }}
+                </span>
+                <div class="flex items-center gap-1">
+                    <span class="text-[10px] text-base-content/40">{{ r.created_at|date:"d M Y H:i" }}</span>
+                    {% if request.user == r.expert or request.user.is_superuser %}
+                    <button class="btn btn-ghost btn-xs text-error"
+                            hx-delete="{% url 'spatial:api_expert_reviews' %}?id={{ r.id }}&feature_result_id={{ r.feature_result_id }}"
+                            hx-confirm="Hapus input ahli dari {{ r.expert.get_full_name|default:r.expert.username }}?"
+                            hx-target="#expert-drawer-content"
+                            hx-swap="innerHTML">
+                        <i class="bi bi-trash text-xs"></i>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            <p class="text-xs text-base-content/80 whitespace-pre-wrap">{{ r.notes }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="text-center py-8 text-base-content/50">
+        <i class="bi bi-chat-square text-2xl"></i>
+        <p class="text-xs mt-2">Belum ada input ahli untuk poligon ini</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Input Form -->
+{% if user.is_authenticated %}
+<div id="expert-form-container" class="p-4 border-t border-base-200 bg-base-200/30">
+    <form id="expert-review-form"
+          hx-post="{% url 'spatial:api_expert_reviews' %}"
+          hx-target="#expert-drawer-content"
+          hx-swap="innerHTML">
+        <input type="hidden" name="feature_result_id" value="{{ feature_result_id|default:'' }}">
+        <textarea name="notes"
+                  id="expert-notes-input"
+                  class="textarea textarea-bordered w-full text-xs h-24"
+                  placeholder="Tulis catatan lapangan...">{{ my_review.notes|default:'' }}</textarea>
+        <div class="flex gap-2 mt-2">
+            <button type="submit" class="btn btn-primary btn-sm flex-1">
+                <i class="bi {% if my_review %}bi-pencil{% else %}bi-send{% endif %} me-1"></i>
+                {% if my_review %}Update{% else %}Simpan{% endif %}
+            </button>
+            {% if my_review %}
+            <button type="button"
+                    class="btn btn-ghost btn-sm text-error"
+                    hx-delete="{% url 'spatial:api_expert_reviews' %}?id={{ my_review.id }}"
+                    hx-confirm="Apakah Anda yakin ingin menghapus input tenaga ahli ini?"
+                    hx-target="#expert-drawer-content"
+                    hx-swap="innerHTML">
+                <i class="bi bi-trash"></i>
+            </button>
+            {% endif %}
+        </div>
+        <p id="expert-form-status" class="text-[10px] text-base-content/50 mt-1.5 hidden"></p>
+    </form>
+</div>
+{% endif %}
+
+{% endif %}

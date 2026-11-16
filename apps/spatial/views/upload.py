@@ -15,91 +15,76 @@ import tempfile
 
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
+from django.views.decorators.http import require_http_methods
+from django_htmx.http import trigger_client_event
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.geos import GEOSGeometry
 from django.db import transaction
 
 from apps.spatial.models import MasterLayer, FeatureData
 from apps.master_data.models import DataYear
+from apps.spatial.forms import LayerUploadForm
 
 logger = logging.getLogger(__name__)
 
 
-# ========== UPLOAD MODAL ==========
+# ========== UPLOAD ==========
 
 @login_required
-def layer_upload_modal(request):
-    """Return modal form upload layer."""
-    data_years = DataYear.objects.filter(is_active=True).order_by("-year")
-    return render(request, "spatial/_layer_upload_modal.html", {"data_years": data_years})
-
-
-# ========== UPLOAD PROCESSING ==========
-
-@login_required
+@require_http_methods(["GET", "POST"])
 def layer_upload(request):
-    """
-    Upload shapefile (zip) dan simpan ke database.
-    """
-    if request.method != "POST":
-        return redirect("spatial:layer_upload_modal")
+    """Handle GET (show form) dan POST (upload & proses) untuk upload layer."""
 
-    try:
-        layer_name = request.POST.get("layer_name", "").strip()
-        table_name = request.POST.get("table_name", "").strip()
-        layer_type = request.POST.get("layer_type", "polygon").strip()
-        layer_category = request.POST.get("layer_category", "lainnya").strip()
-        data_year_id = request.POST.get("data_year")
-        uploaded_file = request.FILES.get("file")
-
-        # Validasi
-        if not layer_name:
-            return JsonResponse({"success": False, "error": "Nama layer wajib diisi"}, status=400)
-
-        if not table_name:
-            table_name = layer_name.lower().replace(" ", "_")
-
-        if not uploaded_file:
-            return JsonResponse({"success": False, "error": "File wajib diupload"}, status=400)
-
-        # Validasi duplikasi nama
-        if MasterLayer.objects.filter(name=layer_name).exists():
-            return JsonResponse({"success": False, "error": f"Layer '{layer_name}' sudah ada"}, status=400)
-
-        # Ambil data year
-        data_year = None
-        if data_year_id:
+    if request.method == "POST":
+        form = LayerUploadForm(request.POST, request.FILES)
+        if form.is_valid():
             try:
-                data_year = DataYear.objects.get(id=data_year_id)
-            except DataYear.DoesNotExist:
-                pass
+                cd = form.cleaned_data
+                layer_name = cd["name"]
+                layer_category = cd["layer_category"]
+                data_year = cd.get("data_year")
+                uploaded_file = cd["shapefile"]
 
-        # Proses upload
-        result = _handle_layer_upload(
-            layer_name=layer_name,
-            table_name=table_name,
-            layer_type=layer_type,
-            layer_category=layer_category,
-            data_year=data_year,
-            uploaded_file=uploaded_file,
-        )
+                table_name = layer_name.lower().replace(" ", "_")
+                layer_type = "polygon"
 
-        if result["success"]:
-            feature_count = result.get("feature_count", 0)
-            messages.success(
-                request,
-                f"Layer '{layer_name}' berhasil diupload dengan {feature_count} fitur"
-            )
-            return JsonResponse(result)
-        else:
-            return JsonResponse(result, status=400)
+                # Validasi duplikasi nama
+                if MasterLayer.objects.filter(name=layer_name).exists():
+                    return JsonResponse(
+                        {"success": False, "error": f"Layer '{layer_name}' sudah ada"},
+                        status=400,
+                    )
 
-    except Exception as e:
-        logger.error(f"Error uploading layer: {str(e)}", exc_info=True)
-        return JsonResponse({"success": False, "error": str(e)}, status=500)
+                # Proses upload
+                result = _handle_layer_upload(
+                    layer_name=layer_name,
+                    table_name=table_name,
+                    layer_type=layer_type,
+                    layer_category=layer_category,
+                    data_year=data_year,
+                    uploaded_file=uploaded_file,
+                )
+
+                if result["success"]:
+                    response = HttpResponse(status=204)
+                    trigger_client_event(response, "modalClose")
+                    trigger_client_event(response, "layerChanged")
+                    return response
+                else:
+                    return JsonResponse(result, status=400)
+
+            except Exception as e:
+                logger.error(f"Error uploading layer: {str(e)}", exc_info=True)
+                return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+        # Form tidak valid — render ulang dengan error
+        return render(request, "spatial/_layer_upload_modal.html", {"form": form})
+
+    # GET — tampilkan form
+    form = LayerUploadForm()
+    return render(request, "spatial/_layer_upload_modal.html", {"form": form})
 
 
 # ========== HELPERS ==========
@@ -195,8 +180,7 @@ def _handle_layer_upload(layer_name, table_name, layer_type, layer_category, dat
                 for field in layer.fields:
                     try:
                         val = feat.get(field)
-                        if val is not None:
-                            attrs[field] = val
+                        attrs[field] = val
                     except Exception:
                         pass
 

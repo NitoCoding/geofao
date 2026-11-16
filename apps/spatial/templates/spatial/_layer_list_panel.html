@@ -36,12 +36,13 @@
                title="Detail">
                 <i class="bi bi-eye text-xs"></i>
             </a>
-            <a hx-get="{% url 'spatial:layer_edit' layer.pk %}"
-                                hx-target="#modalBody"
-               class="btn btn-ghost btn-xs btn-square text-info"
-               title="Edit metadata">
+            <button class="btn btn-ghost btn-xs btn-square text-info"
+                    title="Edit metadata"
+                    hx-get="{% url 'spatial:layer_edit' layer.pk %}"
+                    hx-indicator="#modalBody"
+                    hx-target="#modalBody">
                 <i class="bi bi-pencil text-xs"></i>
-            </a>
+            </button>
             {% comment %} <a href="{% url 'spatial:layer_edit' layer.pk %}"
                class="btn btn-ghost btn-xs btn-square text-info"
                title="Edit metadata">
@@ -50,16 +51,14 @@
             <button class="btn btn-ghost btn-xs btn-square {% if layer.is_active %}text-success{% else %}text-base-content/30{% endif %}"
                     title="{% if layer.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}"
                     hx-post="{% url 'spatial:layer_toggle' layer.pk %}"
-                    hx-target="#toast-container" hx-swap="afterbegin"
-                    hx-on::after-request="htmx.ajax('GET', '{% url 'spatial:layer_list_table' %}?view=panel', {target: '#layer-list-content'})">
+                    hx-target="#toast-container" hx-swap="afterbegin">
                 <i class="bi {% if layer.is_active %}bi-toggle-on text-lg{% else %}bi-toggle-off text-lg{% endif %}"></i>
             </button>
             <button class="btn btn-ghost btn-xs btn-square text-error"
                     title="Hapus"
                     hx-post="{% url 'spatial:layer_delete' layer.pk %}"
                     hx-confirm="Hapus layer '{{ layer.name }}'?"
-                    hx-target="#toast-container" hx-swap="afterbegin"
-                    hx-on::after-request="htmx.ajax('GET', '{% url 'spatial:layer_list_table' %}?view=panel', {target: '#layer-list-content'})">
+                    hx-target="#toast-container" hx-swap="afterbegin">
                 <i class="bi bi-trash3 text-xs"></i>
             </button>
         </div>
@@ -75,20 +74,20 @@
 </div>
 {% endfor %}
 
-<!-- Pagination -->
-{% if is_paginated %}
+
 <div class="px-4 py-3 border-t border-base-200 flex items-center justify-between">
     <p class="text-[11px] text-base-content/50">
         {{ layers.start_index }}-{{ layers.end_index }} / {{ page_obj.paginator.count }}
     </p>
     <div class="flex gap-1">
         {% if page_obj.has_previous %}
-        <button hx-get="{% url 'spatial:layer_list_table' %}?view=panel"
-                hx-vals='{"page": "{{ page_obj.previous_page_number }}"}'
-                hx-target="#layer-list-content"
-                class="btn btn-xs btn-ghost btn-square">
+        <a href="?page={{ page_obj.previous_page_number }}&{{ filter_qs }}"
+           hx-get="{% url 'spatial:layer_management' %}?page={{ page_obj.previous_page_number }}&{{ filter_qs }}"
+           hx-target="#layer-list-content"
+           hx-replace-url="true"
+           class="btn btn-xs btn-ghost btn-square">
             <i class="bi bi-chevron-left text-xs"></i>
-        </button>
+        </a>
         {% else %}
         <button class="btn btn-xs btn-ghost btn-square opacity-30" disabled>
             <i class="bi bi-chevron-left text-xs"></i>
@@ -100,12 +99,13 @@
         </span>
 
         {% if page_obj.has_next %}
-        <button hx-get="{% url 'spatial:layer_list_table' %}?view=panel"
-                hx-vals='{"page": "{{ page_obj.next_page_number }}"}'
-                hx-target="#layer-list-content"
-                class="btn btn-xs btn-ghost btn-square">
+        <a href="?page={{ page_obj.next_page_number }}&{{ filter_qs }}"
+           hx-get="{% url 'spatial:layer_management' %}?page={{ page_obj.next_page_number }}&{{ filter_qs }}"
+           hx-target="#layer-list-content"
+           hx-replace-url="true"
+           class="btn btn-xs btn-ghost btn-square">
             <i class="bi bi-chevron-right text-xs"></i>
-        </button>
+        </a>
         {% else %}
         <button class="btn btn-xs btn-ghost btn-square opacity-30" disabled>
             <i class="bi bi-chevron-right text-xs"></i>
@@ -113,4 +113,3 @@
         {% endif %}
     </div>
 </div>
-{% endif %}

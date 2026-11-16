@@ -5,13 +5,6 @@ from django.db import models
 from django.core.validators import MinValueValidator
 # from django.utils.translation import gettext_lazy as _
 
-# ========== TAHUN DATA ==========
-
-# ========== NOTE ==========
-# Model-model karakteristik lahan (Drainase, Tekstur, Ph, dll) telah dihapus.
-# Data poligon disimpan di FeatureData.attributes (JSONField).
-# Tidak perlu model terpisah untuk setiap jenis karakteristik.
-# ===========================
 
 # --- Master Layer Management ---
 class MasterLayer(BaseModel):

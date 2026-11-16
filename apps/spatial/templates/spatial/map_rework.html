@@ -176,73 +176,8 @@
                      onclick="closeExpertDrawer()"></div>
                 <div id="expert-drawer"
                      class="fixed top-0 right-0 z-[2001] w-96 h-full bg-base-100 shadow-2xl border-l border-base-200 flex flex-col translate-x-full transition-transform duration-300">
-                    <!-- Drawer Header -->
-                    <div class="flex items-center justify-between p-4 border-b border-base-200 bg-base-200/50">
-                        <div>
-                            <h3 class="text-sm font-bold text-base-content flex items-center gap-2">
-                                <i class="bi bi-chat-square-text text-primary"></i>
-                                Input Tenaga Ahli
-                            </h3>
-                            <p id="expert-drawer-subtitle" class="text-[11px] text-base-content/50 mt-0.5"></p>
-                        </div>
-                        <button class="btn btn-ghost btn-sm btn-square" onclick="closeExpertDrawer()">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
+                    <div id="expert-drawer-content">
                     </div>
-
-                    <!-- Data Poligon (collapsible) -->
-                    <details id="expert-feature-context" class="border-b border-base-200 bg-base-100" open>
-                        <summary class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-base-200/50 text-xs font-semibold text-base-content">
-                            <i class="bi bi-chevron-right text-[10px] text-base-content/40 transition-transform details-marker-rotate"></i>
-                            <i class="bi bi-pin-map text-primary"></i>
-                            Data Poligon
-                        </summary>
-                        <div id="expert-feature-table" class="px-4 pb-3 text-xs max-h-40 overflow-y-auto"></div>
-                    </details>
-
-                    <!-- Hasil Analisis (collapsible) -->
-                    <details id="expert-analysis-context" class="border-b border-base-200 bg-base-100" open>
-                        <summary class="flex items-center gap-2 px-4 py-2 cursor-pointer hover:bg-base-200/50 text-xs font-semibold text-base-content">
-                            <i class="bi bi-chevron-right text-[10px] text-base-content/40 transition-transform details-marker-rotate"></i>
-                            <i class="bi bi-graph-up text-primary"></i>
-                            Hasil Analisis Sistem
-                        </summary>
-                        <div id="expert-context-table" class="px-4 pb-3 text-xs max-h-40 overflow-y-auto"></div>
-                    </details>
-
-                    <!-- Reviews List -->
-                    <div id="expert-reviews-list" class="flex-1 overflow-y-auto p-4 space-y-3">
-                        <div class="text-center py-8 text-base-content/50">
-                            <i class="bi bi-chat-square text-2xl"></i>
-                            <p class="text-xs mt-2">Belum ada input ahli untuk poligon ini</p>
-                        </div>
-                    </div>
-
-                    <!-- Input Form -->
-                    {% if request.user.is_authenticated %}
-                    <div id="expert-form-container" class="p-4 border-t border-base-200 bg-base-200/30">
-                        <textarea id="expert-notes-input"
-                                  class="textarea textarea-bordered w-full text-xs h-24"
-                                  placeholder="Tulis catatan lapangan..."></textarea>
-                        <div class="flex gap-2 mt-2">
-                            <button id="expert-submit-btn"
-                                    class="btn btn-primary btn-sm flex-1"
-                                    onclick="submitExpertReview()">
-                                <i class="bi bi-send me-1"></i>Simpan
-                            </button>
-                            <button id="expert-delete-btn"
-        class="btn btn-ghost btn-sm text-error hidden"
-        hx-delete="/spatial/api/expert-reviews/"
-        hx-vals='js:{"id": window._currentReviewId || ""}'
-        hx-confirm="Apakah Anda yakin ingin menghapus input tenaga ahli ini?"
-        hx-target="#expert-form-container"
-        hx-swap="none">
-    <i class="bi bi-trash"></i>
-</button>
-                        </div>
-                        <p id="expert-form-status" class="text-[10px] text-base-content/50 mt-1.5 hidden"></p>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
@@ -494,14 +429,21 @@
                                         </div>
                                         <table class="w-full mb-2">${charHtml}</table>
                                         <button class="btn btn-outline btn-xs w-full mt-1"
-                                                onclick="event.stopPropagation(); openExpertDrawer(${props.per_feature_id}, '${commodityName}', '${props.suitability_class || 'Unknown'}', ${JSON.stringify(charResults).replace(/"/g, '&quot;')}, ${JSON.stringify(props.feature_attributes || {}).replace(/"/g, '&quot;')})">
+                                                hx-get="{% url 'spatial:expert_drawer_partial' %}?feature_result_id=${props.id}"
+                                                hx-on::after-request="openExpertDrawer()"
+                                                hx-target="#expert-drawer-content"
+                                                hx-swap="innerHTML">
                                             <i class="bi bi-chat-square-text me-1"></i>Input Ahli
                                         </button>
                                     </div>
                                 `);
+                                layer.on("popupopen", function (e) {
+                                    htmx.process(e.popup.getElement());
+                                });
                             }
                         },
                     });
+
 
                     loadedLayers[resultId] = geojsonLayer;
                     geojsonLayer.addTo(map);
@@ -541,190 +483,14 @@
     // ================================================================
     // EXPERT REVIEW DRAWER (global scope — dipanggil dari popup onclick)
     // ================================================================
-    let currentFeatureResultId = null;
-    const isAdmin = {{ is_admin|yesno:"true,false" }};
-
-    function openExpertDrawer(featureResultId, commodityName, suitabilityClass, charResultsJson, featureAttrsJson) {
-        console.log("openExpertDrawer called, featureResultId:", featureResultId);
-        currentFeatureResultId = featureResultId;
-        window._currentReviewId = null;
-        $("#expert-drawer-subtitle").text(`${commodityName} — Kelas ${suitabilityClass}`);
+    function openExpertDrawer() {
         $("#expert-drawer-overlay").removeClass("opacity-0 pointer-events-none").addClass("opacity-100 pointer-events-auto");
         $("#expert-drawer").removeClass("translate-x-full");
-        $("#expert-notes-input").val("");
-        $("#expert-delete-btn").addClass("hidden");
-        $("#expert-form-status").addClass("hidden").text("");
-
-        // --- Card 1: Data Poligon ---
-        let featureAttrs = {};
-        try {
-            featureAttrs = typeof featureAttrsJson === "string" ? JSON.parse(featureAttrsJson) : (featureAttrsJson || {});
-        } catch (e) { /* ignore */ }
-        const attrEntries = Object.entries(featureAttrs).filter(([k]) => !["the_geom", "geom", "geometry", "bbox"].includes(k));
-        if (attrEntries.length > 0) {
-            const rows = attrEntries.map(([k, v]) =>
-                `<tr><td class="py-1 pr-3 font-medium text-base-content/60">${k}</td><td class="py-1">${v ?? "—"}</td></tr>`
-            ).join("");
-            $("#expert-feature-table").html(`<table class="w-full">${rows}</table>`);
-            $("#expert-feature-context").prop("open", true);
-        } else {
-            $("#expert-feature-table").html(`<p class="text-base-content/50">Data tidak tersedia</p>`);
-        }
-
-        // --- Card 2: Hasil Analisis ---
-        let charResults = [];
-        try {
-            charResults = typeof charResultsJson === "string" ? JSON.parse(charResultsJson) : charResultsJson;
-        } catch (e) { /* ignore */ }
-        if (charResults && charResults.length > 0) {
-            const rows = charResults.map(c => `
-                <tr>
-                    <td class="py-1 pr-3 font-medium text-base-content/60">${c.characteristic || "—"}</td>
-                    <td class="py-1">${c.value ?? "—"}</td>
-                    <td class="py-1">
-                        <span class="inline-block w-2 h-2 rounded-sm mr-1" style="background:${getColor(c.suitability_class)}"></span>
-                        ${c.class_display || c.suitability_class || "—"}
-                    </td>
-                </tr>
-            `).join("");
-            $("#expert-context-table").html(`<table class="w-full">${rows}</table>`);
-            $("#expert-analysis-context").prop("open", true);
-        } else {
-            $("#expert-context-table").html(`<p class="text-base-content/50">Data tidak tersedia</p>`);
-        }
-
-        loadExpertReviews();
     }
 
     function closeExpertDrawer() {
         $("#expert-drawer-overlay").addClass("opacity-0 pointer-events-none").removeClass("opacity-100 pointer-events-auto");
         $("#expert-drawer").addClass("translate-x-full");
-        currentFeatureResultId = null;
-        window._currentReviewId = null;
-    }
-
-    function loadExpertReviews() {
-        if (!currentFeatureResultId) return;
-        const $list = $("#expert-reviews-list");
-        $list.html(`<div class="text-center py-8"><span class="loading loading-spinner loading-sm text-primary"></span></div>`);
-
-        fetch(`/spatial/api/expert-reviews/?feature_result_id=${currentFeatureResultId}&mine=true`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.reviews.length === 0) {
-                    $list.html(`
-                        <div class="text-center py-8 text-base-content/50">
-                            <i class="bi bi-chat-square text-2xl"></i>
-                            <p class="text-xs mt-2">Belum ada input ahli untuk poligon ini</p>
-                        </div>
-                    `);
-                    htmx.process($list[0]);
-                    return;
-                }
-                $list.html(data.reviews.map(r => `
-                    <div class="bg-base-200/50 rounded-lg p-3">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-xs font-semibold text-base-content">
-                                <i class="bi bi-person-circle me-1 text-primary"></i>${r.expert_name}
-                            </span>
-                            <div class="flex items-center gap-1">
-                                <span class="text-[10px] text-base-content/40">${r.created_at}</span>
-                                ${isAdmin ? `
-                                <button class="btn btn-ghost btn-xs text-error"
-                                        hx-delete="/spatial/api/expert-reviews/?id=${r.id}"
-                                        hx-confirm="Hapus input ahli dari ${r.expert_name}?"
-                                        hx-target="#expert-reviews-list"
-                                        hx-trigger="click"
-                                        hx-swap="none">
-                                    <i class="bi bi-trash text-xs"></i>
-                                </button>
-                                ` : ""}
-                            </div>
-                        </div>
-                        <p class="text-xs text-base-content/80 whitespace-pre-wrap">${r.notes}</p>
-                    </div>
-                `).join(""));
-
-                // Re-process HTMX agar tombol hapus dinamis dikenali
-                htmx.process($list[0]);
-
-                // Check if current user already has a review → pre-fill
-                const currentUserName = "{{ request.user.get_full_name|default:request.user.username|escapejs }}";
-                const myReview = data.reviews.find(r => r.expert_name === currentUserName || r.expert_name === "{{ request.user.username|escapejs }}");
-                if (myReview) {
-                    window._currentReviewId = myReview.id;
-                    $("#expert-notes-input").val(myReview.notes);
-                    $("#expert-delete-btn").removeClass("hidden");
-                    $("#expert-submit-btn").html('<i class="bi bi-pencil me-1"></i>Update');
-                }
-            })
-            .catch(() => {
-                $list.html(`<div class="text-center py-8 text-error text-xs">Gagal memuat data</div>`);
-            });
-    }
-
-    function submitExpertReview() {
-        console.log("submitExpertReview called, featureResultId:", currentFeatureResultId);
-        if (!currentFeatureResultId) {
-            console.warn("No featureResultId set");
-            return;
-        }
-        const notes = $("#expert-notes-input").val().trim();
-        console.log("notes:", notes);
-        if (!notes) {
-            $("#expert-form-status").removeClass("hidden").addClass("text-error").text("Catatan tidak boleh kosong");
-            return;
-        }
-
-        const $btn = $("#expert-submit-btn");
-        const csrf = getCsrfToken();
-        console.log("csrf token:", csrf ? "found" : "NOT FOUND");
-        $btn.prop("disabled", true).html('<span class="loading loading-spinner loading-xs"></span>');
-
-        fetch("/spatial/api/expert-reviews/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRFToken": csrf },
-            body: JSON.stringify({ feature_result_id: currentFeatureResultId, notes: notes }),
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.error) {
-                    $("#expert-form-status").removeClass("hidden").addClass("text-error").text(data.error);
-                    $btn.prop("disabled", false).html('<i class="bi bi-send me-1"></i>Simpan');
-                    return;
-                }
-                window._currentReviewId = data.id;
-                $("#expert-delete-btn").removeClass("hidden");
-                $("#expert-submit-btn").html('<i class="bi bi-pencil me-1"></i>Update');
-                $("#expert-form-status").removeClass("hidden text-error").addClass("text-success").text("Tersimpan!");
-                $btn.prop("disabled", false);
-                loadExpertReviews();
-                setTimeout(() => $("#expert-form-status").addClass("hidden"), 2000);
-            })
-            .catch(() => {
-                $("#expert-form-status").removeClass("hidden").addClass("text-error").text("Gagal menyimpan");
-                $btn.prop("disabled", false).html('<i class="bi bi-send me-1"></i>Simpan');
-            });
-    }
-
-    function deleteExpertReview() {
-        // hx-vals reads window._currentReviewId at submit time
-        // onclick fires first, then HTMX intercepts
-    }
-
-    // HTMX custom event: fires after DELETE success via HX-Trigger header
-    document.body.addEventListener("reviewsUpdated", function () {
-        window._currentReviewId = null;
-        $("#expert-notes-input").val("");
-        $("#expert-delete-btn").addClass("hidden");
-        $("#expert-submit-btn").html('<i class="bi bi-send me-1"></i>Simpan');
-        loadExpertReviews();
-    });
-
-    function getCsrfToken() {
-        return document.querySelector("[name=csrfmiddlewaretoken]")?.value
-            || document.querySelector("meta[name=csrf-token]")?.getAttribute("content")
-            || "";
     }
 </script>
 {% endblock %}

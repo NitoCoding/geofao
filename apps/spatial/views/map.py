@@ -205,18 +205,28 @@ def api_feature_at_point(request):
         )
 
 
+def expert_drawer_partial(request):
+    """Render partial untuk konten drawer tenaga ahli (HTMX) — server-side."""
+    feature_result_id = request.GET.get("feature_result_id")
+    if feature_result_id:
+        return _render_drawer_partial(request, feature_result_id)
+    return render(request, "spatial/_expert_drawer.html", {})
+
+
 # ========== EXPERT REVIEW API ==========
 
 def api_expert_reviews(request):
     """
     API endpoint untuk CRUD review tenaga ahli.
 
-    GET  ?feature_result_id=X  → list semua review untuk fitur tersebut
-    POST                       → create/update review (expert hanya bisa 1 per fitur)
+    GET  ?feature_result_id=X  → list semua review untuk fitur tersebut (JSON)
+    POST                       → create/update review (form-encoded utk HTMX, JSON utk JS)
     DELETE ?id=X               → hapus review sendiri
 
-    CSRF dilindungi via header X-CSRFToken (dikirim oleh JavaScript frontend).
+    Untuk HTMX: POST/DELETE mengembalikan partial drawer agar konten langsung ter-refresh.
     """
+    is_htmx = getattr(request, "htmx", False)
+
     if request.method == "GET":
         feature_result_id = request.GET.get("feature_result_id")
         if not feature_result_id:
@@ -243,13 +253,16 @@ def api_expert_reviews(request):
         if not request.user.is_authenticated:
             return JsonResponse({"error": "Login required"}, status=403)
 
-        try:
-            body = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON"}, status=400)
-
-        feature_result_id = body.get("feature_result_id")
-        notes = body.get("notes", "").strip()
+        if is_htmx:
+            feature_result_id = request.POST.get("feature_result_id")
+            notes = request.POST.get("notes", "").strip()
+        else:
+            try:
+                body = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON"}, status=400)
+            feature_result_id = body.get("feature_result_id")
+            notes = body.get("notes", "").strip()
 
         if not feature_result_id:
             return JsonResponse({"error": "feature_result_id required"}, status=400)
@@ -261,19 +274,17 @@ def api_expert_reviews(request):
         )
 
         # Upsert: satu ahli hanya satu review per fitur
-        review, created = ExpertReview.objects.update_or_create(
+        ExpertReview.objects.update_or_create(
             expert=request.user,
             feature_result=feature_result,
             defaults={"notes": notes},
         )
 
-        return JsonResponse({
-            "id": review.id,
-            "expert_name": request.user.get_full_name() or request.user.username,
-            "notes": review.notes,
-            "created_at": review.created_at.strftime("%d %b %Y %H:%M"),
-            "created": created,
-        })
+        if is_htmx:
+            # Kembalikan drawer partial yang sudah di-refresh
+            return _render_drawer_partial(request, feature_result_id)
+
+        return JsonResponse({"success": True})
 
     elif request.method == "DELETE":
         if not request.user.is_authenticated:
@@ -288,12 +299,55 @@ def api_expert_reviews(request):
             review = get_object_or_404(ExpertReview, id=review_id)
         else:
             review = get_object_or_404(ExpertReview, id=review_id, expert=request.user)
+
+        feature_result_id = review.feature_result_id
         review.delete()
-        response = JsonResponse({"deleted": True})
-        response["HX-Trigger"] = "reviewsUpdated"
-        return response
+
+        if is_htmx:
+            return _render_drawer_partial(request, feature_result_id)
+
+        return JsonResponse({"deleted": True})
 
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+def _render_drawer_partial(request, feature_result_id):
+    """Helper untuk render ulang drawer partial setelah POST/DELETE."""
+    from django.shortcuts import render
+
+    context = {"feature_result_id": feature_result_id}
+    try:
+        result = SuitabilityAnalysisResultPerFeature.objects.select_related(
+            "commodity", "feature", "feature__layer"
+        ).get(id=feature_result_id)
+
+        context["commodity_name"] = result.commodity.name
+        context["suitability_class"] = result.get_suitability_class_display()
+        context["suitability_class_code"] = result.suitability_class
+
+        feature_attrs = result.feature.attributes or {}
+        context["feature_attrs"] = [
+            {"key": k, "value": v}
+            for k, v in feature_attrs.items()
+            if k not in ("the_geom", "geom", "geometry", "bbox")
+        ]
+
+        char_results = result.characteristic_results or []
+        context["char_results"] = char_results
+
+        reviews = ExpertReview.objects.filter(
+            feature_result=result
+        ).select_related("expert").order_by("-created_at")
+        context["reviews"] = reviews
+
+        if request.user.is_authenticated:
+            my_review = reviews.filter(expert=request.user).first()
+            context["my_review"] = my_review
+
+    except SuitabilityAnalysisResultPerFeature.DoesNotExist:
+        context["error"] = "Data tidak ditemukan"
+
+    return render(request, "spatial/_expert_drawer.html", context)
 
 
 def api_feature_at_point_htmx(request):

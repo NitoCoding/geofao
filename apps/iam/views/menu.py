@@ -71,7 +71,7 @@ class MenuCreateView(HtmxModalFormMixin, LoginRequiredMixin, CreateView):
     form_class = MenuForm
     template_name = "iam/menus/_menu_modal.html"
     list_url = reverse_lazy("iam:menu_list")
-    trigger_event = "menuSaved"
+    trigger_event = "menuSaved, modalClose"
 
 
 class MenuUpdateView(HtmxModalFormMixin, LoginRequiredMixin, UpdateView):
@@ -79,10 +79,10 @@ class MenuUpdateView(HtmxModalFormMixin, LoginRequiredMixin, UpdateView):
     form_class = MenuForm
     template_name = "iam/menus/_menu_modal.html"
     list_url = reverse_lazy("iam:menu_list")
-    trigger_event = "menuSaved"
+    trigger_event = "menuSaved, modalClose"
 
 
 class MenuDeleteView(HtmxDeleteMixin, LoginRequiredMixin, DeleteView):
     model = Menu
     list_url = reverse_lazy("iam:menu_list")
-    trigger_event = "menuSaved"
+    trigger_event = "menuSaved, modalClose"

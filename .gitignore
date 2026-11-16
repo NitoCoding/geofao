@@ -13,6 +13,7 @@ wheels/
 
 mediafiles/
 projects/
+media/
 
 # Binary files - DO NOT commit these
 *.whl

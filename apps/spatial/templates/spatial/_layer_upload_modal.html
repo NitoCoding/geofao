@@ -4,15 +4,6 @@
   <p class="text-sm text-slate-500">Upload shapefile (ZIP) untuk ditambahkan sebagai layer baru</p>
 </div>
 
-<!-- Messages -->
-{% if messages %}
-    {% for message in messages %}
-    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% else %}alert-info{% endif %} mb-4 text-sm">
-        {{ message }}
-    </div>
-    {% endfor %}
-{% endif %}
-
 <form method="post"
       enctype="multipart/form-data"
       hx-post="{% url 'spatial:layer_upload' %}"
@@ -47,7 +38,6 @@
         <select name="{{ form.layer_category.name }}"
                 id="{{ form.layer_category.id_for_label }}"
                 class="select select-bordered select-sm w-full">
-            <option value="">Pilih kategori</option>
             {% for value, label in form.layer_category.field.choices %}
             <option value="{{ value }}" {% if form.layer_category.value == value|stringformat:"s" %}selected{% endif %}>
                 {{ label }}
@@ -69,7 +59,6 @@
         <select name="{{ form.data_year.name }}"
                 id="{{ form.data_year.id_for_label }}"
                 class="select select-bordered select-sm w-full">
-            <option value="">Pilih Tahun</option>
             {% for value, label in form.data_year.field.choices %}
             <option value="{{ value }}" {% if form.data_year.value == value|stringformat:"s" %}selected{% endif %}>
                 {{ label }}
@@ -118,7 +107,8 @@
                 onclick="document.getElementById('universalModal').close()">
             Batal
         </button>
-        <button type="submit" class="btn btn-primary btn-sm">
+        <button type="submit" class="btn btn-primary btn-sm"
+                hx-indicator="#modalBody">
             <i class="bi bi-cloud-upload me-1.5"></i>Upload & Proses
         </button>
     </div>

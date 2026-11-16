@@ -10,9 +10,8 @@ urlpatterns = [
 
     # Layer Management
     path('layers/', views.layer_management, name='layer_management'),
-    path('layers/table/', views.layer_list_table, name='layer_list_table'),
+    path('layers/table/', views.layer_management, name='layer_list_table'),
     path('layers/upload/', views.layer_upload, name='layer_upload'),
-    path('layers/upload-modal/', views.layer_upload_modal, name='layer_upload_modal'),
     path('layers/<int:pk>/', views.layer_detail, name='layer_detail'),
     path('layers/<int:pk>/toggle/', views.layer_toggle, name='layer_toggle'),
     path('layers/<int:pk>/edit/', views.layer_edit, name='layer_edit'),
@@ -21,6 +20,7 @@ urlpatterns = [
     # API Endpoints
     path('api/layers/<int:pk>/geojson/', views.api_layer_geojson, name='api_layer_geojson'),
     path('api/expert-reviews/', views.api_expert_reviews, name='api_expert_reviews'),
+    path('api/expert-drawer/', views.expert_drawer_partial, name='expert_drawer_partial'),
     path('spatial/api/feature-at-point/', views.api_feature_at_point, name='api_feature_at_point'),
     path('spatial/api/feature-at-point-htmx/', views.api_feature_at_point_htmx, name='api_feature_at_point_htmx'),
 

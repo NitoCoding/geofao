@@ -8,8 +8,6 @@ This allows urls.py to continue using `from . import views` without changes.
 # Layer CRUD Views (list, detail, toggle, edit, delete)
 from .layers import (
     layer_management,
-    layer_list,
-    layer_list_table,
     layer_detail,
     layer_toggle,
     layer_edit,
@@ -19,7 +17,6 @@ from .layers import (
 # Layer Upload Views
 from .upload import (
     layer_upload,
-    layer_upload_modal,
 )
 
 # Map and GeoJSON Views
@@ -29,9 +26,8 @@ from .map import (
     api_feature_at_point,
     api_feature_at_point_htmx,
     api_expert_reviews,
+    expert_drawer_partial,
 )
-
-# Category API Views
 from .categories import (
     api_land_categories,
     api_commodity_categories,
@@ -59,21 +55,19 @@ from .admin import (
 __all__ = [
     # Layer CRUD
     'layer_management',
-    'layer_list',
-    'layer_list_table',
     'layer_detail',
     'layer_toggle',
     'layer_edit',
     'layer_delete',
     # Layer Upload
     'layer_upload',
-    'layer_upload_modal',
     # Map and GeoJSON
     'map_view',
     'api_layer_geojson',
     'api_feature_at_point',
     'api_feature_at_point_htmx',
     'api_expert_reviews',
+    'expert_drawer_partial',
     # Category API
     'api_land_categories',
     'api_commodity_categories',

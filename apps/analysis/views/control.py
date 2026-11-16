@@ -59,6 +59,7 @@ def task_monitoring(request):
             context = {
                 'recent_analyses': recent_analyses,
                 'stats': stats,
+                'has_active_tasks': stats['pending'] > 0 or stats['processing'] > 0,
             }
             return render(request, 'analysis/control/partials/monitoring_panel.html', context)
         else:
@@ -102,15 +103,6 @@ def batch_overlay_ui(request):
         'layers': MasterLayer.objects.filter(is_active=True),
     }
     return render(request, 'analysis/control/partials/batch_overlay_form.html', context)
-
-
-@login_required
-def suitability_ui(request):
-    context = {
-        'commodities': Commodity.objects.filter(is_active=True),
-        'layers': MasterLayer.objects.filter(is_active=True),
-    }
-    return render(request, 'analysis/control/partials/suitability_form.html', context)
 
 
 @login_required
@@ -164,6 +156,7 @@ def start_analysis_api(request):
                 "message": f'Analisis {len(commodity_ids)} komoditas ({commodity_names}) pada layer "{layer.name}" telah dimulai'
             },
             "analysisStarted": {},
+            "refreshMonitoring": {},
             "modalClose": {}
         })
         return response

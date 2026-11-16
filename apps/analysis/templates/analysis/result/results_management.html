@@ -29,18 +29,28 @@
 
                 <!-- Search & Filter -->
                 <div class="p-3 border-b border-base-200 bg-base-100">
-                    <form id="results-filter-form"
-                          hx-get="{% url 'analysis:results_panel' %}"
-                          hx-target="#results-list-content"
-                          hx-trigger="change delay:300ms, keyup changed delay:500ms"
-                          class="space-y-2">
-                        <input type="text"
-                               placeholder="Cari komoditas atau layer..."
-                               class="input input-bordered input-sm w-full text-xs"
-                               name="search"
-                               value="{{ search|default:'' }}" />
+                    <div class="space-y-2">
+                        <input type="text" 
+                                placeholder="Cari komoditas atau layer..."
+                               class="input input-bordered input-sm w-full text-xs" name="search"
+                               value="{{ search|default:'' }}" 
+                               hx-get="{% url 'analysis:results_panel' %}"
+                               hx-target="#results-list-content"
+                               hx-trigger="keyup changed delay:500ms"
+                               data-f 
+                               hx-include="[data-f]"
+                               hx-replace-url="true"
+                               
+                               />
                         <div class="flex gap-2">
-                            <select class="select select-bordered select-sm flex-1 text-xs" name="year">
+                            <select class="select select-bordered select-sm flex-1 text-xs" 
+                            name="year"
+                            hx-get="{% url 'analysis:results_panel' %}"
+                            hx-target="#results-list-content"
+                            hx-trigger="change"
+                            data-f 
+                            hx-include="[data-f]" 
+                            hx-replace-url="true">
                                 <option value="">Semua Tahun</option>
                                 {% for dy in data_years %}
                                 <option value="{{ dy.year }}" {% if year == dy.year|stringformat:'s' %}selected{% endif %}>
@@ -48,7 +58,13 @@
                                 </option>
                                 {% endfor %}
                             </select>
-                            <select class="select select-bordered select-sm flex-1 text-xs" name="status">
+                            <select class="select select-bordered select-sm flex-1 text-xs" name="status" 
+                            hx-get="{% url 'analysis:results_panel' %}"
+                            hx-target="#results-list-content"
+                            hx-trigger="change"
+                            data-f 
+                            hx-include="[data-f]" 
+                            hx-replace-url="true">
                                 <option value="">Semua Status</option>
                                 <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Selesai</option>
                                 <option value="processing" {% if status_filter == 'processing' %}selected{% endif %}>Sedang Diproses</option>
@@ -56,7 +72,7 @@
                                 <option value="failed" {% if status_filter == 'failed' %}selected{% endif %}>Gagal</option>
                             </select>
                         </div>
-                    </form>
+                    </div>
                 </div>
 
                 <!-- Results List Content (HTMX target) -->

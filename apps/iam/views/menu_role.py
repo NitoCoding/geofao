@@ -57,7 +57,7 @@ class MenuRoleCreateView(HtmxModalFormMixin, LoginRequiredMixin, CreateView):
     form_class = MenuRoleForm
     template_name = "iam/menu_roles/_menu_role_modal.html"
     list_url = reverse_lazy("iam:menu_role_list")
-    trigger_event = "menuRoleSaved"
+    trigger_event = "menuRoleSaved, modalClose"
 
 
 class MenuRoleUpdateView(HtmxModalFormMixin, LoginRequiredMixin, UpdateView):
@@ -65,7 +65,7 @@ class MenuRoleUpdateView(HtmxModalFormMixin, LoginRequiredMixin, UpdateView):
     form_class = MenuRoleForm
     template_name = "iam/menu_roles/_menu_role_modal.html"
     list_url = reverse_lazy("iam:menu_role_list")
-    trigger_event = "menuRoleSaved"
+    trigger_event = "menuRoleSaved, modalClose"
 
 
 class MenuRoleDeleteView(HtmxDeleteMixin, LoginRequiredMixin, DeleteView):

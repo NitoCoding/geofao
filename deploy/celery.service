@@ -1,0 +1,24 @@
+# Celery worker untuk proyek skripsi (Django + GeoDjango).
+# WAJIB jalan: apps/analysis/views/control.py memanggil .delay(...) untuk
+# analisis multi-komoditas, batch extract, dan batch overlay. Tanpa worker,
+# task menumpuk di Redis dan UI tampak "menggantung".
+#
+# Dijalankan sebagai user hermes (venv-nya di /srv/projects/.uv-python).
+
+[Unit]
+Description=Skripsi GIS - Celery worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/projects/skripsi
+Environment=DJANGO_ENV_FILE=/srv/projects/skripsi/.env.prod
+ExecStart=/srv/projects/skripsi/.venv/bin/celery -A config worker \
+    --loglevel=INFO \
+    --concurrency=2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

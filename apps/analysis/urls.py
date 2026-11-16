@@ -15,7 +15,6 @@ urlpatterns = [
     path('control/monitoring/', views.task_monitoring, name='task_monitoring'),
     path('control/batch-extract/', views.batch_extract_ui, name='batch_extract_ui'),
     path('control/batch-overlay/', views.batch_overlay_ui, name='batch_overlay_ui'),
-    path('control/suitability/', views.suitability_ui, name='suitability_ui'),
     path('control/start-analysis/', views.start_analysis_form, name='start_analysis_form'),
     path('control/start-analysis/api/', views.start_analysis_api, name='start_analysis_api'),
     

@@ -32,12 +32,12 @@ class LayerUploadForm(forms.ModelForm):
         label="Kategori Layer",
         help_text="Pilih kategori layer",
         choices=MasterLayer.LAYER_CATEGORY_CHOICES,
-        initial="lainnya",
         widget=forms.Select(
             attrs={
                 "class": "select select-bordered w-full",
             }
         ),
+        initial="lainnya",
     )
 
     class Meta:
@@ -75,7 +75,6 @@ class LayerEditForm(forms.ModelForm):
         required=False,
         queryset=DataYear.objects.filter(is_active=True).order_by("-year"),
         widget=forms.Select(attrs={"class": "select select-bordered w-full"}),
-        empty_label="Pilih Tahun",
     )
 
     class Meta:

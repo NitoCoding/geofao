@@ -1,0 +1,24 @@
+# Celery beat untuk proyek skripsi.
+# Menjalankan jadwal dari config/celery.py:
+#   cleanup-temp-midnight -> apps.spatial.tasks.cleanup_old_temp_files (tiap 00:00)
+# HARUS hanya satu instance beat; jangan jalankan ganda.
+#
+# Dijalankan sebagai user hermes.
+
+[Unit]
+Description=Skripsi GIS - Celery beat (scheduler)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/projects/skripsi
+Environment=DJANGO_ENV_FILE=/srv/projects/skripsi/.env.prod
+ExecStart=/srv/projects/skripsi/.venv/bin/celery -A config beat \
+    --loglevel=INFO \
+    --schedule=/srv/projects/skripsi/logs/celerybeat-schedule
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

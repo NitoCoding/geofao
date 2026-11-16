@@ -7,6 +7,7 @@ Handles layer management operations:
 """
 
 import logging
+from urllib.parse import urlencode
 
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
@@ -75,12 +76,17 @@ def _get_filtered_layers(request):
 def layer_management(request):
     """
     Unified layer management page: list + map.
+    Dual-mode: HTMX request returns panel partial; regular request returns full page.
     """
     queryset = _get_filtered_layers(request)
 
     paginator = Paginator(queryset, 10)
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
+
+    # Build query string for pagination (exclude 'page')
+    params = request.GET.copy()
+    params.pop("page", None)
 
     context = {
         "layers": page_obj,
@@ -91,61 +97,16 @@ def layer_management(request):
         "year": request.GET.get("year", ""),
         "category": request.GET.get("category", ""),
         "sort": request.GET.get("sort", ""),
-        "data_years": DataYear.objects.filter(is_active=True).order_by("-year"),
+        "data_years": DataYear.objects.all().order_by("-year"),
         "data_categories": MasterLayer.LAYER_CATEGORY_CHOICES,
+        "filter_qs": urlencode(params),
     }
+
+    if request.htmx:
+        return render(request, "spatial/_layer_list_panel.html", context)
 
     return render(request, "spatial/layer_management.html", context)
 
-
-@ensure_csrf_cookie
-def layer_list(request):
-    """Tampilan daftar layer."""
-    queryset = _get_filtered_layers(request)
-
-    paginator = Paginator(queryset, 10)
-    page_number = request.GET.get("page", 1)
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        "layers": page_obj,
-        "page_obj": page_obj,
-        "is_paginated": page_obj.has_other_pages(),
-        "title": "Daftar Layer",
-        "search": request.GET.get("search", ""),
-        "year": request.GET.get("year", ""),
-        "category": request.GET.get("category", ""),
-        "sort": request.GET.get("sort", ""),
-        "data_years": DataYear.objects.filter(is_active=True).order_by("-year"),
-        "data_categories": MasterLayer.LAYER_CATEGORY_CHOICES,
-    }
-
-    return render(request, "spatial/layer_list.html", context)
-
-
-def layer_list_table(request):
-    """Partial view untuk tabel daftar layer (HTMX)."""
-    queryset = _get_filtered_layers(request)
-
-    paginator = Paginator(queryset, 10)
-    page_number = request.GET.get("page", 1)
-    page_obj = paginator.get_page(page_number)
-
-    context = {
-        "layers": page_obj,
-        "page_obj": page_obj,
-        "is_paginated": page_obj.has_other_pages(),
-        "search": request.GET.get("search", ""),
-        "year": request.GET.get("year", ""),
-        "category": request.GET.get("category", ""),
-        "sort": request.GET.get("sort", ""),
-    }
-
-    # Return panel partial if requested (for management page)
-    if request.GET.get("view") == "panel":
-        return render(request, "spatial/_layer_list_panel.html", context)
-
-    return render(request, "spatial/layer_list_table.html", context)
 
 
 # ========== LAYER DETAIL ==========
@@ -228,15 +189,8 @@ def layer_edit(request, pk):
     if is_htmx:
         return render(request, "spatial/_layer_edit_modal.html", {"form": form, "layer": layer})
 
-    return render(
-        request,
-        "spatial/layer_edit.html",
-        {
-            "page_title": "Edit Metadata Layer",
-            "form": form,
-            "layer": layer,
-        },
-    )
+    # Non-HTMX: redirect ke management page
+    return redirect("spatial:layer_management")
 
 
 # ========== LAYER DELETE ==========

@@ -1,0 +1,27 @@
+# Unit systemd untuk Django dengan gunicorn.
+#
+# Deploy:
+#   1. cd /path/proyek && uv sync
+#   2. cp deploy/gunicorn.service /etc/systemd/system/<nama>.service
+#   3. systemctl daemon-reload && systemctl enable --now <nama>
+#
+# Sesuaikan User/Group, WorkingDirectory, path gunicorn, dan file env sesuai server.
+[Unit]
+Description=Gunicorn untuk aplikasi Django (My App)
+After=network.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/path/proyek
+EnvironmentFile=/path/proyek/.env.prod
+ExecStart=/path/proyek/.venv/bin/gunicorn config.wsgi:application \
+    --workers 3 \
+    --timeout 120 \
+    --bind 127.0.0.1:8000
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

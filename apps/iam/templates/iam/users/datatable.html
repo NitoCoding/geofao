@@ -1,10 +1,5 @@
 {# User Table - Dynamic Content #}
 
-<form method="get" id="user-filter-form"
-      hx-get="{% url 'iam:user_list' %}"
-      hx-target="#user-content"
-      hx-replace-url="true">
-</form>
 
 
 <!-- Summary Stats -->
@@ -40,8 +35,9 @@
           <input type="text" name="filter_username" value="{{ filter_username }}" placeholder="Username..."
                  class="input input-bordered input-xs w-full"
                  hx-get="{% url 'iam:user_list' %}"
-                 hx-trigger="keyup changed delay:300ms"
-                 hx-include="#user-filter-form"
+                 hx-trigger="keyup changed delay:500ms"
+                 data-f
+                 hx-include="[data-f]"
                  hx-target="#user-content"
                  hx-replace-url="true" />
         </th>
@@ -49,8 +45,9 @@
           <input type="text" name="filter_email" value="{{ filter_email }}" placeholder="Email..."
                  class="input input-bordered input-xs w-full"
                  hx-get="{% url 'iam:user_list' %}"
-                 hx-trigger="keyup changed delay:300ms"
-                 hx-include="#user-filter-form"
+                 hx-trigger="keyup changed delay:500ms"
+                 data-f
+                 hx-include="[data-f]"
                  hx-target="#user-content"
                  hx-replace-url="true" />
         </th>
@@ -58,8 +55,9 @@
           <input type="text" name="filter_nama" value="{{ filter_nama }}" placeholder="Nama..."
                  class="input input-bordered input-xs w-full"
                  hx-get="{% url 'iam:user_list' %}"
-                 hx-trigger="keyup changed delay:300ms"
-                 hx-include="#user-filter-form"
+                 hx-trigger="keyup changed delay:500ms"
+                 data-f
+                 hx-include="[data-f]"
                  hx-target="#user-content"
                  hx-replace-url="true" />
         </th>
@@ -67,7 +65,8 @@
           <select name="filter_status" class="select select-bordered select-xs w-full"
                   hx-get="{% url 'iam:user_list' %}"
                   hx-trigger="change"
-                  hx-include="#user-filter-form"
+                  data-f
+                  hx-include="[data-f]"
                   hx-target="#user-content"
                   hx-replace-url="true">
             <option value="">Semua</option>
