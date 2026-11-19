@@ -180,22 +180,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['birth_date', 'address', 'department']
-        widgets = {
-            'birth_date': forms.DateInput(attrs={
-                'class': 'input input-bordered w-full',
-                'type': 'date',
-            }),
-            'address': forms.Textarea(attrs={
-                'class': 'textarea textarea-bordered w-full',
-                'rows': 2,
-                'placeholder': 'Alamat lengkap',
-            }),
-            'department': forms.TextInput(attrs={
-                'class': 'input input-bordered w-full',
-                'placeholder': 'Misal: Teknik Informatika',
-            }),
-        }
+        fields = []
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)

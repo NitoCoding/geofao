@@ -12,6 +12,9 @@ def profile_view(request):
     user = request.user
     profile, _ = Profile.objects.get_or_create(user=user)
 
+    # Ambil role aktif user
+    user_role = user.roles.filter(is_active=True).first()
+
     if request.method == 'POST':
         form = ProfileForm(request.POST, request.FILES, instance=profile, user=user)
         if form.is_valid():
@@ -24,5 +27,6 @@ def profile_view(request):
     return render(request, 'iam/profile/detail.html', {
         'form': form,
         'profile': profile,
+        'user_role': user_role,
         'title': 'Profil Saya',
     })

@@ -303,12 +303,12 @@ class ClassificationScene(Scene):
 
         query_data = [
             ["Parameter", "S1", "S2", "S3", "N"],
-            ["pH Tanah", "6.0-7.0", "5.0-6.0", "4.0-5.0", "<4.0, >9.0"],
-            ["C-Organik", ">2.0", "1.5-2.0", "1.0-1.5", "<1.0"],
-            ["KTK", ">25.0", "17.0-25.0", "12.0-17.0", "<12.0"],
-            ["Tekstur", "sedang", "halus", "kasar", "sangat_kasar"],
-            ["Kedalaman", ">60", "40-60", "25-40", "<25"],
-            ["Kemiringan", "0-3%", "3-8%", "8-15%", ">15%"],
+            ["pH Tanah", "5.5 - 8.2", "4.5 - 5.5\n8.2 - 8.5", "< 4.5\n> 8.5", "-"],
+            ["C-Organik", "> 1.5", "0.8 - 1.5", "< 0.8", "-"],
+            ["KTK", "> 16", "< 16", "-", "-"],
+            ["Tekstur", "halus,\nagak halus", "sedang", "agak kasar", "kasar"],
+            ["Kedalaman", "> 50", "40 - 50", "25 - 40", "< 25"],
+            ["Drainase", "agak terhambat,\nsedang", "terhambat,\nbaik", "sangat terhambat,\nagak cepat", "cepat"],
         ]
         query_table = make_table(
             query_data, [BLUE, C_S1, C_S2, C_S3, C_N], font_size=16, pad_x=0.2
@@ -328,7 +328,7 @@ class ClassificationScene(Scene):
 
         note = Text("Kriteria masih berupa string mentah", font_size=24, color=YELLOW)
         note2 = Text(
-            'Contoh: "6.0-7.0", "<4.0, >9.0", "sedang"', font_size=20, color=YELLOW
+            'Contoh: "5.5 - 8.2", "< 4.5, > 8.5", "sedang"', font_size=20, color=YELLOW
         )
         notes = VGroup(note, note2).arrange(DOWN, buff=0.2).move_to(DOWN * 2.8)
         self.play(Write(note), Write(note2))
@@ -353,14 +353,14 @@ class ClassificationScene(Scene):
 
         # ── Kiri: tabel contoh parsing ──
         examples = [
-            ('"6.0-7.0"', "[{min: 6.0, max: 7.0}]", C_S1),
-            ('"5.0-6.0"', "[{min: 5.0, max: 6.0}]", C_S2),
-            ('"<4.0, >9.0"', "[{max: 4.0, max_inclusive: False},\n{min: 9.0, min_inclusive: False}]", C_N),
-            ('">2.0"', "[{min: 2.0, min_inclusive: False}]", C_S1),
-            ('"1.5-2.0"', "[{min: 1.5, max: 2.0}]", C_S2),
-            ('"1.0-1.5"', "[{min: 1.0, max: 1.5}]", C_S3),
-            ('"<1.0"', "[{max: 1.0, max_inclusive: False}]", C_N),
-            ('"sedang"', "[text_match: 'sedang']", C_S1),
+            ('"5.5 - 8.2"', "[{min: 5.5, max: 8.2}]", C_S1),
+            ('"0.8 - 1.5"', "[{min: 0.8, max: 1.5}]", C_S2),
+            ('"< 4.5, > 8.5"', "[{max: 4.5, max_inclusive: False},\n{min: 8.5, min_inclusive: False}]", C_S3),
+            ('"> 1.5"', "[{min: 1.5, min_inclusive: False}]", C_S1),
+            ('"< 16"', "[{max: 16.0, max_inclusive: False}]", C_S2),
+            ('"<= 16"', "[{max: 16.0}]  (inclusive)", C_S2),
+            ('">= 16"', "[{min: 16.0}]  (inclusive)", C_S1),
+            ('"sedang"', "[text_match: 'sedang']", C_S2),
         ]
         parse_data = [["String", "Hasil Parse"]] + [[raw, parsed] for raw, parsed, _ in examples]
         parse_table = make_table(parse_data, [YELLOW, YELLOW], font_size=16, pad_x=0.2, pad_y=0.07)
@@ -375,11 +375,13 @@ class ClassificationScene(Scene):
         ).arrange(DOWN, buff=0.08, aligned_edge=LEFT)
         code_lines = [
             "1. Split by koma → OR condition",
-            '2. Deteksi "<" → max_inclusive=False',
-            '3. Deteksi ">" → min_inclusive=False',
-            '4. Deteksi "-" → range min-max',
-            "5. Nilai tunggal → min = max",
-            '6. "-" atau "" → [] (no criteria)',
+            '2. Deteksi "<=" → max inclusive',
+            '3. Deteksi ">=" → min inclusive',
+            '4. Deteksi "<" → max_inclusive=False',
+            '5. Deteksi ">" → min_inclusive=False',
+            '6. Deteksi "-" → range min-max',
+            "7. Nilai tunggal → min = max",
+            '8. "-" atau "" → [] (no criteria)',
         ]
         code_group = VGroup(
             *[Text(line, font_size=18, color=GRAY_C) for line in code_lines]
@@ -414,21 +416,21 @@ class ClassificationScene(Scene):
 
         raw_data = [
             ["Field", "Nilai", "Parameter"],
-            ["PH_NILAI", "6.0", "pH Tanah"],
-            ["CORG_NILAI", "1.52", "C-Organik (%)"],
-            ["KTK_NILAI", "21.05", "KTK (me/100g)"],
-            ["TEKSTUR", "sandy loam", "Tekstur"],
-            ["DALAM_TNH", "0 - 110", "Kedalaman (cm)"],
-            ["KL", ">45%", "Kemiringan (%)"],
+            ["PH_NILAI", "6.5", "pH Tanah"],
+            ["CORG_NILAI", "1.2", "C-Organik (%)"],
+            ["KTK_NILAI", "18.0", "KTK (me/100g)"],
+            ["KTG_TXTR", "sedang", "Tekstur"],
+            ["DALAM_TNH", "45", "Kedalaman (cm)"],
+            ["DRAINASE", "agak terhambat", "Drainase"],
         ]
         criteria_data = [
             ["Parameter", "Kondisi (setelah parse)"],
-            ["pH Tanah", "6.0 ≤ val ≤ 7.0"],
-            ["C-Organik", "val > 2.0"],
-            ["KTK", "17.0 ≤ val ≤ 25.0"],
+            ["pH Tanah", "5.5 ≤ 6.5 ≤ 8.2"],
+            ["C-Organik", "0.8 ≤ 1.2 ≤ 1.5"],
+            ["KTK", "18.0 > 16"],
             ["Tekstur", "text == 'sedang'"],
-            ["Kedalaman", "val > 60"],
-            ["Kemiringan", "val > 15%"],
+            ["Kedalaman", "40 ≤ 45 ≤ 50"],
+            ["Drainase", "text == 'agak terhambat'"],
         ]
 
         raw_table = make_table(raw_data, [BLUE, BLUE, GRAY_C], font_size=20)
@@ -454,12 +456,12 @@ class ClassificationScene(Scene):
         self.play(Write(transform_title))
 
         rows_data = [
-            (1, "6.0", "6.0 ≤ 6.0 ≤ 7.0 → cocok S1", "S1", C_S1),
-            (2, "1.52", "1.52 > 2.0? tidak → cek S2: 1.5 ≤ 1.52 ≤ 2.0 → cocok S2", "S2", C_S2),
-            (3, "21.05", "21.05 > 25.0? tidak → cek S2: 17 ≤ 21.05 ≤ 25 → cocok S2", "S2", C_S2),
-            (4, "sandy loam", "sandy loam == 'sedang' → cocok S1", "S1", C_S1),
-            (5, "110 cm", "110 > 60 → cocok S1", "S1", C_S1),
-            (6, "45%", "45 > 15 → cocok N (kelas terburuk)", "N", C_N),
+            (1, "6.5", "5.5 ≤ 6.5 ≤ 8.2 → cocok S1", "S1", C_S1),
+            (2, "1.2", "0.8 ≤ 1.2 ≤ 1.5 → cocok S2", "S2", C_S2),
+            (3, "18.0", "18.0 > 16 → cocok S1", "S1", C_S1),
+            (4, "sedang", "text == 'sedang' → cocok S2", "S2", C_S2),
+            (5, "45", "40 ≤ 45 ≤ 50 → cocok S2", "S2", C_S2),
+            (6, "agak terhambat", "text == 'agak terhambat' → cocok S1", "S1", C_S1),
         ]
 
         for row_idx, raw_val, match_detail, result_class, result_color in rows_data:
@@ -502,12 +504,12 @@ class ClassificationScene(Scene):
         # ── Tabel skor ──
         score_data = [
             ["Parameter", "Nilai", "Skor"],
-            ["pH Tanah", "6.0", "S1"],
-            ["C-Organik", "1.52%", "S2"],
-            ["KTK", "21.05", "S2"],
-            ["Tekstur", "sandy loam", "S1"],
-            ["Kedalaman", "110 cm", "S1"],
-            ["Kemiringan", "45%", "N"],
+            ["pH Tanah", "6.5", "S1"],
+            ["C-Organik", "1.2%", "S2"],
+            ["KTK", "18.0", "S1"],
+            ["Tekstur", "sedang", "S2"],
+            ["Kedalaman", "45 cm", "S2"],
+            ["Drainase", "agak terhambat", "S1"],
         ]
         score_table = make_table(score_data, [BLUE, GRAY_C, WHITE], font_size=20)
         color_scores(score_table)
@@ -562,13 +564,15 @@ class ClassificationScene(Scene):
             hl = SurroundingRectangle(prio_texts[i], color=ORANGE, buff=0.08, stroke_width=2)
             self.play(Create(hl), run_time=0.3)
 
-            if p == "N":
-                score_hl = highlight_row(score_table, 6, C_N)
-                self.play(FadeIn(score_hl), run_time=0.3)
+            if p == "S2":
+                # Highlight baris dengan skor S2
+                for row_idx in [2, 4, 5]:
+                    score_hl = highlight_row(score_table, row_idx, C_S2)
+                    self.play(FadeIn(score_hl), run_time=0.15)
                 found = Text(
-                    "N ditemukan pada Kemiringan Lereng → berhenti",
+                    "S2 ditemukan pada C-Organik, Tekstur, Kedalaman → berhenti",
                     font_size=20,
-                    color=C_N,
+                    color=C_S2,
                 ).move_to(DOWN * 2.15)
                 self.play(Write(found))
                 self.wait(0.5)
@@ -578,9 +582,9 @@ class ClassificationScene(Scene):
 
         # ── Hasil akhir ──
         result_title = Text("Hasil Klasifikasi:", font_size=22, color=GREEN)
-        result = Text("N — Tidak Sesuai", font_size=34, color=C_N, weight=BOLD)
+        result = Text("S2 — Cukup Sesuai", font_size=34, color=C_S2, weight=BOLD)
         result_line = VGroup(result_title, result).arrange(RIGHT, buff=0.5).move_to(DOWN * 3.1)
-        frame = SurroundingRectangle(result, color=C_N, buff=0.15, stroke_width=3)
+        frame = SurroundingRectangle(result, color=C_S2, buff=0.15, stroke_width=3)
 
         self.play(Write(result_title))
         self.play(FadeIn(result, scale=0.5), run_time=0.8)
@@ -598,10 +602,10 @@ class ClassificationScene(Scene):
         self.play(Write(title))
 
         bar_data = [
-            ("S1", "Sangat Sesuai", 25),
-            ("S2", "Cukup Sesuai", 40),
+            ("S1", "Sangat Sesuai", 30),
+            ("S2", "Cukup Sesuai", 45),
             ("S3", "Sesuai Marginal", 20),
-            ("N", "Tidak Sesuai", 15),
+            ("N", "Tidak Sesuai", 5),
         ]
 
         chart_title = Text("Distribusi Kesesuaian Lahan (%)", font_size=20, color=GRAY_C)

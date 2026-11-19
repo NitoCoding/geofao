@@ -465,6 +465,8 @@ def _parse_multi_range(value_str: str) -> list[dict]:
       "1.000 – <1.500, >2.000 – 2.500" → [{min:1000, max:1500, max_inclusive:False}, ...]
       "<700, >3.000"               → [{max:700, max_inclusive:False}, {min:3000, min_inclusive:False}]
       "<4.0"                       → [{max:4.0, max_inclusive:False}]
+      "<=16"                       → [{max:16.0}]  (inclusive)
+      ">=16"                       → [{min:16.0}]  (inclusive)
       ">9.0"                       → [{min:9.0, min_inclusive:False}]
       "6.0"                        → [{min:6.0, max:6.0}]
       "-" atau ""                 → [] (tidak ada kriteria)
@@ -494,7 +496,13 @@ def _parse_multi_range(value_str: str) -> list[dict]:
             left, right = part.split('-', 1)
             left, right = left.strip(), right.strip()
 
-            if left.startswith('>'):
+            if left.startswith('>='):
+                cond['min'] = float(left[2:].strip())
+                # min_inclusive = True (default)
+            elif left.startswith('<='):
+                cond['max'] = float(left[2:].strip())
+                # max_inclusive = True (default)
+            elif left.startswith('>'):
                 cond['min'] = float(left[1:].strip())
                 cond['min_inclusive'] = False
             elif left.startswith('<'):
@@ -503,7 +511,13 @@ def _parse_multi_range(value_str: str) -> list[dict]:
             else:
                 cond['min'] = float(left)
 
-            if right.startswith('>'):
+            if right.startswith('>='):
+                cond['min'] = float(right[2:].strip())
+                # min_inclusive = True (default)
+            elif right.startswith('<='):
+                cond['max'] = float(right[2:].strip())
+                # max_inclusive = True (default)
+            elif right.startswith('>'):
                 cond['min'] = float(right[1:].strip())
                 cond['min_inclusive'] = False
             elif right.startswith('<'):
@@ -511,6 +525,12 @@ def _parse_multi_range(value_str: str) -> list[dict]:
                 cond['max_inclusive'] = False
             else:
                 cond['max'] = float(right)
+        elif part.startswith('<='):
+            cond['max'] = float(part[2:].strip())
+            # max_inclusive = True (default)
+        elif part.startswith('>='):
+            cond['min'] = float(part[2:].strip())
+            # min_inclusive = True (default)
         elif part.startswith('<'):
             cond['max'] = float(part[1:].strip())
             cond['max_inclusive'] = False

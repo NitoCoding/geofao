@@ -40,17 +40,13 @@
               <span>
                 {% if user.is_superuser %}
                   <span class="badge badge-warning badge-sm">Superuser</span>
+                {% elif user_role %}
+                  <span class="badge badge-primary badge-sm">{{ user_role.name }}</span>
                 {% else %}
-                  <span class="badge badge-ghost badge-sm">User</span>
+                  <span class="badge badge-ghost badge-sm">-</span>
                 {% endif %}
               </span>
             </div>
-            {% if profile.department %}
-            <div class="flex items-center gap-2">
-              <i class="bi bi-building text-base-content/40 w-5"></i>
-              <span>{{ profile.department }}</span>
-            </div>
-            {% endif %}
           </div>
         </div>
       </div>
@@ -92,24 +88,6 @@
               {% if form.email.errors %}
                 <label class="label"><span class="label-text-alt text-error">{{ form.email.errors|join:", " }}</span></label>
               {% endif %}
-            </div>
-
-            <div class="divider text-xs text-base-content/40">Informasi Tambahan</div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <div class="form-control w-full">
-                <label class="label"><span class="label-text">{{ form.department.label }}</span></label>
-                {{ form.department }}
-              </div>
-              <div class="form-control w-full">
-                <label class="label"><span class="label-text">{{ form.birth_date.label }}</span></label>
-                {{ form.birth_date }}
-              </div>
-            </div>
-
-            <div class="form-control w-full mb-4">
-              <label class="label"><span class="label-text">{{ form.address.label }}</span></label>
-              {{ form.address }}
             </div>
 
             <div class="divider text-xs text-base-content/40">Ganti Password</div>
